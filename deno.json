@@ -1,0 +1,29 @@
+{
+  "name": "@deno-ai-toolkit/deno-ai-toolkit",
+  "version": "1.0.0",
+  "description": "Comprehensive toolkit for building AI-powered servers with Deno",
+  "exports": "./ai-server-toolkit/mod.ts",
+  "tasks": {
+    "dev": "deno run --allow-all --watch ai-server-toolkit/mod.ts",
+    "test": "deno test --allow-all",
+    "fmt": "deno fmt",
+    "lint": "deno lint",
+    "check": "deno check ai-server-toolkit/mod.ts",
+    "build-examples": "deno task compile-examples",
+    "compile-examples": "deno compile --allow-all examples/basic-rag.ts && deno compile --allow-all examples/vector-search.ts"
+  },
+  "imports": {
+    "vectordb": "npm:vectordb@^0.5.0",
+    "@std/assert": "jsr:@std/assert@^1.0.0",
+    "@std/testing": "jsr:@std/testing@^1.0.0",
+    "@std/http": "jsr:@std/http@^1.0.0"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "workspaces": [
+    "./ai-server-toolkit"
+  ]
+}

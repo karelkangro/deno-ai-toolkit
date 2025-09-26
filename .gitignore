@@ -1,0 +1,36 @@
+# Deno
+.deno/
+deno.lock
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Node modules (if any dependencies use npm)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+out/
