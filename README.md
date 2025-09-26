@@ -194,6 +194,155 @@ See the `/examples` folder for complete working examples:
 - `custom-agent.ts` - Multi-tool AI agent
 - `streaming-chat.ts` - Streaming chat responses
 
+## 🏷️ Version Control & Releases
+
+### Semantic Versioning
+
+This project follows [Semantic Versioning](https://semver.org/):
+- **MAJOR** version when you make incompatible API changes
+- **MINOR** version when you add functionality in a backwards compatible manner
+- **PATCH** version when you make backwards compatible bug fixes
+
+### Creating a New Release
+
+**1. Prepare the Release**
+```bash
+# Make sure you're on main and up to date
+git checkout main
+git pull origin main
+
+# Update version in README.md (add to Version History section)
+# Update CHANGELOG.md if you have one
+```
+
+**2. Create and Push the Tag**
+```bash
+# Create annotated tag with release notes
+git tag -a v1.1.0 -m "Release v1.1.0: Add streaming support
+
+Features:
+- Add streaming response support for LLM calls
+- Improve rate limiting with exponential backoff
+- Add TypeScript strict mode support
+
+Bug Fixes:
+- Fix memory leak in vector search
+- Resolve authentication timeout issues"
+
+# Push the tag to GitHub
+git push origin v1.1.0
+```
+
+**3. Create GitHub Release (Optional)**
+```bash
+# Using GitHub CLI (if installed)
+gh release create v1.1.0 --title "v1.1.0: Streaming & Performance Improvements" --notes-from-tag
+
+# Or create manually at: https://github.com/karelkangro/deno-ai-toolkit/releases
+```
+
+### Updating Consumer Projects
+
+**In your main project's `deno.json`:**
+```json
+{
+  "imports": {
+    "deno-ai-toolkit": "https://raw.githubusercontent.com/karelkangro/deno-ai-toolkit/v1.1.0/ai-server-toolkit/mod.ts"
+  }
+}
+```
+
+**Version Update Workflow:**
+```bash
+# 1. Review changelog and breaking changes
+# 2. Update deno.json to new version
+# 3. Test your application
+# 4. Update import version when ready
+# 5. Commit the version bump
+```
+
+### Private Repository Considerations
+
+For **private repositories**, you have several options:
+
+**Option 1: Git Submodules (Recommended)**
+```bash
+# In your main project
+git submodule add git@github.com:karelkangro/deno-ai-toolkit.git deno-ai-toolkit
+
+# In deno.json
+{
+  "imports": {
+    "deno-ai-toolkit": "./deno-ai-toolkit/ai-server-toolkit/mod.ts"
+  }
+}
+
+# Update submodule to specific version
+cd deno-ai-toolkit
+git checkout v1.1.0
+cd ..
+git add deno-ai-toolkit
+git commit -m "chore: update deno-ai-toolkit to v1.1.0"
+```
+
+**Option 2: Direct Git Import** (Deno 1.37+)
+```json
+{
+  "imports": {
+    "deno-ai-toolkit": "git+ssh://git@github.com/karelkangro/deno-ai-toolkit.git#v1.1.0"
+  }
+}
+```
+
+**Option 3: Personal Access Token**
+```json
+{
+  "imports": {
+    "deno-ai-toolkit": "https://username:token@raw.githubusercontent.com/karelkangro/deno-ai-toolkit/v1.1.0/ai-server-toolkit/mod.ts"
+  }
+}
+```
+
+### Breaking Changes Checklist
+
+When introducing breaking changes (major version bump):
+
+- [ ] Update function signatures in a backwards-incompatible way
+- [ ] Remove deprecated functions or methods
+- [ ] Change default behavior significantly
+- [ ] Modify required parameters or configuration
+- [ ] Update README with migration guide
+- [ ] Add detailed changelog entry
+- [ ] Consider deprecation warnings in previous version
+
+### Development Workflow
+
+**Feature Development:**
+```bash
+git checkout -b feature/streaming-support
+# ... make changes ...
+git commit -m "feat: add streaming response support"
+git push origin feature/streaming-support
+# Create PR to main
+```
+
+**Bug Fixes:**
+```bash
+git checkout -b fix/memory-leak
+# ... make changes ...
+git commit -m "fix: resolve memory leak in vector search"
+# Create PR to main
+```
+
+**Release Process:**
+```bash
+# After merging all features/fixes for the release
+git checkout main
+git pull origin main
+git tag -a v1.1.0 -m "Release v1.1.0"
+git push origin v1.1.0
+```
+
 ## 🤝 Contributing
 
 1. Fork the repository
