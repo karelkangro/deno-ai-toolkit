@@ -22,14 +22,31 @@ This toolkit provides all three in a **purely functional** architecture - **no c
 
 ## 📦 Installation
 
-```bash
-# Import directly from GitHub in your Deno project
-import { createRAGSystem, createVectorSearchSystem } from "https://raw.githubusercontent.com/YOUR_USERNAME/deno-ai-toolkit/main/ai-server-toolkit/mod.ts";
-
-# Or clone and import locally
-git clone https://github.com/YOUR_USERNAME/deno-ai-toolkit.git
-import { createRAGSystem, createVectorSearchSystem } from "./deno-ai-toolkit/ai-server-toolkit/mod.ts";
+### Via deno.json (Recommended)
+```json
+{
+  "imports": {
+    "deno-ai-toolkit": "https://raw.githubusercontent.com/karelkangro/deno-ai-toolkit/v1.0.0/ai-server-toolkit/mod.ts"
+  }
+}
 ```
+
+Then import in your code:
+```typescript
+import { createRAGSystem, createVectorSearchSystem } from "deno-ai-toolkit";
+```
+
+### Direct Import
+```typescript
+// Import specific version (recommended)
+import { createRAGSystem, createVectorSearchSystem } from "https://raw.githubusercontent.com/karelkangro/deno-ai-toolkit/v1.0.0/ai-server-toolkit/mod.ts";
+
+// Or latest (not recommended for production)
+import { createRAGSystem, createVectorSearchSystem } from "https://raw.githubusercontent.com/karelkangro/deno-ai-toolkit/main/ai-server-toolkit/mod.ts";
+```
+
+### Version History
+- **v1.0.0** - Initial release with functional architecture, Claude LLM, OpenAI embeddings, LanceDB, agents
 
 ## 🎯 Quick Start
 
