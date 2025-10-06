@@ -1,6 +1,6 @@
 {
   "name": "@karelkangro/deno-ai-toolkit",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Comprehensive toolkit for building AI-powered servers with Deno",
   "exports": "./ai-server-toolkit/mod.ts",
   "publish": {
