@@ -1,8 +1,21 @@
 {
-  "name": "@deno-ai-toolkit/deno-ai-toolkit",
-  "version": "1.0.0",
+  "name": "@karelkangro/deno-ai-toolkit",
+  "version": "1.2.0",
   "description": "Comprehensive toolkit for building AI-powered servers with Deno",
   "exports": "./ai-server-toolkit/mod.ts",
+  "publish": {
+    "include": [
+      "ai-server-toolkit/**/*.ts",
+      "README.md",
+      "LICENSE",
+      "deno.json"
+    ],
+    "exclude": [
+      "examples/**",
+      ".git/**",
+      "**/*.test.ts"
+    ]
+  },
   "tasks": {
     "dev": "deno run --allow-all --watch ai-server-toolkit/mod.ts",
     "test": "deno test --allow-all",

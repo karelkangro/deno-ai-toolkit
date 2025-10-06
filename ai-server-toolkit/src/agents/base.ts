@@ -1,11 +1,15 @@
 // Functional agent implementation
-import { generateResponse, createClaudeLLM, type ClaudeLLMState } from "../llm/claude.ts";
+import {
+  type ClaudeLLMState,
+  createClaudeLLM,
+  generateResponse,
+} from "../llm/claude.ts";
 import type {
   AgentConfig,
   AgentResult,
+  LLMConfig,
   LLMMessage,
   ToolDefinition,
-  LLMConfig,
 } from "../types.ts";
 
 export interface AgentState {
@@ -33,11 +37,11 @@ export function createAgent(config: AgentConfig): AgentState {
 export async function runAgent(
   state: AgentState,
   input: string,
-  context?: Record<string, any>
+  context?: Record<string, any>,
 ): Promise<AgentResult> {
   try {
     const messages: LLMMessage[] = [
-      { role: 'system', content: state.systemPrompt },
+      { role: "system", content: state.systemPrompt },
     ];
 
     // Add memory if enabled
@@ -49,21 +53,21 @@ export async function runAgent(
     if (context) {
       const contextStr = Object.entries(context)
         .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
-        .join('\n');
+        .join("\n");
       messages.push({
-        role: 'system',
+        role: "system",
         content: `Additional context:\n${contextStr}`,
       });
     }
 
     // Add user input
-    messages.push({ role: 'user', content: input });
+    messages.push({ role: "user", content: input });
 
     // Generate response
     const response = await generateResponse(
       state.llm,
       messages,
-      state.tools.length > 0 ? state.tools : undefined
+      state.tools.length > 0 ? state.tools : undefined,
     );
 
     // Handle tool calls if present
@@ -78,7 +82,7 @@ export async function runAgent(
           const parsed = JSON.parse(jsonMatch[0]);
           if (parsed.tool_calls && Array.isArray(parsed.tool_calls)) {
             for (const call of parsed.tool_calls) {
-              const tool = state.tools.find(t => t.name === call.name);
+              const tool = state.tools.find((t) => t.name === call.name);
               if (tool) {
                 try {
                   const result = await tool.handler(call.parameters || {});
@@ -91,7 +95,11 @@ export async function runAgent(
                   toolCalls.push({
                     tool: tool.name,
                     params: call.parameters || {},
-                    result: { error: error instanceof Error ? error.message : String(error) },
+                    result: {
+                      error: error instanceof Error
+                        ? error.message
+                        : String(error),
+                    },
                   });
                 }
               }
@@ -113,7 +121,9 @@ export async function runAgent(
               toolCalls.push({
                 tool: tool.name,
                 params: {},
-                result: { error: error instanceof Error ? error.message : String(error) },
+                result: {
+                  error: error instanceof Error ? error.message : String(error),
+                },
               });
             }
           }
@@ -123,8 +133,8 @@ export async function runAgent(
 
     // Update memory if enabled
     if (state.memoryEnabled) {
-      state.memory.push({ role: 'user', content: input });
-      state.memory.push({ role: 'assistant', content: response.content });
+      state.memory.push({ role: "user", content: input });
+      state.memory.push({ role: "assistant", content: response.content });
 
       // Keep memory within reasonable limits (last 20 messages)
       if (state.memory.length > 20) {
@@ -152,7 +162,7 @@ export function addTool(state: AgentState, tool: ToolDefinition): void {
 }
 
 export function removeTool(state: AgentState, toolName: string): void {
-  state.tools = state.tools.filter(tool => tool.name !== toolName);
+  state.tools = state.tools.filter((tool) => tool.name !== toolName);
 }
 
 export function clearMemory(state: AgentState): void {
@@ -168,7 +178,9 @@ export function updateSystemPrompt(state: AgentState, prompt: string): void {
 }
 
 // Predefined tool factories
-export function createSearchTool(searchFn: (query: string) => Promise<any>): ToolDefinition {
+export function createSearchTool(
+  searchFn: (query: string) => Promise<unknown>,
+): ToolDefinition<{ query: string }, unknown> {
   return {
     name: "search",
     description: "Search for information using the provided search function",
@@ -184,7 +196,10 @@ export function createSearchTool(searchFn: (query: string) => Promise<any>): Too
   };
 }
 
-export function createCalculatorTool(): ToolDefinition {
+export function createCalculatorTool(): ToolDefinition<
+  { expression: string },
+  { result?: number; error?: string }
+> {
   return {
     name: "calculator",
     description: "Perform mathematical calculations",
@@ -197,7 +212,9 @@ export function createCalculatorTool(): ToolDefinition {
     handler: async (params: { expression: string }) => {
       try {
         // Simple expression evaluation (be careful with eval in production)
-        const result = Function(`"use strict"; return (${params.expression})`)();
+        const result = Function(
+          `"use strict"; return (${params.expression})`,
+        )();
         return { result };
       } catch (error) {
         return { error: "Invalid mathematical expression" };
@@ -206,7 +223,17 @@ export function createCalculatorTool(): ToolDefinition {
   };
 }
 
-export function createWebSearchTool(apiKey?: string): ToolDefinition {
+interface WebSearchResult {
+  results: Array<{
+    title: string;
+    snippet: string;
+    url: string;
+  }>;
+}
+
+export function createWebSearchTool(
+  apiKey?: string,
+): ToolDefinition<{ query: string; limit?: number }, WebSearchResult> {
   return {
     name: "web_search",
     description: "Search the web for current information",

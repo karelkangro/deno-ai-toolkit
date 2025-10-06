@@ -1,5 +1,9 @@
 // Functional OpenAI embeddings integration
-import { createRateLimiter, withRateLimit, type RateLimitState } from "../utils/rate-limiter.ts";
+import {
+  createRateLimiter,
+  type RateLimitState,
+  withRateLimit,
+} from "../utils/rate-limiter.ts";
 import type { EmbeddingConfig } from "../types.ts";
 
 export interface OpenAIEmbeddingState {
@@ -9,7 +13,9 @@ export interface OpenAIEmbeddingState {
   rateLimiter: RateLimitState;
 }
 
-export function createOpenAIEmbeddings(config: EmbeddingConfig): OpenAIEmbeddingState {
+export function createOpenAIEmbeddings(
+  config: EmbeddingConfig,
+): OpenAIEmbeddingState {
   if (!config.apiKey) {
     throw new Error("OpenAI API key is required");
   }
@@ -27,7 +33,7 @@ export function createOpenAIEmbeddings(config: EmbeddingConfig): OpenAIEmbedding
 
 export async function embedText(
   state: OpenAIEmbeddingState,
-  text: string
+  text: string,
 ): Promise<number[]> {
   return await withRateLimit(state.rateLimiter, async () => {
     const response = await fetch("https://api.openai.com/v1/embeddings", {
@@ -60,7 +66,7 @@ export async function embedText(
 
 export async function embedTexts(
   state: OpenAIEmbeddingState,
-  texts: string[]
+  texts: string[],
 ): Promise<number[][]> {
   if (texts.length === 0) {
     return [];
@@ -99,7 +105,10 @@ export async function embedTexts(
   });
 }
 
-export function calculateSimilarity(embedding1: number[], embedding2: number[]): number {
+export function calculateSimilarity(
+  embedding1: number[],
+  embedding2: number[],
+): number {
   if (embedding1.length !== embedding2.length) {
     throw new Error("Embeddings must have the same dimensions");
   }

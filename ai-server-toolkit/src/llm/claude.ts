@@ -1,6 +1,15 @@
 // Functional Claude LLM integration
-import { createRateLimiter, withRateLimit, type RateLimitState } from "../utils/rate-limiter.ts";
-import type { LLMConfig, LLMMessage, LLMResponse, ToolDefinition } from "../types.ts";
+import {
+  createRateLimiter,
+  type RateLimitState,
+  withRateLimit,
+} from "../utils/rate-limiter.ts";
+import type {
+  LLMConfig,
+  LLMMessage,
+  LLMResponse,
+  ToolDefinition,
+} from "../types.ts";
 
 export interface ClaudeLLMState {
   apiKey: string;
@@ -30,12 +39,12 @@ export function createClaudeLLM(config: LLMConfig): ClaudeLLMState {
 export async function generateResponse(
   state: ClaudeLLMState,
   messages: LLMMessage[],
-  tools?: ToolDefinition[]
+  tools?: ToolDefinition[],
 ): Promise<LLMResponse> {
   return await withRateLimit(state.rateLimiter, async () => {
-    const anthropicMessages = messages.map(msg => ({
-      role: msg.role === 'system' ? 'user' : msg.role,
-      content: msg.role === 'system' ? `System: ${msg.content}` : msg.content,
+    const anthropicMessages = messages.map((msg) => ({
+      role: msg.role === "system" ? "user" : msg.role,
+      content: msg.role === "system" ? `System: ${msg.content}` : msg.content,
     }));
 
     const requestBody: any = {
@@ -46,7 +55,7 @@ export async function generateResponse(
     };
 
     if (tools && tools.length > 0) {
-      requestBody.tools = tools.map(tool => ({
+      requestBody.tools = tools.map((tool) => ({
         name: tool.name,
         description: tool.description,
         input_schema: {
@@ -62,7 +71,9 @@ export async function generateResponse(
         "x-api-key": state.apiKey,
         "Content-Type": "application/json",
         "anthropic-version": "2023-06-01",
-        ...(tools && tools.length > 0 ? { "anthropic-beta": "tools-2024-04-04" } : {}),
+        ...(tools && tools.length > 0
+          ? { "anthropic-beta": "tools-2024-04-04" }
+          : {}),
       },
       body: JSON.stringify(requestBody),
     });
@@ -88,11 +99,14 @@ export async function generateResponse(
 
     return {
       content,
-      usage: data.usage ? {
-        promptTokens: data.usage.input_tokens || 0,
-        completionTokens: data.usage.output_tokens || 0,
-        totalTokens: (data.usage.input_tokens || 0) + (data.usage.output_tokens || 0),
-      } : undefined,
+      usage: data.usage
+        ? {
+          promptTokens: data.usage.input_tokens || 0,
+          completionTokens: data.usage.output_tokens || 0,
+          totalTokens: (data.usage.input_tokens || 0) +
+            (data.usage.output_tokens || 0),
+        }
+        : undefined,
       metadata: {
         model: data.model,
         stopReason: data.stop_reason,
@@ -105,12 +119,12 @@ export async function streamResponse(
   state: ClaudeLLMState,
   messages: LLMMessage[],
   onChunk?: (chunk: string) => void,
-  tools?: ToolDefinition[]
+  tools?: ToolDefinition[],
 ): Promise<LLMResponse> {
   return await withRateLimit(state.rateLimiter, async () => {
-    const anthropicMessages = messages.map(msg => ({
-      role: msg.role === 'system' ? 'user' : msg.role,
-      content: msg.role === 'system' ? `System: ${msg.content}` : msg.content,
+    const anthropicMessages = messages.map((msg) => ({
+      role: msg.role === "system" ? "user" : msg.role,
+      content: msg.role === "system" ? `System: ${msg.content}` : msg.content,
     }));
 
     const requestBody: any = {
@@ -122,7 +136,7 @@ export async function streamResponse(
     };
 
     if (tools && tools.length > 0) {
-      requestBody.tools = tools.map(tool => ({
+      requestBody.tools = tools.map((tool) => ({
         name: tool.name,
         description: tool.description,
         input_schema: {
@@ -138,7 +152,9 @@ export async function streamResponse(
         "x-api-key": state.apiKey,
         "Content-Type": "application/json",
         "anthropic-version": "2023-06-01",
-        ...(tools && tools.length > 0 ? { "anthropic-beta": "tools-2024-04-04" } : {}),
+        ...(tools && tools.length > 0
+          ? { "anthropic-beta": "tools-2024-04-04" }
+          : {}),
       },
       body: JSON.stringify(requestBody),
     });
@@ -161,22 +177,22 @@ export async function streamResponse(
           if (done) break;
 
           const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
+          const lines = chunk.split("\n");
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
+            if (line.startsWith("data: ")) {
               try {
                 const data = JSON.parse(line.slice(6));
 
-                if (data.type === 'content_block_delta') {
-                  const text = data.delta?.text || '';
+                if (data.type === "content_block_delta") {
+                  const text = data.delta?.text || "";
                   fullContent += text;
                   if (onChunk) {
                     onChunk(text);
                   }
                 }
 
-                if (data.type === 'message_delta' && data.usage) {
+                if (data.type === "message_delta" && data.usage) {
                   usage = {
                     promptTokens: 0,
                     completionTokens: data.usage.output_tokens || 0,

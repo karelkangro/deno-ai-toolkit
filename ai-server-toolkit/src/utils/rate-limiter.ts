@@ -20,12 +20,12 @@ export function canMakeRequest(state: RateLimitState): boolean {
   const oneDay = 24 * 60 * 60 * 1000;
 
   // Clean old requests
-  state.requests = state.requests.filter(timestamp => {
+  state.requests = state.requests.filter((timestamp) => {
     return now - timestamp < oneDay;
   });
 
   // Check per-minute limit
-  const recentRequests = state.requests.filter(timestamp => {
+  const recentRequests = state.requests.filter((timestamp) => {
     return now - timestamp < oneMinute;
   });
 
@@ -35,7 +35,7 @@ export function canMakeRequest(state: RateLimitState): boolean {
 
   // Check hourly limit if specified
   if (state.config.requestsPerHour) {
-    const hourlyRequests = state.requests.filter(timestamp => {
+    const hourlyRequests = state.requests.filter((timestamp) => {
       return now - timestamp < oneHour;
     });
 
@@ -60,7 +60,7 @@ export function recordRequest(state: RateLimitState): void {
 
 export async function withRateLimit<T>(
   state: RateLimitState,
-  fn: () => Promise<T>
+  fn: () => Promise<T>,
 ): Promise<T> {
   if (!canMakeRequest(state)) {
     throw new Error("Rate limit exceeded");
@@ -78,7 +78,7 @@ export function getWaitTime(state: RateLimitState): number {
   const now = Date.now();
   const oneMinute = 60 * 1000;
 
-  const recentRequests = state.requests.filter(timestamp => {
+  const recentRequests = state.requests.filter((timestamp) => {
     return now - timestamp < oneMinute;
   });
 

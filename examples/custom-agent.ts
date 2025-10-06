@@ -3,9 +3,9 @@
 
 import {
   createAgent,
-  runAgent,
   createCalculatorTool,
   createClaudeLLM,
+  runAgent,
 } from "../ai-server-toolkit/mod.ts";
 
 const CLAUDE_API_KEY = Deno.env.get("CLAUDE_API_KEY");
@@ -27,14 +27,17 @@ function createUnitConverterTool() {
       },
       from_unit: {
         type: "string",
-        description: "The unit to convert from (e.g., 'meters', 'feet', 'celsius', 'fahrenheit')",
+        description:
+          "The unit to convert from (e.g., 'meters', 'feet', 'celsius', 'fahrenheit')",
       },
       to_unit: {
         type: "string",
         description: "The unit to convert to",
       },
     },
-    handler: async (params: { value: number; from_unit: string; to_unit: string }) => {
+    handler: async (
+      params: { value: number; from_unit: string; to_unit: string },
+    ) => {
       const { value, from_unit, to_unit } = params;
 
       // Length conversions
@@ -49,10 +52,10 @@ function createUnitConverterTool() {
 
       // Temperature conversions
       if (from_unit === "celsius" && to_unit === "fahrenheit") {
-        return { result: (value * 9/5) + 32, unit: "°F" };
+        return { result: (value * 9 / 5) + 32, unit: "°F" };
       }
       if (from_unit === "fahrenheit" && to_unit === "celsius") {
-        return { result: (value - 32) * 5/9, unit: "°C" };
+        return { result: (value - 32) * 5 / 9, unit: "°C" };
       }
 
       // Length conversions
@@ -62,7 +65,9 @@ function createUnitConverterTool() {
         return { result: Math.round(result * 10000) / 10000, unit: to_unit };
       }
 
-      return { error: `Conversion from ${from_unit} to ${to_unit} not supported` };
+      return {
+        error: `Conversion from ${from_unit} to ${to_unit} not supported`,
+      };
     },
   };
 }
@@ -99,9 +104,11 @@ function createFactTool() {
       };
 
       const allFacts = Object.values(facts).flat();
-      const categoryFacts = facts[params.category as keyof typeof facts] || allFacts;
+      const categoryFacts = facts[params.category as keyof typeof facts] ||
+        allFacts;
 
-      const randomFact = categoryFacts[Math.floor(Math.random() * categoryFacts.length)];
+      const randomFact =
+        categoryFacts[Math.floor(Math.random() * categoryFacts.length)];
       return { fact: randomFact, category: params.category || "random" };
     },
   };
@@ -113,14 +120,15 @@ async function main() {
   try {
     // Create a multi-purpose assistant agent
     const llm = createClaudeLLM({
-      provider: 'claude',
+      provider: "claude",
       apiKey: CLAUDE_API_KEY,
-      model: 'claude-3-sonnet-20240229',
+      model: "claude-3-sonnet-20240229",
     });
 
     const agent = createAgent({
       name: "multi-tool-assistant",
-      description: "A helpful assistant with calculation, conversion, and fact tools",
+      description:
+        "A helpful assistant with calculation, conversion, and fact tools",
       systemPrompt: `You are a helpful assistant with access to useful tools.
 You can:
 1. Perform mathematical calculations
@@ -135,7 +143,7 @@ Be friendly and explain your reasoning.`,
         createFactTool(),
       ],
       llm: {
-        provider: 'claude',
+        provider: "claude",
         apiKey: CLAUDE_API_KEY,
       },
       memory: true, // Remember conversation context
@@ -168,7 +176,9 @@ Be friendly and explain your reasoning.`,
         if (result.toolCalls && result.toolCalls.length > 0) {
           console.log("🔧 Tools used:");
           result.toolCalls.forEach((call, index) => {
-            console.log(`   ${index + 1}. ${call.tool}: ${JSON.stringify(call.result)}`);
+            console.log(
+              `   ${index + 1}. ${call.tool}: ${JSON.stringify(call.result)}`,
+            );
           });
         }
 
@@ -182,19 +192,21 @@ Be friendly and explain your reasoning.`,
       console.log("─".repeat(60));
 
       // Add a small delay between requests to be respectful to the API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     // Test memory by asking a follow-up question
     console.log("\n🧠 Testing memory with follow-up question...");
 
     await runAgent(agent, "What's the weather like today?");
-    const memoryTest = await runAgent(agent, "What was the last calculation I asked you to do?");
+    const memoryTest = await runAgent(
+      agent,
+      "What was the last calculation I asked you to do?",
+    );
 
     console.log(`Memory test result: ${memoryTest.content}`);
 
     console.log("\n🎉 Custom agent demo completed successfully!");
-
   } catch (error) {
     console.error("❌ Error:", error);
     Deno.exit(1);

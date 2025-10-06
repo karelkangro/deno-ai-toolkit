@@ -1,6 +1,7 @@
 # 🚀 AI Toolkit Examples - Quick Reference
 
-Complete examples for all toolkit components. Copy and run directly in your Deno project.
+Complete examples for all toolkit components. Copy and run directly in your Deno
+project.
 
 ## 🔧 Environment Setup
 
@@ -23,29 +24,31 @@ export CLAUDE_API_KEY="your-claude-key"
 ## 🤖 LLM Integration
 
 ### Basic Claude Usage
+
 ```typescript
 import { createClaudeLLM, generateResponse } from "./ai-server-toolkit/mod.ts";
 
 const claude = createClaudeLLM({
-  provider: 'claude',
+  provider: "claude",
   apiKey: Deno.env.get("CLAUDE_API_KEY")!,
-  model: 'claude-3-sonnet-20240229',
+  model: "claude-3-sonnet-20240229",
 });
 
 const response = await generateResponse(claude, [
-  { role: 'system', content: 'You are a helpful assistant.' },
-  { role: 'user', content: 'What is Deno?' }
+  { role: "system", content: "You are a helpful assistant." },
+  { role: "user", content: "What is Deno?" },
 ]);
 
 console.log(response.content);
 ```
 
 ### Streaming Responses
+
 ```typescript
 import { streamResponse } from "./ai-server-toolkit/mod.ts";
 
 await streamResponse(claude, [
-  { role: 'user', content: 'Tell me about TypeScript' }
+  { role: "user", content: "Tell me about TypeScript" },
 ], (chunk) => {
   process.stdout.write(chunk); // Real-time streaming
 });
@@ -56,13 +59,18 @@ await streamResponse(claude, [
 ## 🔍 Vector Operations
 
 ### OpenAI Embeddings
+
 ```typescript
-import { createOpenAIEmbeddings, embedText, embedTexts } from "./ai-server-toolkit/mod.ts";
+import {
+  createOpenAIEmbeddings,
+  embedText,
+  embedTexts,
+} from "./ai-server-toolkit/mod.ts";
 
 const embeddings = createOpenAIEmbeddings({
-  provider: 'openai',
+  provider: "openai",
   apiKey: Deno.env.get("OPENAI_API_KEY")!,
-  model: 'text-embedding-3-small',
+  model: "text-embedding-3-small",
 });
 
 // Single text
@@ -75,18 +83,19 @@ console.log(`Processed ${vectors.length} texts`);
 ```
 
 ### LanceDB Vector Store
+
 ```typescript
 import {
+  addDocument,
   createLanceDB,
   initializeTable,
-  addDocument,
-  searchSimilar
+  searchSimilar,
 } from "./ai-server-toolkit/mod.ts";
 
 // Setup
 const vectorDB = await createLanceDB(
-  { provider: 'lancedb', path: './vectors' },
-  { provider: 'openai', apiKey: Deno.env.get("OPENAI_API_KEY")! }
+  { provider: "lancedb", path: "./vectors" },
+  { provider: "openai", apiKey: Deno.env.get("OPENAI_API_KEY")! },
 );
 
 await initializeTable(vectorDB);
@@ -95,11 +104,13 @@ await initializeTable(vectorDB);
 await addDocument(vectorDB, {
   id: "doc1",
   content: "Deno is a secure runtime for JavaScript and TypeScript",
-  metadata: { category: "tech" }
+  metadata: { category: "tech" },
 });
 
 // Search
-const results = await searchSimilar(vectorDB, "JavaScript runtime", { limit: 5 });
+const results = await searchSimilar(vectorDB, "JavaScript runtime", {
+  limit: 5,
+});
 console.log(`Found ${results.length} similar documents`);
 ```
 
@@ -108,6 +119,7 @@ console.log(`Found ${results.length} similar documents`);
 ## 🤖 Agent Systems
 
 ### Basic Agent
+
 ```typescript
 import { createAgent, runAgent } from "./ai-server-toolkit/mod.ts";
 
@@ -116,23 +128,27 @@ const agent = createAgent({
   description: "Helpful assistant",
   systemPrompt: "You are a helpful assistant. Be concise and accurate.",
   llm: {
-    provider: 'claude',
+    provider: "claude",
     apiKey: Deno.env.get("CLAUDE_API_KEY")!,
   },
   memory: true, // Remember conversation
 });
 
-const result = await runAgent(agent, "What are the benefits of functional programming?");
+const result = await runAgent(
+  agent,
+  "What are the benefits of functional programming?",
+);
 console.log(result.content);
 ```
 
 ### Agent with Tools
+
 ```typescript
 import {
   createAgent,
-  runAgent,
   createCalculatorTool,
-  createSearchTool
+  createSearchTool,
+  runAgent,
 } from "./ai-server-toolkit/mod.ts";
 
 const agent = createAgent({
@@ -147,12 +163,15 @@ const agent = createAgent({
     }),
   ],
   llm: {
-    provider: 'claude',
+    provider: "claude",
     apiKey: Deno.env.get("CLAUDE_API_KEY")!,
   },
 });
 
-const result = await runAgent(agent, "Calculate 15% of 850 and search for tax information");
+const result = await runAgent(
+  agent,
+  "Calculate 15% of 850 and search for tax information",
+);
 console.log(result.content);
 console.log("Tool calls:", result.toolCalls);
 ```
@@ -162,31 +181,32 @@ console.log("Tool calls:", result.toolCalls);
 ## 🎯 Specialized Agents
 
 ### Domain-Specific Agent
+
 ```typescript
 import {
-  runSpecializedAnalysis,
   createArchitectureAgentConfig,
-  type ProjectFile
+  type ProjectFile,
+  runSpecializedAnalysis,
 } from "./ai-server-toolkit/mod.ts";
 
 // Configure specialized agent
 const config = createArchitectureAgentConfig({
-  provider: 'claude',
+  provider: "claude",
   apiKey: Deno.env.get("CLAUDE_API_KEY")!,
-}, 'en');
+}, "en");
 
 // Input files
 const files: ProjectFile[] = [{
   name: "blueprint.txt",
   content: "3-story building with 2.8m ceiling heights",
-  type: "txt"
+  type: "txt",
 }];
 
 const context = {
   sessionId: "session-1",
   userRole: "architect",
   files,
-  language: "en"
+  language: "en",
 };
 
 // Run analysis
@@ -196,26 +216,31 @@ console.log(`Generated ${result.recommendations.length} recommendations`);
 ```
 
 ### Custom Specialized Agent
+
 ```typescript
-import { createSpecializedAgent, runSpecializedAnalysis } from "./ai-server-toolkit/mod.ts";
+import {
+  createSpecializedAgent,
+  runSpecializedAnalysis,
+} from "./ai-server-toolkit/mod.ts";
 
 const customConfig = {
-  domain: 'legal',
-  name: 'Legal Review Agent',
-  description: 'Legal document reviewer',
-  systemPrompt: 'You are a legal expert. Review documents for compliance issues.',
+  domain: "legal",
+  name: "Legal Review Agent",
+  description: "Legal document reviewer",
+  systemPrompt:
+    "You are a legal expert. Review documents for compliance issues.",
   llm: {
-    provider: 'claude',
+    provider: "claude",
     apiKey: Deno.env.get("CLAUDE_API_KEY")!,
   },
-  responseFormat: 'json' as const,
-  language: 'en' as const,
+  responseFormat: "json" as const,
+  language: "en" as const,
 };
 
 const result = await runSpecializedAnalysis(
   customConfig,
   [{ name: "contract.txt", content: "Legal contract text..." }],
-  { files: [], language: "en" }
+  { files: [], language: "en" },
 );
 ```
 
@@ -224,6 +249,7 @@ const result = await runSpecializedAnalysis(
 ## 🔄 Complete RAG System
 
 ### One-Line RAG Setup
+
 ```typescript
 import { createRAGSystem } from "./ai-server-toolkit/mod.ts";
 
@@ -245,6 +271,7 @@ console.log(answer.content);
 ```
 
 ### Custom RAG with Vector Search
+
 ```typescript
 import { createVectorSearchSystem } from "./ai-server-toolkit/mod.ts";
 
@@ -258,17 +285,17 @@ await vectorSystem.addDocuments([
   {
     id: "tech-1",
     content: "Functional programming emphasizes immutability",
-    metadata: { category: "programming", difficulty: "intermediate" }
-  }
+    metadata: { category: "programming", difficulty: "intermediate" },
+  },
 ]);
 
 // Search with filters
 const results = await vectorSystem.search("programming concepts", {
   limit: 3,
-  filter: { category: "programming" }
+  filter: { category: "programming" },
 });
 
-results.forEach(r => console.log(`${r.id}: ${r.content}`));
+results.forEach((r) => console.log(`${r.id}: ${r.content}`));
 ```
 
 ---
@@ -276,11 +303,12 @@ results.forEach(r => console.log(`${r.id}: ${r.content}`));
 ## ⚡ Production Setup
 
 ### Error Handling & Rate Limits
+
 ```typescript
 import {
+  createClaudeLLM,
   createRateLimiter,
   withRateLimit,
-  createClaudeLLM
 } from "./ai-server-toolkit/mod.ts";
 
 // Custom rate limiter
@@ -291,25 +319,26 @@ const rateLimiter = createRateLimiter({
 
 // Safe API calls
 const claude = createClaudeLLM({
-  provider: 'claude',
+  provider: "claude",
   apiKey: Deno.env.get("CLAUDE_API_KEY")!,
 });
 
 try {
   const result = await withRateLimit(rateLimiter, async () => {
     return await generateResponse(claude, [
-      { role: 'user', content: 'Hello' }
+      { role: "user", content: "Hello" },
     ]);
   });
   console.log(result.content);
 } catch (error) {
-  if (error.message.includes('Rate limit')) {
-    console.log('Rate limited - try again later');
+  if (error.message.includes("Rate limit")) {
+    console.log("Rate limited - try again later");
   }
 }
 ```
 
 ### Multi-Agent Workflow
+
 ```typescript
 import { createAgent, runAgent } from "./ai-server-toolkit/mod.ts";
 
@@ -318,20 +347,23 @@ const researcher = createAgent({
   name: "researcher",
   description: "Research specialist",
   systemPrompt: "Research topics thoroughly and provide factual information.",
-  llm: { provider: 'claude', apiKey: Deno.env.get("CLAUDE_API_KEY")! },
+  llm: { provider: "claude", apiKey: Deno.env.get("CLAUDE_API_KEY")! },
 });
 
 const writer = createAgent({
   name: "writer",
   description: "Content writer",
   systemPrompt: "Write clear, engaging content based on research.",
-  llm: { provider: 'claude', apiKey: Deno.env.get("CLAUDE_API_KEY")! },
+  llm: { provider: "claude", apiKey: Deno.env.get("CLAUDE_API_KEY")! },
 });
 
 // Workflow
 const topic = "Benefits of TypeScript";
 const research = await runAgent(researcher, `Research: ${topic}`);
-const article = await runAgent(writer, `Write article based on: ${research.content}`);
+const article = await runAgent(
+  writer,
+  `Write article based on: ${research.content}`,
+);
 
 console.log(article.content);
 ```
@@ -342,22 +374,19 @@ console.log(article.content);
 
 ```typescript
 // Complete working example - copy and run
-import {
-  createAISystem,
-  type ProjectFile
-} from "./ai-server-toolkit/mod.ts";
+import { createAISystem, type ProjectFile } from "./ai-server-toolkit/mod.ts";
 
 async function quickStart() {
   // 1. Setup AI system
   const ai = await createAISystem({
-    vectorStore: { provider: 'lancedb', path: './ai-vectors' },
-    embeddings: { provider: 'openai', apiKey: Deno.env.get("OPENAI_API_KEY")! },
-    llm: { provider: 'claude', apiKey: Deno.env.get("CLAUDE_API_KEY")! },
+    vectorStore: { provider: "lancedb", path: "./ai-vectors" },
+    embeddings: { provider: "openai", apiKey: Deno.env.get("OPENAI_API_KEY")! },
+    llm: { provider: "claude", apiKey: Deno.env.get("CLAUDE_API_KEY")! },
   });
 
   // 2. Add knowledge
   await ai.addDocuments([
-    { id: "1", content: "Your domain knowledge here..." }
+    { id: "1", content: "Your domain knowledge here..." },
   ]);
 
   // 3. Create specialized agent
@@ -371,7 +400,7 @@ async function quickStart() {
   // 4. Use the system
   const result = await ai.search("query");
   const response = await ai.generateResponse([
-    { role: 'user', content: 'Question' }
+    { role: "user", content: "Question" },
   ]);
 
   console.log("Search results:", result.length);
@@ -383,4 +412,5 @@ if (import.meta.main) quickStart();
 
 ---
 
-**🎯 Ready to implement? All examples are production-ready and fully functional!**
+**🎯 Ready to implement? All examples are production-ready and fully
+functional!**

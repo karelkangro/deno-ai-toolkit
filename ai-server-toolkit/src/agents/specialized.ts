@@ -1,6 +1,6 @@
 // Specialized agents for different domains - configurable for any project
-import { createAgent, runAgent, type AgentState } from "./base.ts";
-import { createClaudeLLM, type ClaudeLLMState } from "../llm/claude.ts";
+import { type AgentState, createAgent, runAgent } from "./base.ts";
+import { type ClaudeLLMState, createClaudeLLM } from "../llm/claude.ts";
 import type { LLMConfig } from "../types.ts";
 
 // Configuration interface for specialized agents
@@ -16,8 +16,8 @@ export interface SpecializedAgentConfig {
     parameters: Record<string, any>;
     handler: (params: any) => Promise<any> | any;
   }>;
-  responseFormat?: 'json' | 'text';
-  language?: 'en' | 'et';
+  responseFormat?: "json" | "text";
+  language?: "en" | "et";
 }
 
 // Project-specific types (can be customized per project)
@@ -39,7 +39,7 @@ export interface AnalysisIssue {
   ruleId?: string;
   title: string;
   description: string;
-  severity: 'low' | 'medium' | 'high';
+  severity: "low" | "medium" | "high";
   recommendation?: string;
 }
 
@@ -57,7 +57,9 @@ export interface AgentAnalysisResult {
 }
 
 // Create a specialized agent with custom configuration
-export function createSpecializedAgent(config: SpecializedAgentConfig): AgentState {
+export function createSpecializedAgent(
+  config: SpecializedAgentConfig,
+): AgentState {
   const llm = createClaudeLLM(config.llm);
 
   return createAgent({
@@ -75,7 +77,7 @@ export async function runSpecializedAnalysis(
   config: SpecializedAgentConfig,
   files: ProjectFile[],
   context: ProjectContext,
-  customPrompt?: string
+  customPrompt?: string,
 ): Promise<AgentAnalysisResult> {
   const startTime = performance.now();
 
@@ -86,14 +88,14 @@ export async function runSpecializedAnalysis(
 
     // Build input content
     const contentText = files
-      .map(f => `${f.name}: ${f.content}`)
-      .join('\n\n');
+      .map((f) => `${f.name}: ${f.content}`)
+      .join("\n\n");
 
     // Use custom prompt or build standard analysis prompt
     const analysisPrompt = customPrompt || buildAnalysisPrompt(
       config,
       contentText,
-      context
+      context,
     );
 
     console.log(`🤖 Calling ${config.name} for analysis...`);
@@ -103,41 +105,44 @@ export async function runSpecializedAnalysis(
     console.log(`✅ ${config.name} completed in ${executionTime}ms`);
 
     if (!result.success) {
-      throw new Error(result.error || 'Analysis failed');
+      throw new Error(result.error || "Analysis failed");
     }
 
     // Parse result based on response format
     let analysisResult: AgentAnalysisResult;
 
-    if (config.responseFormat === 'json') {
+    if (config.responseFormat === "json") {
       analysisResult = parseJSONAnalysisResult(result.content, config.domain);
     } else {
       analysisResult = parseTextAnalysisResult(result.content, config.domain);
     }
 
     analysisResult.executionTime = executionTime;
-    analysisResult.tokenUsage = result.usage ? {
-      inputTokens: result.usage.promptTokens || 0,
-      outputTokens: result.usage.completionTokens || 0,
-      totalTokens: result.usage.totalTokens || 0,
-    } : undefined;
+    analysisResult.tokenUsage = result.usage
+      ? {
+        inputTokens: result.usage.promptTokens || 0,
+        outputTokens: result.usage.completionTokens || 0,
+        totalTokens: result.usage.totalTokens || 0,
+      }
+      : undefined;
 
-    console.log(`📊 ${config.name} - Issues: ${analysisResult.issues.length}, Recommendations: ${analysisResult.recommendations.length}`);
+    console.log(
+      `📊 ${config.name} - Issues: ${analysisResult.issues.length}, Recommendations: ${analysisResult.recommendations.length}`,
+    );
 
     return analysisResult;
-
   } catch (error) {
     const executionTime = Math.round(performance.now() - startTime);
     console.error(`❌ ${config.name} failed after ${executionTime}ms:`, error);
 
-    const isEstonian = context.language === 'et';
+    const isEstonian = context.language === "et";
     return {
       domain: config.domain,
       issues: [],
       recommendations: [
         isEstonian
           ? `${config.name} analüüs ebaõnnestus - palun kontrollige käsitsi`
-          : `${config.name} analysis failed - please review manually`
+          : `${config.name} analysis failed - please review manually`,
       ],
       delegationRequests: [],
       executionTime,
@@ -149,9 +154,9 @@ export async function runSpecializedAnalysis(
 function buildAnalysisPrompt(
   config: SpecializedAgentConfig,
   contentText: string,
-  context: ProjectContext
+  context: ProjectContext,
 ): string {
-  const isEstonian = context.language === 'et';
+  const isEstonian = context.language === "et";
 
   const basePrompt = isEstonian
     ? `Sa oled ekspert ${config.domain} ülevaataja ehituse kvaliteedikontrolli jaoks.
@@ -159,7 +164,7 @@ function buildAnalysisPrompt(
 DOKUMENDI SISU:
 ${contentText}
 
-KASUTAJA ROLL: ${context.userRole || 'spetsialist'}
+KASUTAJA ROLL: ${context.userRole || "spetsialist"}
 
 Analüüsi dokumendid ${config.domain} standardite suhtes ja otsi probleeme.`
     : `You are an expert ${config.domain} reviewer for construction quality control.
@@ -167,11 +172,11 @@ Analüüsi dokumendid ${config.domain} standardite suhtes ja otsi probleeme.`
 DOCUMENT CONTENT:
 ${contentText}
 
-USER ROLE: ${context.userRole || 'specialist'}
+USER ROLE: ${context.userRole || "specialist"}
 
 Analyze the documents against ${config.domain} standards and identify issues.`;
 
-  if (config.responseFormat === 'json') {
+  if (config.responseFormat === "json") {
     const jsonFormat = isEstonian
       ? `
 
@@ -223,9 +228,12 @@ Return your analysis as JSON with this exact structure:
 }
 
 // Parse JSON analysis result
-function parseJSONAnalysisResult(content: string, domain: string): AgentAnalysisResult {
+function parseJSONAnalysisResult(
+  content: string,
+  domain: string,
+): AgentAnalysisResult {
   try {
-    const cleanResponse = content.trim().replace(/```json\n?|\n?```/g, '');
+    const cleanResponse = content.trim().replace(/```json\n?|\n?```/g, "");
     const result = JSON.parse(cleanResponse);
 
     return {
@@ -235,44 +243,60 @@ function parseJSONAnalysisResult(content: string, domain: string): AgentAnalysis
       delegationRequests: result.delegationRequests || [],
     };
   } catch (error) {
-    console.warn('Failed to parse JSON analysis result, using fallback');
+    console.warn("Failed to parse JSON analysis result, using fallback");
     return parseTextAnalysisResult(content, domain);
   }
 }
 
 // Parse text analysis result (fallback)
-function parseTextAnalysisResult(content: string, domain: string): AgentAnalysisResult {
-  const lines = content.split('\n').filter(line => line.trim());
+function parseTextAnalysisResult(
+  content: string,
+  domain: string,
+): AgentAnalysisResult {
+  const lines = content.split("\n").filter((line) => line.trim());
   const issues: AnalysisIssue[] = [];
   const recommendations: string[] = [];
 
-  let currentSection = 'general';
+  let currentSection = "general";
 
   for (const line of lines) {
     const lowerLine = line.toLowerCase();
 
-    if (lowerLine.includes('issue') || lowerLine.includes('problem') || lowerLine.includes('violation')) {
-      currentSection = 'issues';
-      const severity = lowerLine.includes('critical') || lowerLine.includes('high') ? 'high' :
-                      lowerLine.includes('medium') ? 'medium' : 'low';
+    if (
+      lowerLine.includes("issue") || lowerLine.includes("problem") ||
+      lowerLine.includes("violation")
+    ) {
+      currentSection = "issues";
+      const severity =
+        lowerLine.includes("critical") || lowerLine.includes("high")
+          ? "high"
+          : lowerLine.includes("medium")
+          ? "medium"
+          : "low";
 
       issues.push({
-        title: line.replace(/^\W+/, '').slice(0, 100),
+        title: line.replace(/^\W+/, "").slice(0, 100),
         description: line,
         severity,
-        recommendation: 'Review and address this issue'
+        recommendation: "Review and address this issue",
       });
-    } else if (lowerLine.includes('recommend') || lowerLine.includes('suggest')) {
-      currentSection = 'recommendations';
-      recommendations.push(line.replace(/^\W+/, ''));
-    } else if (currentSection === 'recommendations' && line.trim().startsWith('-')) {
-      recommendations.push(line.replace(/^-\s*/, ''));
+    } else if (
+      lowerLine.includes("recommend") || lowerLine.includes("suggest")
+    ) {
+      currentSection = "recommendations";
+      recommendations.push(line.replace(/^\W+/, ""));
+    } else if (
+      currentSection === "recommendations" && line.trim().startsWith("-")
+    ) {
+      recommendations.push(line.replace(/^-\s*/, ""));
     }
   }
 
   // Ensure at least some content is captured
   if (issues.length === 0 && recommendations.length === 0) {
-    recommendations.push(content.slice(0, 500) + (content.length > 500 ? '...' : ''));
+    recommendations.push(
+      content.slice(0, 500) + (content.length > 500 ? "..." : ""),
+    );
   }
 
   return {
@@ -286,17 +310,17 @@ function parseTextAnalysisResult(content: string, domain: string): AgentAnalysis
 // Pre-configured architecture agent factory for construction projects
 export function createArchitectureAgentConfig(
   llmConfig: LLMConfig,
-  language: 'en' | 'et' = 'en',
-  vectorSearchTool?: any
+  language: "en" | "et" = "en",
+  vectorSearchTool?: any,
 ): SpecializedAgentConfig {
-  const isEstonian = language === 'et';
+  const isEstonian = language === "et";
 
   return {
-    domain: 'architecture',
-    name: isEstonian ? 'Arhitektuuri Agent' : 'Architecture Agent',
+    domain: "architecture",
+    name: isEstonian ? "Arhitektuuri Agent" : "Architecture Agent",
     description: isEstonian
-      ? 'Arhitektuuri ülevaatamise ekspert ehituse kvaliteedikontrolli jaoks'
-      : 'Expert architecture reviewer for construction quality control',
+      ? "Arhitektuuri ülevaatamise ekspert ehituse kvaliteedikontrolli jaoks"
+      : "Expert architecture reviewer for construction quality control",
     systemPrompt: isEstonian
       ? `Sa oled ekspert arhitektuuri ülevaataja ehituse kvaliteedikontrolli jaoks.
 
@@ -318,7 +342,7 @@ Your responsibilities:
 If you identify issues that might need structural engineering input, note them in delegationRequests.`,
     llm: llmConfig,
     tools: vectorSearchTool ? [vectorSearchTool] : [],
-    responseFormat: 'json',
+    responseFormat: "json",
     language,
   };
 }

@@ -2,14 +2,14 @@
 export interface VectorDocument {
   id: string;
   content: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   embedding?: number[];
 }
 
 export interface SearchResult {
   id: string;
   content: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   score: number;
 }
 
@@ -21,15 +21,17 @@ export interface SearchOptions {
 }
 
 export interface VectorStoreConfig {
-  provider: 'lancedb' | 'pinecone' | 'chroma';
+  provider: "lancedb" | "pinecone" | "chroma";
   path?: string;
   apiKey?: string;
   environment?: string;
   dimensions?: number;
+  region?: string;
+  tableName?: string;
 }
 
 export interface EmbeddingConfig {
-  provider: 'openai' | 'local';
+  provider: "openai" | "local";
   apiKey?: string;
   model?: string;
   dimensions?: number;
@@ -37,13 +39,13 @@ export interface EmbeddingConfig {
 }
 
 export interface LLMMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface LLMConfig {
-  provider: 'claude' | 'openai' | 'local';
+  provider: "claude" | "openai" | "local";
   apiKey: string;
   model?: string;
   maxTokens?: number;
@@ -57,14 +59,17 @@ export interface LLMResponse {
     completionTokens: number;
     totalTokens: number;
   };
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
-export interface ToolDefinition {
+export interface ToolDefinition<
+  TParams = Record<string, unknown>,
+  TResult = unknown,
+> {
   name: string;
   description: string;
-  parameters: Record<string, any>;
-  handler: (params: any) => Promise<any> | any;
+  parameters: Record<string, unknown>;
+  handler: (params: TParams) => Promise<TResult> | TResult;
 }
 
 export interface AgentConfig {
@@ -81,8 +86,8 @@ export interface AgentResult {
   content: string;
   toolCalls?: Array<{
     tool: string;
-    params: any;
-    result: any;
+    params: Record<string, unknown>;
+    result: unknown;
   }>;
   usage?: {
     promptTokens: number;

@@ -28,32 +28,46 @@ async function main() {
     const documents = [
       {
         id: "python",
-        content: "Python is a high-level, interpreted programming language known for its simplicity and readability. It's widely used in data science, machine learning, and web development.",
-        metadata: { category: "programming", type: "interpreted", year: "1991" },
+        content:
+          "Python is a high-level, interpreted programming language known for its simplicity and readability. It's widely used in data science, machine learning, and web development.",
+        metadata: {
+          category: "programming",
+          type: "interpreted",
+          year: "1991",
+        },
       },
       {
         id: "javascript",
-        content: "JavaScript is a dynamic programming language primarily used for web development. It runs in browsers and on servers with Node.js.",
-        metadata: { category: "programming", type: "interpreted", year: "1995" },
+        content:
+          "JavaScript is a dynamic programming language primarily used for web development. It runs in browsers and on servers with Node.js.",
+        metadata: {
+          category: "programming",
+          type: "interpreted",
+          year: "1995",
+        },
       },
       {
         id: "rust",
-        content: "Rust is a systems programming language focused on safety, speed, and concurrency. It prevents memory errors and data races at compile time.",
+        content:
+          "Rust is a systems programming language focused on safety, speed, and concurrency. It prevents memory errors and data races at compile time.",
         metadata: { category: "programming", type: "compiled", year: "2010" },
       },
       {
         id: "go",
-        content: "Go is a statically typed, compiled programming language designed for simplicity and efficiency. It's excellent for concurrent programming and cloud services.",
+        content:
+          "Go is a statically typed, compiled programming language designed for simplicity and efficiency. It's excellent for concurrent programming and cloud services.",
         metadata: { category: "programming", type: "compiled", year: "2009" },
       },
       {
         id: "typescript",
-        content: "TypeScript is a superset of JavaScript that adds static type definitions. It compiles to plain JavaScript and helps catch errors during development.",
+        content:
+          "TypeScript is a superset of JavaScript that adds static type definitions. It compiles to plain JavaScript and helps catch errors during development.",
         metadata: { category: "programming", type: "transpiled", year: "2012" },
       },
       {
         id: "deno",
-        content: "Deno is a runtime for JavaScript and TypeScript built with security in mind. It requires explicit permissions and has built-in tooling.",
+        content:
+          "Deno is a runtime for JavaScript and TypeScript built with security in mind. It requires explicit permissions and has built-in tooling.",
         metadata: { category: "runtime", type: "platform", year: "2020" },
       },
     ];
@@ -99,8 +113,14 @@ async function main() {
       if (results.length > 0) {
         console.log(`✅ Found ${results.length} relevant results:`);
         results.forEach((result, index) => {
-          console.log(`   ${index + 1}. ${result.id} (similarity: ${result.score.toFixed(3)})`);
-          console.log(`      ${result.metadata?.type} language from ${result.metadata?.year}`);
+          console.log(
+            `   ${index + 1}. ${result.id} (similarity: ${
+              result.score.toFixed(3)
+            })`,
+          );
+          console.log(
+            `      ${result.metadata?.type} language from ${result.metadata?.year}`,
+          );
           console.log(`      ${result.content.slice(0, 80)}...`);
         });
       } else {
@@ -120,7 +140,11 @@ async function main() {
 
     console.log(`Found ${filteredResults.length} compiled languages:`);
     filteredResults.forEach((result) => {
-      console.log(`• ${result.id} (${result.metadata?.year}): ${result.content.slice(0, 60)}...`);
+      console.log(
+        `• ${result.id} (${result.metadata?.year}): ${
+          result.content.slice(0, 60)
+        }...`,
+      );
     });
 
     // Get vector database statistics
@@ -131,7 +155,6 @@ async function main() {
     console.log(`• Last updated: ${stats.lastUpdated.toLocaleString()}`);
 
     console.log("\n🎉 Vector search demo completed successfully!");
-
   } catch (error) {
     console.error("❌ Error:", error);
     Deno.exit(1);

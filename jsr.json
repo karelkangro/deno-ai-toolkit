@@ -1,0 +1,18 @@
+{
+  "name": "@karelkangro/deno-ai-toolkit",
+  "version": "1.1.1",
+  "exports": "./ai-server-toolkit/mod.ts",
+  "publish": {
+    "include": [
+      "ai-server-toolkit/**/*.ts",
+      "README.md",
+      "LICENSE",
+      "deno.json"
+    ],
+    "exclude": [
+      "examples/**",
+      ".git/**",
+      "**/*.test.ts"
+    ]
+  }
+}

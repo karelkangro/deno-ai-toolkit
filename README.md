@@ -1,58 +1,73 @@
 # 🤖 Deno AI Toolkit
 
-A comprehensive **functional** toolkit for building AI-powered servers with Deno. Combines vector database operations with intelligent agent orchestration for creating sophisticated AI applications.
+A comprehensive **functional** toolkit for building AI-powered servers with
+Deno. Combines vector database operations with intelligent agent orchestration
+for creating sophisticated AI applications.
 
 ## ✨ Why This Toolkit?
 
 Every AI-powered server needs these 3 core capabilities:
-1. **🗄️ Vector Database Integration** - Store and search embeddings (LanceDB, Pinecone, etc.)
-2. **🔍 Vector Operations** - Transform text to vectors, semantic search, CRUD operations
-3. **🤖 AI Agent System** - Intelligent agents with LLM integration and tool usage
 
-This toolkit provides all three in a **purely functional** architecture - **no classes, only functions and composition**.
+1. **🗄️ Vector Database Integration** - Store and search embeddings (LanceDB,
+   Pinecone, etc.)
+2. **🔍 Vector Operations** - Transform text to vectors, semantic search, CRUD
+   operations
+3. **🤖 AI Agent System** - Intelligent agents with LLM integration and tool
+   usage
+
+This toolkit provides all three in a **purely functional** architecture.
 
 ## 🚀 Features
 
 - **🦕 Deno-first** - Built specifically for Deno runtime
-- **⚡ Functional Architecture** - Pure functions, no classes, easy composition
+- **⚡ Functional Architecture** - Pure functions, easy composition
 - **🔌 Plug-and-play** - Works with multiple providers (Claude, OpenAI, LanceDB)
-- **🛠️ Built-in Tools** - Rate limiting, embeddings, vector search, agent orchestration
+- **🛠️ Built-in Tools** - Rate limiting, embeddings, vector search, agent
+  orchestration
 - **📦 Zero Config** - Sensible defaults, easy setup
 - **🎯 TypeScript Native** - Fully typed interfaces throughout
 
 ## 📦 Installation
 
-### Via deno.json (Recommended)
+### Via JSR (Recommended)
+
 ```json
 {
   "imports": {
-    "deno-ai-toolkit": "https://raw.githubusercontent.com/karelkangro/deno-ai-toolkit/v1.0.0/ai-server-toolkit/mod.ts"
+    "deno-ai-toolkit": "jsr:@karelkangro/deno-ai-toolkit@^1.1.0"
   }
 }
 ```
 
 Then import in your code:
+
 ```typescript
 import { createRAGSystem, createVectorSearchSystem } from "deno-ai-toolkit";
 ```
 
-### Direct Import
-```typescript
-// Import specific version (recommended)
-import { createRAGSystem, createVectorSearchSystem } from "https://raw.githubusercontent.com/karelkangro/deno-ai-toolkit/v1.0.0/ai-server-toolkit/mod.ts";
+### Direct JSR Import
 
-// Or latest (not recommended for production)
-import { createRAGSystem, createVectorSearchSystem } from "https://raw.githubusercontent.com/karelkangro/deno-ai-toolkit/main/ai-server-toolkit/mod.ts";
+```typescript
+import {
+  createRAGSystem,
+  createVectorSearchSystem,
+} from "jsr:@karelkangro/deno-ai-toolkit@^1.1.0";
 ```
 
 ### Version History
-- **v1.0.0** - Initial release with functional architecture, Claude LLM, OpenAI embeddings, LanceDB, agents
+
+- **v1.2.0** - Added workspace isolation support, refactored to DRY principles,
+  improved code quality
+- **v1.1.0** - Added LanceDB Cloud support (cloud vector database)
+- **v1.0.0** - Initial release with functional architecture, Claude LLM, OpenAI
+  embeddings, LanceDB, agents
 
 ## 🎯 Quick Start
 
 ### Basic RAG System
+
 ```typescript
-import { createRAGSystem } from "./deno-ai-toolkit/ai-server-toolkit/mod.ts";
+import { createRAGSystem } from "jsr:@karelkangro/deno-ai-toolkit";
 
 // Create a complete RAG system with 3 lines
 const ragSystem = await createRAGSystem({
@@ -63,7 +78,10 @@ const ragSystem = await createRAGSystem({
 
 // Add documents
 await ragSystem.addDocuments([
-  { id: "1", content: "Deno is a modern runtime for JavaScript and TypeScript." },
+  {
+    id: "1",
+    content: "Deno is a modern runtime for JavaScript and TypeScript.",
+  },
   { id: "2", content: "Vector databases enable semantic search capabilities." },
 ]);
 
@@ -73,8 +91,9 @@ console.log(result.content);
 ```
 
 ### Vector Search Only
+
 ```typescript
-import { createVectorSearchSystem } from "./deno-ai-toolkit/ai-server-toolkit/mod.ts";
+import { createVectorSearchSystem } from "jsr:@karelkangro/deno-ai-toolkit";
 
 const vectorSystem = await createVectorSearchSystem({
   lancedbPath: "./vectors",
@@ -83,19 +102,20 @@ const vectorSystem = await createVectorSearchSystem({
 
 // Search semantically
 const results = await vectorSystem.search("modern JavaScript runtime", {
-  limit: 5
+  limit: 5,
 });
 ```
 
 ### Custom AI Agent
+
 ```typescript
 import {
   createAgent,
-  createClaudeLLM,
-  runAgent,
   createCalculatorTool,
-  createWebSearchTool
-} from "./deno-ai-toolkit/ai-server-toolkit/mod.ts";
+  createClaudeLLM,
+  createWebSearchTool,
+  runAgent,
+} from "jsr:@karelkangro/deno-ai-toolkit";
 
 const agent = createAgent({
   name: "math-assistant",
@@ -106,7 +126,7 @@ const agent = createAgent({
     createWebSearchTool(),
   ],
   llm: {
-    provider: 'claude',
+    provider: "claude",
     apiKey: Deno.env.get("CLAUDE_API_KEY")!,
   },
 });
@@ -115,14 +135,71 @@ const result = await runAgent(agent, "Calculate 15% tip on $87.50");
 console.log(result.content);
 ```
 
+### Workspace Isolation (NEW in v1.2.0)
+
+```typescript
+import {
+  addWorkspaceDocument,
+  createLanceDB,
+  createWorkspaceTable,
+  deleteWorkspaceTable,
+  getWorkspaceStats,
+  searchWorkspace,
+} from "jsr:@karelkangro/deno-ai-toolkit";
+
+// Initialize vector store
+const vectorStore = await createLanceDB(
+  {
+    provider: "lancedb",
+    path: "db://your-database-id", // or "./local-db" for local
+    apiKey: Deno.env.get("LANCEDB_API_KEY"),
+    region: "us-east-1",
+  },
+  {
+    provider: "openai",
+    apiKey: Deno.env.get("OPENAI_API_KEY")!,
+  },
+);
+
+// Create isolated workspace
+await createWorkspaceTable(vectorStore, "workspace_abc123");
+
+// Add documents to workspace
+await addWorkspaceDocument(vectorStore, "workspace_abc123", {
+  id: "doc1",
+  content: "Architecture guidelines for workspace ABC",
+  metadata: {
+    type: "rule",
+    category: "architecture",
+    severity: "high",
+  },
+});
+
+// Search within workspace only
+const results = await searchWorkspace(
+  vectorStore,
+  "workspace_abc123",
+  "architecture guidelines",
+  { limit: 5 },
+);
+
+// Get workspace statistics
+const stats = await getWorkspaceStats(vectorStore, "workspace_abc123");
+console.log(`Documents: ${stats.totalDocuments}`);
+
+// Clean up workspace
+await deleteWorkspaceTable(vectorStore, "workspace_abc123");
+```
+
 ## 🏗️ Architecture
 
 ### Functional Composition
+
 ```typescript
 // Everything is a function - no classes!
 const embeddings = createOpenAIEmbeddings({ apiKey: "..." });
 const vectorStore = await createLanceDB({ path: "./db" }, embeddings);
-const llm = createClaudeLLM({ apiKey: "...", provider: 'claude' });
+const llm = createClaudeLLM({ apiKey: "...", provider: "claude" });
 
 // Compose them functionally
 const searchResults = await searchSimilar(vectorStore, "query");
@@ -130,6 +207,7 @@ const response = await generateResponse(llm, messages);
 ```
 
 ### Built-in Rate Limiting
+
 ```typescript
 const rateLimiter = createRateLimiter({ requestsPerMinute: 50 });
 
@@ -178,17 +256,18 @@ deno task dev
 
 ## 🌟 Core Modules
 
-| Module | Purpose | Key Functions |
-|--------|---------|---------------|
-| **Vector Store** | Document storage & search | `createLanceDB`, `searchSimilar`, `addDocuments` |
-| **Embeddings** | Text → Vector conversion | `createOpenAIEmbeddings`, `embedText`, `embedTexts` |
-| **LLM** | AI text generation | `createClaudeLLM`, `generateResponse`, `streamResponse` |
-| **Agents** | Intelligent AI assistants | `createAgent`, `runAgent`, `addTool` |
-| **Utils** | Rate limiting, helpers | `createRateLimiter`, `withRateLimit` |
+| Module           | Purpose                   | Key Functions                                           |
+| ---------------- | ------------------------- | ------------------------------------------------------- |
+| **Vector Store** | Document storage & search | `createLanceDB`, `searchSimilar`, `addDocuments`        |
+| **Embeddings**   | Text → Vector conversion  | `createOpenAIEmbeddings`, `embedText`, `embedTexts`     |
+| **LLM**          | AI text generation        | `createClaudeLLM`, `generateResponse`, `streamResponse` |
+| **Agents**       | Intelligent AI assistants | `createAgent`, `runAgent`, `addTool`                    |
+| **Utils**        | Rate limiting, helpers    | `createRateLimiter`, `withRateLimit`                    |
 
 ## 💡 Examples
 
 See the `/examples` folder for complete working examples:
+
 - `basic-rag.ts` - Simple RAG implementation
 - `vector-search.ts` - Semantic search server
 - `custom-agent.ts` - Multi-tool AI agent
@@ -199,6 +278,7 @@ See the `/examples` folder for complete working examples:
 ### Semantic Versioning
 
 This project follows [Semantic Versioning](https://semver.org/):
+
 - **MAJOR** version when you make incompatible API changes
 - **MINOR** version when you add functionality in a backwards compatible manner
 - **PATCH** version when you make backwards compatible bug fixes
@@ -206,6 +286,7 @@ This project follows [Semantic Versioning](https://semver.org/):
 ### Creating a New Release
 
 **1. Prepare the Release**
+
 ```bash
 # Make sure you're on main and up to date
 git checkout main
@@ -216,6 +297,7 @@ git pull origin main
 ```
 
 **2. Create and Push the Tag**
+
 ```bash
 # Create annotated tag with release notes
 git tag -a v1.1.0 -m "Release v1.1.0: Add streaming support
@@ -234,6 +316,7 @@ git push origin v1.1.0
 ```
 
 **3. Create GitHub Release (Optional)**
+
 ```bash
 # Using GitHub CLI (if installed)
 gh release create v1.1.0 --title "v1.1.0: Streaming & Performance Improvements" --notes-from-tag
@@ -244,6 +327,7 @@ gh release create v1.1.0 --title "v1.1.0: Streaming & Performance Improvements" 
 ### Updating Consumer Projects
 
 **In your main project's `deno.json`:**
+
 ```json
 {
   "imports": {
@@ -253,6 +337,7 @@ gh release create v1.1.0 --title "v1.1.0: Streaming & Performance Improvements" 
 ```
 
 **Version Update Workflow:**
+
 ```bash
 # 1. Review changelog and breaking changes
 # 2. Update deno.json to new version
@@ -266,6 +351,7 @@ gh release create v1.1.0 --title "v1.1.0: Streaming & Performance Improvements" 
 For **private repositories**, you have several options:
 
 **Option 1: Git Submodules (Recommended)**
+
 ```bash
 # In your main project
 git submodule add git@github.com:karelkangro/deno-ai-toolkit.git deno-ai-toolkit
@@ -286,6 +372,7 @@ git commit -m "chore: update deno-ai-toolkit to v1.1.0"
 ```
 
 **Option 2: Direct Git Import** (Deno 1.37+)
+
 ```json
 {
   "imports": {
@@ -295,6 +382,7 @@ git commit -m "chore: update deno-ai-toolkit to v1.1.0"
 ```
 
 **Option 3: Personal Access Token**
+
 ```json
 {
   "imports": {
@@ -318,6 +406,7 @@ When introducing breaking changes (major version bump):
 ### Development Workflow
 
 **Feature Development:**
+
 ```bash
 git checkout -b feature/streaming-support
 # ... make changes ...
@@ -327,6 +416,7 @@ git push origin feature/streaming-support
 ```
 
 **Bug Fixes:**
+
 ```bash
 git checkout -b fix/memory-leak
 # ... make changes ...
@@ -335,6 +425,7 @@ git commit -m "fix: resolve memory leak in vector search"
 ```
 
 **Release Process:**
+
 ```bash
 # After merging all features/fixes for the release
 git checkout main
@@ -359,4 +450,4 @@ MIT License - see LICENSE file for details.
 
 **Built with ❤️ for the Deno community**
 
-*Pure functional AI toolkit - no classes, just composable functions.*
+_Pure functional AI toolkit - no classes, just composable functions._
