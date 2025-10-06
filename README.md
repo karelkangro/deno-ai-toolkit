@@ -283,55 +283,102 @@ This project follows [Semantic Versioning](https://semver.org/):
 - **MINOR** version when you add functionality in a backwards compatible manner
 - **PATCH** version when you make backwards compatible bug fixes
 
-### Creating a New Release
+### 🤖 Automatic Publishing to JSR
 
-**1. Prepare the Release**
+This toolkit uses **GitHub Actions** to automatically publish to JSR when you
+push a version tag.
+
+#### How It Works
+
+1. **Push a version tag** → GitHub Actions triggers
+2. **Workflow runs:**
+   - Checks out code
+   - Sets up Deno
+   - Runs type checking (`deno check`)
+   - Runs format check (`deno fmt --check`)
+   - **Publishes to JSR** (`deno publish`)
+3. **New version available** on JSR within minutes
+
+#### Release a New Version (3 Steps)
+
+**1. Update version in `deno.json`:**
 
 ```bash
-# Make sure you're on main and up to date
-git checkout main
-git pull origin main
-
-# Update version in README.md (add to Version History section)
-# Update CHANGELOG.md if you have one
+# Edit deno.json - bump version
+{
+  "version": "1.2.1",  // <- Update this
+  ...
+}
 ```
 
-**2. Create and Push the Tag**
+**2. Update README.md Version History:**
+
+```markdown
+### Version History
+
+- **v1.2.1** - Bug fixes and performance improvements
+- **v1.2.0** - Added workspace isolation support
+```
+
+**3. Commit, Tag, and Push:**
 
 ```bash
-# Create annotated tag with release notes
-git tag -a v1.1.0 -m "Release v1.1.0: Add streaming support
+# Commit your changes
+git add .
+git commit -m "chore: bump version to 1.2.1"
 
-Features:
-- Add streaming response support for LLM calls
-- Improve rate limiting with exponential backoff
-- Add TypeScript strict mode support
+# Create annotated tag
+git tag -a v1.2.1 -m "Release v1.2.1: Bug fixes
 
-Bug Fixes:
-- Fix memory leak in vector search
-- Resolve authentication timeout issues"
+Improvements:
+- Fix type inference issues
+- Improve error messages
+- Performance optimizations"
 
-# Push the tag to GitHub
-git push origin v1.1.0
+# Push commit and tag
+git push origin main
+git push origin v1.2.1  # 🚀 This triggers auto-publish!
 ```
 
-**3. Create GitHub Release (Optional)**
+**That's it!** GitHub Actions will automatically publish to JSR.
+
+#### Monitor the Publish
+
+Watch the workflow run at:
+
+```
+https://github.com/karelkangro/deno-ai-toolkit/actions
+```
+
+If the workflow succeeds, your package is live on JSR:
+
+```
+https://jsr.io/@karelkangro/deno-ai-toolkit
+```
+
+#### Requirements
+
+- Repository must have **GitHub Actions enabled**
+- Workflow file: `.github/workflows/publish.yml`
+- No authentication needed (JSR uses OIDC with GitHub Actions)
+
+#### Optional: Create GitHub Release
 
 ```bash
 # Using GitHub CLI (if installed)
-gh release create v1.1.0 --title "v1.1.0: Streaming & Performance Improvements" --notes-from-tag
+gh release create v1.2.1 --title "v1.2.1: Bug Fixes" --notes-from-tag
 
 # Or create manually at: https://github.com/karelkangro/deno-ai-toolkit/releases
 ```
 
 ### Updating Consumer Projects
 
-**In your main project's `deno.json`:**
+**In your project's `deno.json`:**
 
 ```json
 {
   "imports": {
-    "deno-ai-toolkit": "https://raw.githubusercontent.com/karelkangro/deno-ai-toolkit/v1.1.0/ai-server-toolkit/mod.ts"
+    "deno-ai-toolkit": "jsr:@karelkangro/deno-ai-toolkit@^1.2.0"
   }
 }
 ```
@@ -341,55 +388,37 @@ gh release create v1.1.0 --title "v1.1.0: Streaming & Performance Improvements" 
 ```bash
 # 1. Review changelog and breaking changes
 # 2. Update deno.json to new version
-# 3. Test your application
-# 4. Update import version when ready
+# 3. Run: deno cache --reload  (fetch new version)
+# 4. Test your application
 # 5. Commit the version bump
 ```
 
-### Private Repository Considerations
+### For Private/Development Usage
 
-For **private repositories**, you have several options:
+If you need to use a local or development version:
 
-**Option 1: Git Submodules (Recommended)**
-
-```bash
-# In your main project
-git submodule add git@github.com:karelkangro/deno-ai-toolkit.git deno-ai-toolkit
-
-# In deno.json
-{
-  "imports": {
-    "deno-ai-toolkit": "./deno-ai-toolkit/ai-server-toolkit/mod.ts"
-  }
-}
-
-# Update submodule to specific version
-cd deno-ai-toolkit
-git checkout v1.1.0
-cd ..
-git add deno-ai-toolkit
-git commit -m "chore: update deno-ai-toolkit to v1.1.0"
-```
-
-**Option 2: Direct Git Import** (Deno 1.37+)
+**Option 1: Local Path (Development)**
 
 ```json
 {
   "imports": {
-    "deno-ai-toolkit": "git+ssh://git@github.com/karelkangro/deno-ai-toolkit.git#v1.1.0"
+    "deno-ai-toolkit": "../deno-ai-toolkit/ai-server-toolkit/mod.ts"
   }
 }
 ```
 
-**Option 3: Personal Access Token**
+**Option 2: Git Import**
 
 ```json
 {
   "imports": {
-    "deno-ai-toolkit": "https://username:token@raw.githubusercontent.com/karelkangro/deno-ai-toolkit/v1.1.0/ai-server-toolkit/mod.ts"
+    "deno-ai-toolkit": "git+https://github.com/karelkangro/deno-ai-toolkit.git#v1.2.0"
   }
 }
 ```
+
+**Recommended:** Always use JSR for production
+(`jsr:@karelkangro/deno-ai-toolkit@^1.2.0`)
 
 ### Breaking Changes Checklist
 
