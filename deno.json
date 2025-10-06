@@ -35,8 +35,5 @@
     "allowJs": true,
     "lib": ["deno.window"],
     "strict": true
-  },
-  "workspaces": [
-    "./ai-server-toolkit"
-  ]
+  }
 }
