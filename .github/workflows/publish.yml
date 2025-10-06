@@ -19,7 +19,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: vx.x.x
+          deno-version: "2.4.5"
 
       - name: Check types
         run: deno check ai-server-toolkit/mod.ts
