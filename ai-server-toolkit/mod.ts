@@ -89,6 +89,44 @@ export {
 } from "./src/utils/rate-limiter.ts";
 
 // High-level factory functions for easy setup
+
+/**
+ * Creates a complete AI system with vector store, embeddings, and LLM capabilities.
+ *
+ * This is the main factory function for setting up an AI-powered server with all necessary components.
+ * It initializes LanceDB for vector storage, OpenAI for embeddings, and Claude for LLM capabilities.
+ *
+ * @param config Configuration object with vector store, embeddings, and LLM settings
+ * @param config.vectorStore Vector database configuration (LanceDB)
+ * @param config.vectorStore.provider Must be "lancedb"
+ * @param config.vectorStore.path Path to LanceDB database (local path or db:// URL for cloud)
+ * @param config.vectorStore.dimensions Optional embedding dimensions (default: 1536)
+ * @param config.embeddings Embedding provider configuration (OpenAI)
+ * @param config.embeddings.provider Must be "openai"
+ * @param config.embeddings.apiKey OpenAI API key
+ * @param config.embeddings.model Optional model name (default: text-embedding-3-small)
+ * @param config.embeddings.dimensions Optional embedding dimensions (default: 1536)
+ * @param config.llm LLM provider configuration (Claude)
+ * @param config.llm.provider Must be "claude"
+ * @param config.llm.apiKey Anthropic API key for Claude
+ * @param config.llm.model Optional Claude model (default: claude-3-5-sonnet-20241022)
+ * @returns Promise resolving to AI system with embeddings, vectorStore, llm, and convenience methods
+ *
+ * @example
+ * ```ts
+ * const aiSystem = await createAISystem({
+ *   vectorStore: { provider: "lancedb", path: "./vector-db" },
+ *   embeddings: { provider: "openai", apiKey: "sk-..." },
+ *   llm: { provider: "claude", apiKey: "sk-ant-..." }
+ * });
+ *
+ * // Add documents
+ * await aiSystem.addDocument({ id: "1", content: "Hello world" });
+ *
+ * // Search
+ * const results = await aiSystem.search("greeting");
+ * ```
+ */
 export async function createAISystem(config: {
   vectorStore: {
     provider: "lancedb";
@@ -178,7 +216,33 @@ export async function createAISystem(config: {
   };
 }
 
-// Simplified factory for common use cases
+/**
+ * Creates a simplified vector search system for semantic search use cases.
+ *
+ * This is a convenience function that wraps `createAISystem` with simpler configuration.
+ * Perfect for projects that only need vector search and embeddings.
+ *
+ * @param config Simplified configuration object
+ * @param config.lancedbPath Path to LanceDB database (local path or db:// URL)
+ * @param config.openaiApiKey OpenAI API key for embeddings
+ * @param config.claudeApiKey Optional Claude API key for LLM features
+ * @returns Promise resolving to vector search system with convenience methods
+ *
+ * @example
+ * ```ts
+ * const vectorSystem = await createVectorSearchSystem({
+ *   lancedbPath: "./vectors",
+ *   openaiApiKey: Deno.env.get("OPENAI_API_KEY")!
+ * });
+ *
+ * await vectorSystem.addDocuments([
+ *   { id: "1", content: "Deno is a modern runtime" },
+ *   { id: "2", content: "Vector databases enable semantic search" }
+ * ]);
+ *
+ * const results = await vectorSystem.search("JavaScript runtime", { limit: 5 });
+ * ```
+ */
 export async function createVectorSearchSystem(config: {
   lancedbPath: string;
   openaiApiKey: string;
@@ -209,6 +273,39 @@ export async function createVectorSearchSystem(config: {
   });
 }
 
+/**
+ * Creates a complete Retrieval-Augmented Generation (RAG) system with AI agent.
+ *
+ * This high-level function sets up everything needed for RAG: vector storage, embeddings,
+ * LLM, and an AI agent with search capabilities. The agent automatically searches your
+ * document store to answer questions with relevant context.
+ *
+ * @param config RAG system configuration
+ * @param config.lancedbPath Path to LanceDB database for document storage
+ * @param config.openaiApiKey OpenAI API key for generating embeddings
+ * @param config.claudeApiKey Claude API key for LLM responses
+ * @param config.systemPrompt Optional custom system prompt for the RAG agent
+ * @returns Promise resolving to RAG system with agent and ask() method
+ *
+ * @example
+ * ```ts
+ * const ragSystem = await createRAGSystem({
+ *   lancedbPath: "./knowledge-base",
+ *   openaiApiKey: Deno.env.get("OPENAI_API_KEY")!,
+ *   claudeApiKey: Deno.env.get("CLAUDE_API_KEY")!
+ * });
+ *
+ * // Index documents
+ * await ragSystem.addDocuments([
+ *   { id: "1", content: "Deno is a secure runtime for JavaScript and TypeScript" },
+ *   { id: "2", content: "Vector databases enable semantic search over embeddings" }
+ * ]);
+ *
+ * // Ask questions - agent searches automatically
+ * const answer = await ragSystem.ask("What is Deno?");
+ * console.log(answer.content);
+ * ```
+ */
 export async function createRAGSystem(config: {
   lancedbPath: string;
   openaiApiKey: string;
