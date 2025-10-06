@@ -22,6 +22,27 @@ export interface AgentState {
   memoryEnabled: boolean;
 }
 
+/**
+ * Creates an AI agent with tools and memory capabilities.
+ *
+ * Agents combine LLMs with tool use and optional conversation memory.
+ * They can autonomously decide when to use tools based on user input.
+ *
+ * @param config Agent configuration with name, system prompt, tools, and LLM
+ * @returns Agent state for use with runAgent
+ *
+ * @example
+ * ```ts
+ * const agent = createAgent({
+ *   name: "math-assistant",
+ *   description: "Helpful math assistant",
+ *   systemPrompt: "You are a math expert. Use tools to help solve problems.",
+ *   tools: [createCalculatorTool()],
+ *   llm: { provider: "claude", apiKey: "sk-ant-..." },
+ *   memory: true
+ * });
+ * ```
+ */
 export function createAgent(config: AgentConfig): AgentState {
   return {
     name: config.name,
@@ -34,6 +55,24 @@ export function createAgent(config: AgentConfig): AgentState {
   };
 }
 
+/**
+ * Executes an agent with the given input and optional context.
+ *
+ * The agent processes the input using its LLM and tools, maintaining
+ * conversation memory if enabled. Automatically handles tool execution.
+ *
+ * @param state Agent state from createAgent
+ * @param input User input text
+ * @param context Optional context object with additional information
+ * @returns Promise resolving to agent result with content and tool calls
+ *
+ * @example
+ * ```ts
+ * const result = await runAgent(agent, "Calculate 15% of 250");
+ * console.log(result.content); // "37.5"
+ * console.log(result.toolCalls); // [{ tool: "calculator", ... }]
+ * ```
+ */
 export async function runAgent(
   state: AgentState,
   input: string,
@@ -157,27 +196,73 @@ export async function runAgent(
   }
 }
 
+/**
+ * Adds a tool to the agent's available tools.
+ *
+ * @param state Agent state
+ * @param tool Tool definition to add
+ */
 export function addTool(state: AgentState, tool: ToolDefinition): void {
   state.tools.push(tool);
 }
 
+/**
+ * Removes a tool from the agent by name.
+ *
+ * @param state Agent state
+ * @param toolName Name of tool to remove
+ */
 export function removeTool(state: AgentState, toolName: string): void {
   state.tools = state.tools.filter((tool) => tool.name !== toolName);
 }
 
+/**
+ * Clears the agent's conversation memory.
+ *
+ * @param state Agent state
+ */
 export function clearMemory(state: AgentState): void {
   state.memory = [];
 }
 
+/**
+ * Gets a copy of the agent's conversation memory.
+ *
+ * @param state Agent state
+ * @returns Array of conversation messages
+ */
 export function getMemory(state: AgentState): LLMMessage[] {
   return [...state.memory];
 }
 
+/**
+ * Updates the agent's system prompt.
+ *
+ * @param state Agent state
+ * @param prompt New system prompt
+ */
 export function updateSystemPrompt(state: AgentState, prompt: string): void {
   state.systemPrompt = prompt;
 }
 
 // Predefined tool factories
+
+/**
+ * Creates a search tool that uses a custom search function.
+ *
+ * Allows agents to search for information using any search implementation
+ * (vector search, web search, database query, etc.).
+ *
+ * @param searchFn Async function that performs the search
+ * @returns Tool definition for use with agents
+ *
+ * @example
+ * ```ts
+ * const searchTool = createSearchTool(async (query) => {
+ *   return await vectorStore.search(query, { limit: 5 });
+ * });
+ * ```
+ */
 export function createSearchTool(
   searchFn: (query: string) => Promise<unknown>,
 ): ToolDefinition<{ query: string }, unknown> {
@@ -196,6 +281,24 @@ export function createSearchTool(
   };
 }
 
+/**
+ * Creates a calculator tool for mathematical operations.
+ *
+ * Allows agents to perform mathematical calculations using JavaScript expressions.
+ * Useful for math-focused agents and general-purpose assistants.
+ *
+ * @returns Tool definition for calculator functionality
+ *
+ * @example
+ * ```ts
+ * const agent = createAgent({
+ *   name: "math-bot",
+ *   systemPrompt: "You're a math expert",
+ *   tools: [createCalculatorTool()],
+ *   llm: { provider: "claude", apiKey: "..." }
+ * });
+ * ```
+ */
 export function createCalculatorTool(): ToolDefinition<
   { expression: string },
   { result?: number; error?: string }
@@ -231,6 +334,26 @@ interface WebSearchResult {
   }>;
 }
 
+/**
+ * Creates a web search tool for accessing current information.
+ *
+ * Enables agents to search the web for up-to-date information beyond their
+ * training data. Currently returns mock results; implement with your preferred
+ * search API (Google, Bing, etc.).
+ *
+ * @param apiKey Optional API key for search service
+ * @returns Tool definition for web search functionality
+ *
+ * @example
+ * ```ts
+ * const agent = createAgent({
+ *   name: "research-bot",
+ *   systemPrompt: "You're a research assistant",
+ *   tools: [createWebSearchTool("your-api-key")],
+ *   llm: { provider: "claude", apiKey: "..." }
+ * });
+ * ```
+ */
 export function createWebSearchTool(
   apiKey?: string,
 ): ToolDefinition<{ query: string; limit?: number }, WebSearchResult> {
