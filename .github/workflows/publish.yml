@@ -3,7 +3,7 @@ name: Publish to JSR
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   publish:
@@ -19,7 +19,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.x
+          deno-version: vx.x.x
 
       - name: Check types
         run: deno check ai-server-toolkit/mod.ts
