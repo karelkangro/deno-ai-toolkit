@@ -1,10 +1,6 @@
 // Functional LanceDB vector store implementation
 import { connect, Connection, Table } from "vectordb";
-import {
-  createOpenAIEmbeddings,
-  embedText,
-  embedTexts,
-} from "../embeddings/openai.ts";
+import { createOpenAIEmbeddings, embedText, embedTexts } from "../embeddings/openai.ts";
 import type {
   EmbeddingConfig,
   SearchOptions,
