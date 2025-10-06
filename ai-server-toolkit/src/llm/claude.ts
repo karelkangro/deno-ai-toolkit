@@ -19,6 +19,26 @@ export interface ClaudeLLMState {
   rateLimiter: RateLimitState;
 }
 
+/**
+ * Creates a Claude LLM client with rate limiting.
+ *
+ * Initializes the Claude API client with the specified model and configuration.
+ * Includes automatic rate limiting to stay within Anthropic API limits.
+ *
+ * @param config LLM configuration with API key, model, and parameters
+ * @returns Claude LLM state for use with generateResponse and streamResponse
+ *
+ * @example
+ * ```ts
+ * const llm = createClaudeLLM({
+ *   provider: "claude",
+ *   apiKey: "sk-ant-...",
+ *   model: "claude-3-5-sonnet-20241022",
+ *   maxTokens: 4096,
+ *   temperature: 0.7
+ * });
+ * ```
+ */
 export function createClaudeLLM(config: LLMConfig): ClaudeLLMState {
   if (!config.apiKey) {
     throw new Error("Claude API key is required");
@@ -36,6 +56,28 @@ export function createClaudeLLM(config: LLMConfig): ClaudeLLMState {
   };
 }
 
+/**
+ * Generates a response from Claude LLM.
+ *
+ * Sends messages to Claude and returns the AI-generated response. Supports
+ * tool use for function calling and multi-turn conversations.
+ *
+ * @param state Claude LLM state from createClaudeLLM
+ * @param messages Array of conversation messages (role + content)
+ * @param tools Optional array of tool definitions for function calling
+ * @returns Promise resolving to LLM response with content and optional tool calls
+ *
+ * @example
+ * ```ts
+ * const response = await generateResponse(llm, [
+ *   { role: "user", content: "What is 2+2?" }
+ * ]);
+ * console.log(response.content); // "4"
+ *
+ * // With tools
+ * const response = await generateResponse(llm, messages, [calculatorTool]);
+ * ```
+ */
 export async function generateResponse(
   state: ClaudeLLMState,
   messages: LLMMessage[],

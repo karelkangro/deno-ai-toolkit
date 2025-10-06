@@ -13,6 +13,25 @@ export interface OpenAIEmbeddingState {
   rateLimiter: RateLimitState;
 }
 
+/**
+ * Creates an OpenAI embeddings provider with rate limiting.
+ *
+ * Initializes the embedding service with the specified model and configuration.
+ * Includes automatic rate limiting to stay within OpenAI API limits.
+ *
+ * @param config Embedding configuration with API key, model, and dimensions
+ * @returns OpenAI embedding state for use with embedText and embedTexts
+ *
+ * @example
+ * ```ts
+ * const embeddings = createOpenAIEmbeddings({
+ *   provider: "openai",
+ *   apiKey: "sk-...",
+ *   model: "text-embedding-3-small",
+ *   dimensions: 1536
+ * });
+ * ```
+ */
 export function createOpenAIEmbeddings(
   config: EmbeddingConfig,
 ): OpenAIEmbeddingState {
@@ -31,6 +50,22 @@ export function createOpenAIEmbeddings(
   };
 }
 
+/**
+ * Converts a text string into a vector embedding.
+ *
+ * Uses OpenAI's embedding API to generate a numerical vector representation
+ * of the input text, suitable for semantic search and similarity comparisons.
+ *
+ * @param state OpenAI embedding state from createOpenAIEmbeddings
+ * @param text Text to convert into embedding
+ * @returns Promise resolving to embedding vector (array of numbers)
+ *
+ * @example
+ * ```ts
+ * const embedding = await embedText(embeddings, "Hello world");
+ * console.log(embedding.length); // 1536
+ * ```
+ */
 export async function embedText(
   state: OpenAIEmbeddingState,
   text: string,
@@ -64,6 +99,26 @@ export async function embedText(
   });
 }
 
+/**
+ * Converts multiple text strings into vector embeddings in batch.
+ *
+ * More efficient than calling embedText multiple times. Uses a single API
+ * call to generate embeddings for all texts.
+ *
+ * @param state OpenAI embedding state from createOpenAIEmbeddings
+ * @param texts Array of text strings to convert into embeddings
+ * @returns Promise resolving to array of embedding vectors
+ *
+ * @example
+ * ```ts
+ * const embeddings = await embedTexts(embeddingState, [
+ *   "First document",
+ *   "Second document",
+ *   "Third document"
+ * ]);
+ * console.log(embeddings.length); // 3
+ * ```
+ */
 export async function embedTexts(
   state: OpenAIEmbeddingState,
   texts: string[],

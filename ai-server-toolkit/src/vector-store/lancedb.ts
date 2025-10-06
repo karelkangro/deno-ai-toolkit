@@ -199,6 +199,36 @@ function applySearchFilters<T>(
 
 // Main API
 
+/**
+ * Creates and initializes a LanceDB vector store connection.
+ *
+ * Supports both local LanceDB instances and LanceDB Cloud. For cloud instances,
+ * use a path starting with "db://" and provide an API key.
+ *
+ * @param config Vector store configuration
+ * @param embeddingConfig OpenAI embedding configuration
+ * @returns Promise resolving to initialized LanceDB state
+ *
+ * @example
+ * ```ts
+ * // Local LanceDB
+ * const store = await createLanceDB(
+ *   { provider: "lancedb", path: "./vector-db" },
+ *   { provider: "openai", apiKey: "sk-..." }
+ * );
+ *
+ * // LanceDB Cloud
+ * const cloudStore = await createLanceDB(
+ *   {
+ *     provider: "lancedb",
+ *     path: "db://my-database-id",
+ *     apiKey: "ldb_...",
+ *     region: "us-east-1"
+ *   },
+ *   { provider: "openai", apiKey: "sk-..." }
+ * );
+ * ```
+ */
 export async function createLanceDB(
   config: VectorStoreConfig,
   embeddingConfig: EmbeddingConfig,
@@ -215,6 +245,20 @@ export async function createLanceDB(
   };
 }
 
+/**
+ * Initializes a table in the vector store.
+ *
+ * Creates the table if it doesn't exist. If the table already exists, this is a no-op.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param tableName Optional table name (defaults to state.tableName)
+ *
+ * @example
+ * ```ts
+ * await initializeTable(store);
+ * await initializeTable(store, "custom_table");
+ * ```
+ */
 export async function initializeTable(
   state: LanceDBState,
   tableName?: string,
@@ -237,6 +281,25 @@ export async function initializeTable(
   }
 }
 
+/**
+ * Adds a single document to the vector store.
+ *
+ * If the document doesn't have an embedding, one will be generated automatically
+ * using the configured embedding provider.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param document Document to add with id, content, optional metadata and embedding
+ * @param tableName Optional table name (defaults to state.tableName)
+ *
+ * @example
+ * ```ts
+ * await addDocument(store, {
+ *   id: "doc1",
+ *   content: "Deno is a modern runtime",
+ *   metadata: { category: "tech" }
+ * });
+ * ```
+ */
 export async function addDocument(
   state: LanceDBState,
   document: VectorDocument,
@@ -257,6 +320,25 @@ export async function addDocument(
   await table.add([record]);
 }
 
+/**
+ * Adds multiple documents to the vector store in batch.
+ *
+ * More efficient than calling addDocument multiple times. Embeddings are generated
+ * for all documents without embeddings in a single batch operation.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param documents Array of documents to add
+ * @param tableName Optional table name (defaults to state.tableName)
+ *
+ * @example
+ * ```ts
+ * await addDocuments(store, [
+ *   { id: "1", content: "First document" },
+ *   { id: "2", content: "Second document" },
+ *   { id: "3", content: "Third document" }
+ * ]);
+ * ```
+ */
 export async function addDocuments(
   state: LanceDBState,
   documents: VectorDocument[],
@@ -281,6 +363,31 @@ export async function addDocuments(
   await table.add(records);
 }
 
+/**
+ * Searches for documents similar to a text query using semantic search.
+ *
+ * Converts the query to an embedding and finds the most similar documents
+ * in the vector store based on cosine similarity.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param query Text query to search for
+ * @param options Search options (limit, threshold, filter)
+ * @param tableName Optional table name (defaults to state.tableName)
+ * @returns Array of search results with score, content, and metadata
+ *
+ * @example
+ * ```ts
+ * const results = await searchSimilar(store, "JavaScript runtime", {
+ *   limit: 5,
+ *   threshold: 0.7,
+ *   filter: { category: "tech" }
+ * });
+ *
+ * results.forEach(result => {
+ *   console.log(`Score: ${result.score}, Content: ${result.content}`);
+ * });
+ * ```
+ */
 export async function searchSimilar(
   state: LanceDBState,
   query: string,
@@ -401,6 +508,21 @@ export async function clear(
 
 // Workspace-specific functions
 
+/**
+ * Creates an isolated workspace table for multi-tenant applications.
+ *
+ * Each workspace has its own dedicated table (workspace_{workspaceId}) providing
+ * complete data isolation between different users or tenants.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Unique workspace identifier
+ *
+ * @example
+ * ```ts
+ * await createWorkspaceTable(store, "user_123");
+ * await createWorkspaceTable(store, "company_abc");
+ * ```
+ */
 export async function createWorkspaceTable(
   state: LanceDBState,
   workspaceId: string,
@@ -409,6 +531,20 @@ export async function createWorkspaceTable(
   await initializeTable(state, tableName);
 }
 
+/**
+ * Deletes a workspace table and all its data.
+ *
+ * This permanently removes the workspace and all documents within it.
+ * Use with caution in production environments.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Workspace identifier to delete
+ *
+ * @example
+ * ```ts
+ * await deleteWorkspaceTable(store, "user_123");
+ * ```
+ */
 export async function deleteWorkspaceTable(
   state: LanceDBState,
   workspaceId: string,
@@ -429,6 +565,25 @@ export async function listWorkspaceTables(
   return allTables.filter((name) => name.startsWith("workspace_"));
 }
 
+/**
+ * Adds a document to a specific workspace.
+ *
+ * The document is stored in the workspace's isolated table, ensuring
+ * complete separation from other workspaces.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Workspace identifier
+ * @param document Document to add
+ *
+ * @example
+ * ```ts
+ * await addWorkspaceDocument(store, "user_123", {
+ *   id: "doc1",
+ *   content: "User-specific document",
+ *   metadata: { type: "note" }
+ * });
+ * ```
+ */
 export async function addWorkspaceDocument(
   state: LanceDBState,
   workspaceId: string,
@@ -447,6 +602,28 @@ export async function addWorkspaceDocuments(
   await addDocuments(state, documents, tableName);
 }
 
+/**
+ * Searches for similar documents within a specific workspace.
+ *
+ * The search is confined to the workspace's table, ensuring results
+ * only come from that workspace's documents.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Workspace identifier
+ * @param query Text query to search for
+ * @param options Search options (limit, threshold, filter)
+ * @returns Array of search results from the workspace
+ *
+ * @example
+ * ```ts
+ * const results = await searchWorkspace(
+ *   store,
+ *   "user_123",
+ *   "architecture guidelines",
+ *   { limit: 5, threshold: 0.7 }
+ * );
+ * ```
+ */
 export async function searchWorkspace(
   state: LanceDBState,
   workspaceId: string,
