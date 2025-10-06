@@ -3,7 +3,12 @@ import { type AgentState, createAgent, runAgent } from "./base.ts";
 import { type ClaudeLLMState, createClaudeLLM } from "../llm/claude.ts";
 import type { LLMConfig } from "../types.ts";
 
-// Configuration interface for specialized agents
+/**
+ * Configuration for creating specialized domain-specific agents.
+ *
+ * Used to configure agents for specific tasks like architecture analysis,
+ * code review, security auditing, etc.
+ */
 export interface SpecializedAgentConfig {
   domain: string;
   name: string;
@@ -20,13 +25,22 @@ export interface SpecializedAgentConfig {
   language?: "en" | "et";
 }
 
-// Project-specific types (can be customized per project)
+/**
+ * Represents a file in the project for analysis.
+ *
+ * Contains file name, content, and optional type information.
+ */
 export interface ProjectFile {
   name: string;
   content: string;
   type?: string;
 }
 
+/**
+ * Context information for specialized agent analysis.
+ *
+ * Provides session, user, and project information to guide agent behavior.
+ */
 export interface ProjectContext {
   sessionId?: string;
   userRole?: string;
@@ -35,6 +49,11 @@ export interface ProjectContext {
   [key: string]: any; // Allow additional context properties
 }
 
+/**
+ * Represents an issue found during agent analysis.
+ *
+ * Contains issue details, severity level, and recommendations for fixing.
+ */
 export interface AnalysisIssue {
   ruleId?: string;
   title: string;
@@ -43,6 +62,11 @@ export interface AnalysisIssue {
   recommendation?: string;
 }
 
+/**
+ * Result of a specialized agent analysis run.
+ *
+ * Contains all issues found, recommendations, and execution metadata.
+ */
 export interface AgentAnalysisResult {
   domain: string;
   issues: AnalysisIssue[];
@@ -56,7 +80,26 @@ export interface AgentAnalysisResult {
   };
 }
 
-// Create a specialized agent with custom configuration
+/**
+ * Creates a specialized agent for domain-specific tasks.
+ *
+ * Configures an agent optimized for specific domains like architecture
+ * review, security audit, code quality, etc.
+ *
+ * @param config Specialized agent configuration
+ * @returns Agent state ready for analysis tasks
+ *
+ * @example
+ * ```ts
+ * const architectAgent = createSpecializedAgent({
+ *   domain: "architecture",
+ *   name: "Architecture Reviewer",
+ *   description: "Reviews system architecture",
+ *   systemPrompt: "You're an expert architect...",
+ *   llm: { provider: "claude", apiKey: "..." }
+ * });
+ * ```
+ */
 export function createSpecializedAgent(
   config: SpecializedAgentConfig,
 ): AgentState {
@@ -72,7 +115,28 @@ export function createSpecializedAgent(
   });
 }
 
-// Run a specialized agent analysis
+/**
+ * Runs a specialized agent analysis on project files.
+ *
+ * Executes domain-specific analysis (architecture, security, quality, etc.)
+ * on the provided files and returns structured results.
+ *
+ * @param config Specialized agent configuration
+ * @param files Array of project files to analyze
+ * @param context Project context with additional information
+ * @param customPrompt Optional custom prompt to override default
+ * @returns Promise resolving to analysis result with issues and recommendations
+ *
+ * @example
+ * ```ts
+ * const result = await runSpecializedAnalysis(
+ *   architectConfig,
+ *   [{ name: "main.ts", content: "..." }],
+ *   { sessionId: "123", userRole: "developer", files: [] }
+ * );
+ * console.log(result.issues);
+ * ```
+ */
 export async function runSpecializedAnalysis(
   config: SpecializedAgentConfig,
   files: ProjectFile[],
@@ -307,7 +371,30 @@ function parseTextAnalysisResult(
   };
 }
 
-// Pre-configured architecture agent factory for construction projects
+/**
+ * Creates a pre-configured architecture analysis agent.
+ *
+ * Factory function that returns configuration for an architecture review agent
+ * specialized in analyzing system design, patterns, and best practices.
+ *
+ * @param llmConfig LLM configuration (Claude API settings)
+ * @param language Language for agent responses ("en" or "et")
+ * @param vectorSearchTool Optional vector search tool for knowledge retrieval
+ * @returns Specialized agent configuration for architecture analysis
+ *
+ * @example
+ * ```ts
+ * const architectConfig = createArchitectureAgentConfig(
+ *   { provider: "claude", apiKey: "..." },
+ *   "en"
+ * );
+ * const result = await runSpecializedAnalysis(
+ *   architectConfig,
+ *   files,
+ *   context
+ * );
+ * ```
+ */
 export function createArchitectureAgentConfig(
   llmConfig: LLMConfig,
   language: "en" | "et" = "en",

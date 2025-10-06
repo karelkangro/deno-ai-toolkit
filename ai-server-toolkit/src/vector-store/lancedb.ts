@@ -400,6 +400,18 @@ export async function searchSimilar(
   return await searchByEmbedding(state, queryEmbedding, options, tableName);
 }
 
+/**
+ * Searches for documents using a pre-computed embedding vector.
+ *
+ * Use this when you already have an embedding vector and want to find
+ * similar documents without re-computing the query embedding.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param embedding Pre-computed embedding vector
+ * @param options Search options (limit, threshold, filter)
+ * @param tableName Optional table name (defaults to state.tableName)
+ * @returns Array of search results with score, content, and metadata
+ */
 export async function searchByEmbedding(
   state: LanceDBState,
   embedding: number[],
@@ -418,6 +430,14 @@ export async function searchByEmbedding(
   return processSearchResults(results, options, state.isCloud);
 }
 
+/**
+ * Retrieves a single document by ID from the vector store.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param id Document ID to retrieve
+ * @param tableName Optional table name (defaults to state.tableName)
+ * @returns Document with content, metadata, and embedding, or null if not found
+ */
 export async function getDocument(
   state: LanceDBState,
   id: string,
@@ -447,6 +467,10 @@ export async function getDocument(
   };
 }
 
+/**
+ * Extracts metadata from cloud storage format (meta_* fields).
+ * @internal
+ */
 function extractCloudMetadata(
   result: LanceDBSearchResult,
 ): Record<string, unknown> {
@@ -466,6 +490,15 @@ function extractCloudMetadata(
   return metadata;
 }
 
+/**
+ * Updates an existing document in the vector store.
+ *
+ * Implemented as delete + add operation.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param document Updated document with same ID
+ * @param tableName Optional table name (defaults to state.tableName)
+ */
 export async function updateDocument(
   state: LanceDBState,
   document: VectorDocument,
@@ -475,6 +508,13 @@ export async function updateDocument(
   await addDocument(state, document, tableName);
 }
 
+/**
+ * Deletes a document from the vector store by ID.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param id Document ID to delete
+ * @param tableName Optional table name (defaults to state.tableName)
+ */
 export async function deleteDocument(
   state: LanceDBState,
   id: string,
@@ -484,6 +524,13 @@ export async function deleteDocument(
   await table.delete(`id = '${id}'`);
 }
 
+/**
+ * Gets statistics about the vector store.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param tableName Optional table name (defaults to state.tableName)
+ * @returns Statistics including document count and estimated size
+ */
 export async function getStats(
   state: LanceDBState,
   tableName?: string,
@@ -498,6 +545,14 @@ export async function getStats(
   };
 }
 
+/**
+ * Clears all documents from the vector store.
+ *
+ * WARNING: This permanently deletes all documents in the table.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param tableName Optional table name (defaults to state.tableName)
+ */
 export async function clear(
   state: LanceDBState,
   tableName?: string,
@@ -558,6 +613,12 @@ export async function deleteWorkspaceTable(
   }
 }
 
+/**
+ * Lists all workspace table names.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @returns Array of workspace table names (workspace_*)
+ */
 export async function listWorkspaceTables(
   state: LanceDBState,
 ): Promise<string[]> {
@@ -593,6 +654,13 @@ export async function addWorkspaceDocument(
   await addDocument(state, document, tableName);
 }
 
+/**
+ * Adds multiple documents to a specific workspace in batch.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Workspace identifier
+ * @param documents Array of documents to add
+ */
 export async function addWorkspaceDocuments(
   state: LanceDBState,
   workspaceId: string,
@@ -634,6 +702,15 @@ export async function searchWorkspace(
   return await searchSimilar(state, query, options, tableName);
 }
 
+/**
+ * Searches workspace using a pre-computed embedding vector.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Workspace identifier
+ * @param embedding Pre-computed embedding vector
+ * @param options Search options (limit, threshold, filter)
+ * @returns Array of search results from the workspace
+ */
 export async function searchWorkspaceByEmbedding(
   state: LanceDBState,
   workspaceId: string,
@@ -644,6 +721,14 @@ export async function searchWorkspaceByEmbedding(
   return await searchByEmbedding(state, embedding, options, tableName);
 }
 
+/**
+ * Retrieves a document by ID from a specific workspace.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Workspace identifier
+ * @param id Document ID to retrieve
+ * @returns Document or null if not found
+ */
 export async function getWorkspaceDocument(
   state: LanceDBState,
   workspaceId: string,
@@ -653,6 +738,13 @@ export async function getWorkspaceDocument(
   return await getDocument(state, id, tableName);
 }
 
+/**
+ * Updates a document in a specific workspace.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Workspace identifier
+ * @param document Updated document with same ID
+ */
 export async function updateWorkspaceDocument(
   state: LanceDBState,
   workspaceId: string,
@@ -662,6 +754,13 @@ export async function updateWorkspaceDocument(
   await updateDocument(state, document, tableName);
 }
 
+/**
+ * Deletes a document from a specific workspace.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Workspace identifier
+ * @param id Document ID to delete
+ */
 export async function deleteWorkspaceDocument(
   state: LanceDBState,
   workspaceId: string,
@@ -671,6 +770,13 @@ export async function deleteWorkspaceDocument(
   await deleteDocument(state, id, tableName);
 }
 
+/**
+ * Gets statistics for a specific workspace.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Workspace identifier
+ * @returns Statistics including document count and size
+ */
 export async function getWorkspaceStats(
   state: LanceDBState,
   workspaceId: string,
@@ -679,6 +785,14 @@ export async function getWorkspaceStats(
   return await getStats(state, tableName);
 }
 
+/**
+ * Clears all documents from a specific workspace.
+ *
+ * WARNING: This permanently deletes all documents in the workspace.
+ *
+ * @param state LanceDB state from createLanceDB
+ * @param workspaceId Workspace identifier
+ */
 export async function clearWorkspace(
   state: LanceDBState,
   workspaceId: string,
