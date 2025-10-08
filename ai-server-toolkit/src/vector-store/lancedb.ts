@@ -1,5 +1,5 @@
 // Functional LanceDB vector store implementation
-import { connect, Connection, Table } from "vectordb";
+import { connect, type Connection, type Table } from "vectordb";
 import { createOpenAIEmbeddings, embedText, embedTexts } from "../embeddings/openai.ts";
 import type {
   EmbeddingConfig,
@@ -417,8 +417,9 @@ export async function searchByEmbedding(
 
   searchQuery = applySearchFilters(searchQuery, options.filter, state.isCloud);
 
-  const results = await searchQuery.execute();
-  return processSearchResults(results, options, state.isCloud);
+  // New API returns an iterator
+  const resultsIterator = await searchQuery.toArray();
+  return processSearchResults(resultsIterator, options, state.isCloud);
 }
 
 /**
@@ -439,7 +440,7 @@ export async function getDocument(
   const results = await table.search(new Array(state.dimensions).fill(0))
     .where(`id = '${id}'`)
     .limit(1)
-    .execute();
+    .toArray();
 
   if (!results || results.length === 0) {
     return null;
