@@ -4,6 +4,45 @@ import { createSearchTool, runAgent } from "./src/agents/base.ts";
 // Re-export all types
 export * from "./src/types.ts";
 
+// Workspace management types and functions (NEW in v1.4.0)
+export * from "./src/workspace/types.ts";
+export {
+  addDocument as addWorkspaceDocumentMeta,
+  closeWorkspaceKV,
+  createWorkspace,
+  createWorkspaceKV,
+  deleteDocument as deleteWorkspaceDocumentMeta,
+  deleteWorkspace,
+  generateId as generateWorkspaceId,
+  getDocument as getWorkspaceDocumentMeta,
+  getWorkspace,
+  getWorkspaceStats,
+  listDocuments as listWorkspaceDocuments,
+  listWorkspaces,
+  updateDocument as updateWorkspaceDocumentMeta,
+  updateWorkspace,
+} from "./src/workspace/kv-store.ts";
+export {
+  createWorkspaceCoordinated,
+  deleteDocumentCoordinated,
+  deleteWorkspaceCoordinated,
+  listWorkspacesCoordinated,
+  updateWorkspaceCoordinated,
+} from "./src/workspace/coordinator.ts";
+
+// File storage types and functions (NEW in v1.4.0)
+export * from "./src/storage/types.ts";
+export {
+  createS3Storage,
+  deleteFile,
+  downloadFile,
+  fileExists,
+  generateStorageKey,
+  getFileMetadata,
+  getPresignedUrl,
+  uploadFile,
+} from "./src/storage/s3.ts";
+
 // Vector store functionality
 export {
   addDocument,
@@ -21,7 +60,6 @@ export {
   getDocument,
   getStats,
   getWorkspaceDocument,
-  getWorkspaceStats,
   initializeTable,
   type LanceDBState,
   listWorkspaceTables,

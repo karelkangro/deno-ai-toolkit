@@ -1,7 +1,8 @@
 {
   "name": "@deno-ai-toolkit/ai-server-toolkit",
-  "version": "1.0.0",
+  "version": "1.4.0",
   "description": "Complete functional toolkit for building AI-powered Deno servers with vector databases and agent orchestration",
+  "license": "MIT",
   "exports": "./mod.ts",
   "tasks": {
     "dev": "deno run --allow-all --watch mod.ts",
@@ -17,8 +18,7 @@
     "@std/testing": "jsr:@std/testing@^1.0.0"
   },
   "compilerOptions": {
-    "allowJs": true,
-    "lib": ["deno.window"],
+    "lib": ["deno.window", "deno.unstable"],
     "strict": true
   },
   "fmt": {

@@ -10,11 +10,7 @@
       "LICENSE",
       "deno.json"
     ],
-    "exclude": [
-      "examples/**",
-      ".git/**",
-      "**/*.test.ts"
-    ]
+    "exclude": ["examples/**", ".git/**", "**/*.test.ts"]
   },
   "tasks": {
     "dev": "deno run --allow-all --watch ai-server-toolkit/mod.ts",
@@ -32,7 +28,7 @@
     "@std/http": "jsr:@std/http@^1.0.0"
   },
   "compilerOptions": {
-    "lib": ["deno.window"],
+    "lib": ["deno.window", "deno.unstable"],
     "strict": true
   }
 }

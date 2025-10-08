@@ -1,10 +1,6 @@
 // Functional LanceDB vector store implementation
 import { connect, Connection, Table } from "vectordb";
-import {
-  createOpenAIEmbeddings,
-  embedText,
-  embedTexts,
-} from "../embeddings/openai.ts";
+import { createOpenAIEmbeddings, embedText, embedTexts } from "../embeddings/openai.ts";
 import type {
   EmbeddingConfig,
   SearchOptions,
@@ -78,9 +74,7 @@ function transformMetadata(
   // Cloud: flatten metadata as individual columns with meta_ prefix
   const metaFields: Record<string, string> = {};
   Object.entries(metadata).forEach(([key, value]) => {
-    metaFields[`meta_${key}`] = typeof value === "string"
-      ? value
-      : JSON.stringify(value);
+    metaFields[`meta_${key}`] = typeof value === "string" ? value : JSON.stringify(value);
   });
   return metaFields;
 }
@@ -118,9 +112,7 @@ function processSearchResults(
   isCloud: boolean,
 ): SearchResult[] {
   return (results as LanceDBSearchResult[])
-    .filter((result) =>
-      !options.threshold || (1 - result._distance) >= options.threshold
-    )
+    .filter((result) => !options.threshold || (1 - result._distance) >= options.threshold)
     .map((result) => {
       // Extract metadata based on storage type
       let metadata: Record<string, unknown> = {};
@@ -131,10 +123,9 @@ function processSearchResults(
           if (key.startsWith("meta_") && value !== null) {
             const metaKey = key.replace("meta_", "");
             try {
-              metadata[metaKey] =
-                typeof value === "string" && value.startsWith("{")
-                  ? JSON.parse(value)
-                  : value;
+              metadata[metaKey] = typeof value === "string" && value.startsWith("{")
+                ? JSON.parse(value)
+                : value;
             } catch {
               metadata[metaKey] = value;
             }
@@ -455,9 +446,7 @@ export async function getDocument(
   }
 
   const result = results[0] as LanceDBSearchResult;
-  const metadata = state.isCloud
-    ? extractCloudMetadata(result)
-    : (result.metadata || {});
+  const metadata = state.isCloud ? extractCloudMetadata(result) : (result.metadata || {});
 
   return {
     id: result.id,

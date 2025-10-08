@@ -331,12 +331,11 @@ function parseTextAnalysisResult(
       lowerLine.includes("violation")
     ) {
       currentSection = "issues";
-      const severity =
-        lowerLine.includes("critical") || lowerLine.includes("high")
-          ? "high"
-          : lowerLine.includes("medium")
-          ? "medium"
-          : "low";
+      const severity = lowerLine.includes("critical") || lowerLine.includes("high")
+        ? "high"
+        : lowerLine.includes("medium")
+        ? "medium"
+        : "low";
 
       issues.push({
         title: line.replace(/^\W+/, "").slice(0, 100),

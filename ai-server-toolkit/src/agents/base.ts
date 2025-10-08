@@ -1,16 +1,6 @@
 // Functional agent implementation
-import {
-  type ClaudeLLMState,
-  createClaudeLLM,
-  generateResponse,
-} from "../llm/claude.ts";
-import type {
-  AgentConfig,
-  AgentResult,
-  LLMConfig,
-  LLMMessage,
-  ToolDefinition,
-} from "../types.ts";
+import { type ClaudeLLMState, createClaudeLLM, generateResponse } from "../llm/claude.ts";
+import type { AgentConfig, AgentResult, LLMConfig, LLMMessage, ToolDefinition } from "../types.ts";
 
 export interface AgentState {
   name: string;
@@ -135,9 +125,7 @@ export async function runAgent(
                     tool: tool.name,
                     params: call.parameters || {},
                     result: {
-                      error: error instanceof Error
-                        ? error.message
-                        : String(error),
+                      error: error instanceof Error ? error.message : String(error),
                     },
                   });
                 }

@@ -1,15 +1,6 @@
 // Functional Claude LLM integration
-import {
-  createRateLimiter,
-  type RateLimitState,
-  withRateLimit,
-} from "../utils/rate-limiter.ts";
-import type {
-  LLMConfig,
-  LLMMessage,
-  LLMResponse,
-  ToolDefinition,
-} from "../types.ts";
+import { createRateLimiter, type RateLimitState, withRateLimit } from "../utils/rate-limiter.ts";
+import type { LLMConfig, LLMMessage, LLMResponse, ToolDefinition } from "../types.ts";
 
 export interface ClaudeLLMState {
   apiKey: string;
@@ -113,9 +104,7 @@ export async function generateResponse(
         "x-api-key": state.apiKey,
         "Content-Type": "application/json",
         "anthropic-version": "2023-06-01",
-        ...(tools && tools.length > 0
-          ? { "anthropic-beta": "tools-2024-04-04" }
-          : {}),
+        ...(tools && tools.length > 0 ? { "anthropic-beta": "tools-2024-04-04" } : {}),
       },
       body: JSON.stringify(requestBody),
     });
@@ -194,9 +183,7 @@ export async function streamResponse(
         "x-api-key": state.apiKey,
         "Content-Type": "application/json",
         "anthropic-version": "2023-06-01",
-        ...(tools && tools.length > 0
-          ? { "anthropic-beta": "tools-2024-04-04" }
-          : {}),
+        ...(tools && tools.length > 0 ? { "anthropic-beta": "tools-2024-04-04" } : {}),
       },
       body: JSON.stringify(requestBody),
     });

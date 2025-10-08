@@ -1,9 +1,5 @@
 // Functional OpenAI embeddings integration
-import {
-  createRateLimiter,
-  type RateLimitState,
-  withRateLimit,
-} from "../utils/rate-limiter.ts";
+import { createRateLimiter, type RateLimitState, withRateLimit } from "../utils/rate-limiter.ts";
 import type { EmbeddingConfig } from "../types.ts";
 
 export interface OpenAIEmbeddingState {
