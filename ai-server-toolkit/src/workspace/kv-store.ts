@@ -38,9 +38,10 @@ export function generateId(): string {
 export async function createWorkspaceKV(
   config: WorkspaceStoreConfig,
 ): Promise<WorkspaceKVState> {
-  const kv = await Deno.openKv(config.path);
+  // Open KV with path (local) or without path (Deno Deploy managed KV)
+  const kv = config.path ? await Deno.openKv(config.path) : await Deno.openKv();
   console.log(
-    `✅ Workspace KV initialized: ${config.path || "Deno Deploy Cloud KV"}`,
+    `✅ Workspace KV initialized: ${config.path || "Deno Deploy managed KV"}`,
   );
   return { kv, config };
 }
