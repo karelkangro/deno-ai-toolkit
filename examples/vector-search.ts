@@ -114,9 +114,7 @@ async function main() {
         console.log(`✅ Found ${results.length} relevant results:`);
         results.forEach((result, index) => {
           console.log(
-            `   ${index + 1}. ${result.id} (similarity: ${
-              result.score.toFixed(3)
-            })`,
+            `   ${index + 1}. ${result.id} (similarity: ${result.score.toFixed(3)})`,
           );
           console.log(
             `      ${result.metadata?.type} language from ${result.metadata?.year}`,
@@ -141,9 +139,7 @@ async function main() {
     console.log(`Found ${filteredResults.length} compiled languages:`);
     filteredResults.forEach((result) => {
       console.log(
-        `• ${result.id} (${result.metadata?.year}): ${
-          result.content.slice(0, 60)
-        }...`,
+        `• ${result.id} (${result.metadata?.year}): ${result.content.slice(0, 60)}...`,
       );
     });
 

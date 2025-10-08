@@ -61,11 +61,7 @@ await streamResponse(claude, [
 ### OpenAI Embeddings
 
 ```typescript
-import {
-  createOpenAIEmbeddings,
-  embedText,
-  embedTexts,
-} from "./ai-server-toolkit/mod.ts";
+import { createOpenAIEmbeddings, embedText, embedTexts } from "./ai-server-toolkit/mod.ts";
 
 const embeddings = createOpenAIEmbeddings({
   provider: "openai",
@@ -218,17 +214,13 @@ console.log(`Generated ${result.recommendations.length} recommendations`);
 ### Custom Specialized Agent
 
 ```typescript
-import {
-  createSpecializedAgent,
-  runSpecializedAnalysis,
-} from "./ai-server-toolkit/mod.ts";
+import { createSpecializedAgent, runSpecializedAnalysis } from "./ai-server-toolkit/mod.ts";
 
 const customConfig = {
   domain: "legal",
   name: "Legal Review Agent",
   description: "Legal document reviewer",
-  systemPrompt:
-    "You are a legal expert. Review documents for compliance issues.",
+  systemPrompt: "You are a legal expert. Review documents for compliance issues.",
   llm: {
     provider: "claude",
     apiKey: Deno.env.get("CLAUDE_API_KEY")!,
@@ -305,11 +297,7 @@ results.forEach((r) => console.log(`${r.id}: ${r.content}`));
 ### Error Handling & Rate Limits
 
 ```typescript
-import {
-  createClaudeLLM,
-  createRateLimiter,
-  withRateLimit,
-} from "./ai-server-toolkit/mod.ts";
+import { createClaudeLLM, createRateLimiter, withRateLimit } from "./ai-server-toolkit/mod.ts";
 
 // Custom rate limiter
 const rateLimiter = createRateLimiter({

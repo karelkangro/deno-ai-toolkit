@@ -48,10 +48,7 @@ import { createRAGSystem, createVectorSearchSystem } from "deno-ai-toolkit";
 ### Direct JSR Import
 
 ```typescript
-import {
-  createRAGSystem,
-  createVectorSearchSystem,
-} from "jsr:@karelkangro/deno-ai-toolkit@^1.1.0";
+import { createRAGSystem, createVectorSearchSystem } from "jsr:@karelkangro/deno-ai-toolkit@^1.1.0";
 ```
 
 ### Version History

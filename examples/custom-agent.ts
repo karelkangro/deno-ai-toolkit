@@ -27,8 +27,7 @@ function createUnitConverterTool() {
       },
       from_unit: {
         type: "string",
-        description:
-          "The unit to convert from (e.g., 'meters', 'feet', 'celsius', 'fahrenheit')",
+        description: "The unit to convert from (e.g., 'meters', 'feet', 'celsius', 'fahrenheit')",
       },
       to_unit: {
         type: "string",
@@ -107,8 +106,7 @@ function createFactTool() {
       const categoryFacts = facts[params.category as keyof typeof facts] ||
         allFacts;
 
-      const randomFact =
-        categoryFacts[Math.floor(Math.random() * categoryFacts.length)];
+      const randomFact = categoryFacts[Math.floor(Math.random() * categoryFacts.length)];
       return { fact: randomFact, category: params.category || "random" };
     },
   };
@@ -127,8 +125,7 @@ async function main() {
 
     const agent = createAgent({
       name: "multi-tool-assistant",
-      description:
-        "A helpful assistant with calculation, conversion, and fact tools",
+      description: "A helpful assistant with calculation, conversion, and fact tools",
       systemPrompt: `You are a helpful assistant with access to useful tools.
 You can:
 1. Perform mathematical calculations

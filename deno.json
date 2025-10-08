@@ -30,5 +30,12 @@
   "compilerOptions": {
     "lib": ["deno.window", "deno.unstable"],
     "strict": true
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "singleQuote": false,
+    "proseWrap": "preserve"
   }
 }
