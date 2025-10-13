@@ -30,6 +30,9 @@ export {
   updateWorkspaceCoordinated,
 } from "./src/workspace/coordinator.ts";
 
+// Rules management types and functions (NEW)
+export * from "./src/rules/mod.ts";
+
 // File storage types and functions (NEW in v1.4.0)
 export * from "./src/storage/types.ts";
 export {
