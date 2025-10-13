@@ -65,7 +65,9 @@ function validateField(value: unknown, field: RuleField): string[] {
 
   // Type validation
   const actualType = getActualType(value);
-  if (actualType !== field.type) {
+  const expectedType = field.type === "enum" ? "string" : field.type;
+
+  if (actualType !== expectedType) {
     errors.push(
       `Field '${field.name}' has incorrect type: expected ${field.type}, got ${actualType}`,
     );
@@ -73,19 +75,14 @@ function validateField(value: unknown, field: RuleField): string[] {
   }
 
   // Type-specific validation
-  switch (field.type) {
-    case "string":
-      errors.push(...validateStringField(value as string, field));
-      break;
-    case "number":
-      errors.push(...validateNumberField(value as number, field));
-      break;
-    case "enum":
-      errors.push(...validateEnumField(value as string, field));
-      break;
-    case "array":
-      errors.push(...validateArrayField(value as unknown[], field));
-      break;
+  if (field.type === "string") {
+    errors.push(...validateStringField(value as string, field));
+  } else if (field.type === "number") {
+    errors.push(...validateNumberField(value as number, field));
+  } else if (field.type === "enum") {
+    errors.push(...validateEnumField(value as string, field));
+  } else if (field.type === "array") {
+    errors.push(...validateArrayField(value as unknown[], field));
   }
 
   return errors;

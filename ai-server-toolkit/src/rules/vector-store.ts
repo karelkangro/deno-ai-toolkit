@@ -142,7 +142,7 @@ export async function searchRulesVector(
     vectorState,
     tableName,
     query,
-    { limit, filter },
+    { limit, filter: filter as Record<string, unknown> | undefined },
   );
 
   return results.map((result) => ({
