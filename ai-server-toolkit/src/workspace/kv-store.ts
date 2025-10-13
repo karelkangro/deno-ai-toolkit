@@ -132,9 +132,13 @@ export async function listWorkspaces(
 
   let count = 0;
   for await (const entry of entries) {
-    workspaces.push(entry.value);
-    count++;
-    if (options?.limit && count >= options.limit) break;
+    // Only include top-level workspace entries (key length = 2: ["workspaces", workspaceId])
+    // Skip nested entries like rules, schemas, etc. (key length > 2)
+    if (entry.key.length === 2) {
+      workspaces.push(entry.value);
+      count++;
+      if (options?.limit && count >= options.limit) break;
+    }
   }
 
   return workspaces;

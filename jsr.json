@@ -1,6 +1,6 @@
 {
   "name": "@karelkangro/deno-ai-toolkit",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "exports": "./ai-server-toolkit/mod.ts",
   "publish": {
     "include": [
