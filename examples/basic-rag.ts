@@ -21,8 +21,8 @@ async function main() {
     // Create a RAG system with vector search and AI agent
     const ragSystem = await createRAGSystem({
       lancedbPath: "./examples/vector-db",
-      openaiApiKey: OPENAI_API_KEY,
-      claudeApiKey: CLAUDE_API_KEY,
+      openaiApiKey: OPENAI_API_KEY || "",
+      claudeApiKey: CLAUDE_API_KEY || "",
       systemPrompt:
         `You are a helpful assistant that can search through documents to answer questions.
 Always search for relevant information before answering questions. Be specific and cite your sources.`,
@@ -100,7 +100,7 @@ Always search for relevant information before answering questions. Be specific a
     );
 
     console.log(`Found ${searchResults.length} relevant documents:`);
-    searchResults.forEach((result, index) => {
+    searchResults.forEach((result: any, index: number) => {
       console.log(
         `${index + 1}. ${result.id} (score: ${result.score.toFixed(3)})`,
       );

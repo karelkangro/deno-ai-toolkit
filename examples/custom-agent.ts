@@ -119,7 +119,7 @@ async function main() {
     // Create a multi-purpose assistant agent
     const llm = createClaudeLLM({
       provider: "claude",
-      apiKey: CLAUDE_API_KEY,
+      apiKey: CLAUDE_API_KEY || "",
       model: "claude-3-sonnet-20240229",
     });
 
@@ -135,13 +135,13 @@ You can:
 Always use the appropriate tools when asked to calculate, convert, or provide facts.
 Be friendly and explain your reasoning.`,
       tools: [
-        createCalculatorTool(),
-        createUnitConverterTool(),
-        createFactTool(),
+        createCalculatorTool() as any,
+        createUnitConverterTool() as any,
+        createFactTool() as any,
       ],
       llm: {
         provider: "claude",
-        apiKey: CLAUDE_API_KEY,
+        apiKey: CLAUDE_API_KEY || "",
       },
       memory: true, // Remember conversation context
     });

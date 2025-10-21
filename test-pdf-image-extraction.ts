@@ -19,7 +19,7 @@ const testImageExtraction = async () => {
       console.log(`  Page ${idx + 1}: ${page.images.length} images`);
       page.images.forEach((img, imgIdx) => {
         console.log(
-          `    Image ${imgIdx + 1}: ${img.data.length} bytes, type: ${img.type || "unknown"}`,
+          `    Image ${imgIdx + 1}: ${img.data.length} bytes`,
         );
       });
     });

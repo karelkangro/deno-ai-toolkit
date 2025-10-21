@@ -12,5 +12,5 @@ try {
   console.log("Parser created:", parser);
   console.log("Parser methods:", Object.getOwnPropertyNames(Object.getPrototypeOf(parser)));
 } catch (error) {
-  console.log("Error creating parser:", error.message);
+  console.log("Error creating parser:", error instanceof Error ? error.message : String(error));
 }

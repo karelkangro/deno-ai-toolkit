@@ -17,7 +17,7 @@ async function main() {
     // Create a vector search system (no LLM needed)
     const vectorSystem = await createVectorSearchSystem({
       lancedbPath: "./examples/vector-search-db",
-      openaiApiKey: OPENAI_API_KEY,
+      openaiApiKey: OPENAI_API_KEY || "",
     });
 
     console.log("✅ Vector search system initialized");
@@ -112,7 +112,7 @@ async function main() {
 
       if (results.length > 0) {
         console.log(`✅ Found ${results.length} relevant results:`);
-        results.forEach((result, index) => {
+        results.forEach((result: any, index: number) => {
           console.log(
             `   ${index + 1}. ${result.id} (similarity: ${result.score.toFixed(3)})`,
           );
@@ -137,7 +137,7 @@ async function main() {
     });
 
     console.log(`Found ${filteredResults.length} compiled languages:`);
-    filteredResults.forEach((result) => {
+    filteredResults.forEach((result: any) => {
       console.log(
         `• ${result.id} (${result.metadata?.year}): ${result.content.slice(0, 60)}...`,
       );
