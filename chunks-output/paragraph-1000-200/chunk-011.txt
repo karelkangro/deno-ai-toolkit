@@ -1,0 +1,478 @@
+================================================================================
+Chunk ID: chunk_10
+Chunk Index: 11/15
+Page: 1 (1-1)
+Size: 2784 chars
+Char Range: 23030-25814
+Previous: chunk_9
+Next: chunk_11
+================================================================================
+
+Arve nr 446100, 2.06.2021.
+-- 10 of 16 --EVS-EN 338:2016
+9
+MÄRKUS
+ 6
+ 
+Servpaindetugevus võib olla kasutatav ka lamepainde puhul.
+Tabel 3
+ —
+ Servpaindekatsetel põhinevad
+ lehtpuidu tugevusklassid
+ –
+ tugevuse, jäikuse ja tiheduse väärtused
+K
+lass
+ 
+D18
+ 
+D24
+ 
+D27
+ 
+D30
+ 
+D35
+ 
+D40
+ 
+D45
+ 
+D50
+ 
+D55
+ 
+D60
+ 
+D65
+ 
+D70
+ 
+D75
+ 
+D80
+Tugevusomadused, N/mm
+2
+Paine
+ 
+fm,,k
+ 
+18
+ 
+24
+ 
+27
+ 
+30
+ 
+35
+ 
+40
+ 
+45
+ 
+50
+ 
+55
+ 
+60
+ 
+65
+ 
+70
+ 
+75
+ 
+80
+Tõmme kiusuunas
+ 
+ft,0,k
+ 
+11
+ 
+14
+ 
+16
+ 
+18
+ 
+21
+ 
+24
+ 
+27
+ 
+30
+ 
+33
+ 
+36
+ 
+39
+ 
+42
+ 
+45
+ 
+4
+8
+Tõmme ristikiudu
+ 
+ft,90,k
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+ 
+0,6
+Surve kiusuunas
+ 
+fc,0,k
+ 
+18
+ 
+21
+ 
+22
+ 
+24
+ 
+25
+ 
+27
+ 
+29
+ 
+30
+ 
+32
+ 
+33
+ 
+35
+ 
+36
+ 
+37
+ 
+38
+Surve ristikiudu
+ 
+fc,90,k
+ 
+4,8
+ 
+4,9
+ 
+5,1
+ 
+5,3
+ 
+5,4
+ 
+5,5
+ 
+5,8
+ 
+6,2
+ 
+6,6
+ 
+10,5
+ 
+11,3
+ 
+12,0
+ 
+12,8
+ 
+13,5
+Nihe
+ 
+fv,k
+ 
+3,5
+ 
+3,7
+ 
+3,8
+ 
+3,9
+ 
+4,1
+ 
+4,2
+ 
+4,4
+ 
+4,5
+ 
+4,7
+ 
+4,8
+ 
+5,0
+ 
+5,0
+ 
+5,0
+ 
+5,0
+Jäikusomadused, kN/mm
+2
+Keskmine
+ 
+elastsusmoodul
+kiusuunalisel paindel
+ 
+E
+m,0,mean
+ 
+9,5
+ 
+10,0
+ 
+10,5
+ 
+11,0
+ 
+12,0
+ 
+13,0
+ 
+13,5
+ 
+14,0
+ 
+15,5
+ 
+17,0
+ 
+18,5
+ 
+20,0
+ 
+22,0
+ 
+24,0
+Elastsusmooduli 5
+-protsenti
+il
+kiusuunalisel paindel
+ 
+E
+m,0,k
+ 
+8,0
+ 
+8,4
+ 
+8,8
+ 
+9,2
+ 
+10,1
+ 
+10,9
+ 
+11,3
+ 
+11,8
+ 
+13,0
+ 
+14,3
+ 
+15,5
+ 
+16,8
+ 
+18,5
+ 
+20,2
+Keskmine elastsusmoodul ristikiudu
+ 
+E
+m,90,mean
+ 
+0,63
+ 
+0,67
+ 
+0,70
+ 
+0,73
+ 
+0,80
+ 
+0,87
+ 
+0,90
+ 
+0,93
+ 
+1,03
+ 
+1,13
+ 
+1,23
+ 
+1,33
+ 
+1,47
+ 
+1,60
+Keskmine nihkemoodul
+ 
+G
+mean
+ 
+0,59
+ 
+0,63
+ 
+0,
+66
+ 
+0,69
+ 
+0,75
+ 
+0,81
+ 
+0,84
+ 
+0,88
+ 
+0,97
+ 
+1,06
+ 
+1,16
+ 
+1,25
+ 
+1,38
+ 
+1,50
+Tihedus, kg/m
+3
+Tiheduse 5
+-protsentiil
+ 
+ρ
+k 
+475
+ 
+485
+ 
+510
+ 
+530
+ 
+540
+ 
+550
+ 
+580
+ 
+620
+ 
+660
+ 
+700
+ 
+750
+ 
+800
+ 
+850
+ 
+900
+Keskmine tihedus
+ 
+ρ
+mean
+ 
+570
+ 
+580
+ 
+610
+ 
+640
+ 
+650
+ 
+660
+ 
+700
+ 
+740
+ 
+790
+ 
+840
+ 
+900
+ 
+960
+ 
+1020
+ 
+1080
+MÄRKUS 1
+ 
+Ülaltoodud tõmbetugevuse, survetugevuse, nihketugevuse, paindeelastsusmooduli, keskmise elastsusmooduli r
+istikiudu
+ ja keskmise nihkemooduli väärtused on arvutatud
+,
+kasutades standardis EN 384 antud valemeid.	
+MÄRKUS
+ 2
+ 
+Tabelis toodud omadused kehtivad niiskussisaldusel, mis on puidul
+ 
+20
+ °C temperatuuril
+ 
+ja 65
+ % keskkonna suhtelisel niiskusel, mis enamikul puid
+uliikidel vastab
+niiskussisaldusele 12
+ %.
+MÄRKUS
+ 3
+ 
+Nihketugevuse normväärtused on antud lõhedeta puidule vastavalt standardile
+ EN 408.
+MÄRKUS
+ 4
+ 
+Servpaindetugevus võib olla kasutatav ka lamepainde puhul.
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.
+EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+-- 11 of 16 --

@@ -1,0 +1,15 @@
+================================================================================
+Chunk ID: chunk_34
+Chunk Index: 35/39
+Page: 1 (1-1)
+Size: 791 chars
+Char Range: 11715-12507
+Previous: chunk_33
+Next: chunk_35
+================================================================================
+
+selle tugevuse, keskmise elastsusmooduli ja
+tiheduse normväärtused on võrdsed või ületavad tabelis 1, 2 või 3 sellele tugevusklassile antud väärtusi.Kui tunnustatud sortimisaruanded sisaldavad seadistusi, võib sortimismasina seadistada otseselt
+tugevusklassi tugevuse, jäikuse ja tiheduse väärtuste sortimiseks. Selliselt sorditud puitu peaks
+iseloomustama tugevusklassi numbriga ja märgistama vastavalt standarditele EN 14081-1, EN 14081-2 ja
+EN 14081-3. Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021. Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele. EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale.

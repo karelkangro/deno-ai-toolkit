@@ -1,0 +1,16 @@
+================================================================================
+Chunk ID: chunk_21
+Chunk Index: 22/39
+Page: 1 (1-1)
+Size: 654 chars
+Char Range: 4671-5325
+Previous: chunk_20
+Next: chunk_22
+================================================================================
+
+TUS
+See standard sätestab teatud arvu tugevusklasse, kus igaüks on määratud numbriga, mis näitab
+servpaindetugevuse või tõmbetugevuse väärtust, N/mm2.Okaspuidu liikide servpaindekatsete põhjal on tugevuse, jäikuse ja tiheduse normväärtused
+tugevusklassidele Cxx, kus xx viitab normpaindetugevuse 5-protsentiili väärtusele, antud tabelis 1. Okaspuidu liikide tõmbekatsete põhjal on tugevuse, jäikuse ja tiheduse normväärtused tugevusklassidele
+Txx, kus xx viitab normtõmbetugevuse 5-protsentiili väärtusele, antud tabelis 2. MÄRKUS 1 T klassi kuuluv puit on mõeldud peamiselt kasutamiseks liimpuidus või muudel juhtudel, kus
+tõmbekoormus on domineerivaks.

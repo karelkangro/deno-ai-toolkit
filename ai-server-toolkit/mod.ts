@@ -46,6 +46,29 @@ export {
   uploadFile,
 } from "./src/storage/s3.ts";
 
+// Document processing types and functions (NEW in v1.7.0)
+export * from "./src/document/types.ts";
+export {
+  buildSectionHierarchy,
+  chunkByParagraphs,
+  chunkBySections,
+  chunkBySentences,
+  chunkDocumentPages,
+  detectLegalKeywords,
+  detectSectionNumbers,
+  detectStandardReferences,
+  enrichChunksWithLegalContext,
+  extractCitationFromMetadata,
+  extractDocumentMetadata,
+  extractDocumentText,
+  extractPDFContent,
+  extractTextOnly,
+  formatCitation,
+  formatCitationCompact,
+  formatCitationMarkdown,
+  processLegalDocument,
+} from "./src/document/mod.ts";
+
 // Vector store functionality
 export {
   addDocument,

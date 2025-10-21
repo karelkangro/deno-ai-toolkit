@@ -1,0 +1,20 @@
+================================================================================
+Chunk ID: chunk_6
+Chunk Index: 7/39
+Page: 1 (1-1)
+Size: 799 chars
+Char Range: 1252-2051
+Previous: chunk_5
+Next: chunk_7
+================================================================================
+
+n
+under the responsibility of a CEN member into its own language and notified to the Central Secretariat has the same status as the
+official versions.CEN members are the national standards bodies of Austria, Belgium, Cyprus, Czech Republic, Denmark, Estonia, Finland, France,
+Germany, Greece, Hungary, Iceland, Ireland, Italy, Latvia, Lithuania, Luxembourg, Malta, Netherlands, Norway, Poland, Portugal,
+Romania, Slovakia, Slovenia, Spain, Sweden, Switzerland and United Kingdom. EUROPEAN COMMITTEE FOR STANDARDIZATION
+C O M I T É E U R O P É E N D E N O R M A L I S A T I O N
+E U R O P Ä I S C H E S K O M I T E E F Ü R N O R M U N G
+Management Centre: Avenue Marnix 17, B-1000 Brussels
+© 2016 CEN All rights of exploitation in any form and by any means reserved
+worldwide for CEN national Members.

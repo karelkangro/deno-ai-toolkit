@@ -1,6 +1,6 @@
 {
   "name": "@deno-ai-toolkit/ai-server-toolkit",
-  "version": "1.5.0",
+  "version": "1.6.2",
   "description": "Complete functional toolkit for building AI-powered Deno servers with vector databases and agent orchestration",
   "license": "MIT",
   "exports": "./mod.ts",

@@ -1,0 +1,17 @@
+================================================================================
+Chunk ID: chunk_3
+Chunk Index: 4/39
+Page: 1 (1-1)
+Size: 735 chars
+Char Range: 576-1311
+Previous: chunk_2
+Next: chunk_4
+================================================================================
+
+ndardi sisu kohta on võimalik edastada, kasutades EVS-i veebilehel asuvat tagasiside
+vormi või saates e-kirja meiliaadressile standardiosakond@evs.ee.ICS 79.040
+Standardite reprodutseerimise ja levitamise õigus kuulub Eesti Standardikeskusele
+Andmete paljundamine, taastekitamine, kopeerimine, salvestamine elektroonsesse süsteemi või edastamine ükskõik millises
+vormis või millisel teel ilma Eesti Standardikeskuse kirjaliku loata on keelatud. Kui Teil on küsimusi standardite autorikaitse kohta, võtke palun ühendust Eesti Standardikeskusega:
+Aru 10, 10317 Tallinn, Eesti; koduleht www.evs.ee; telefon 605 5050; e-post info@evs.ee
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.

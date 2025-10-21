@@ -1,0 +1,38 @@
+================================================================================
+Chunk ID: chunk_11
+Chunk Index: 12/15
+Page: 1 (1-1)
+Size: 1717 chars
+Char Range: 24706-26423
+Previous: chunk_10
+Next: chunk_12
+================================================================================
+
+Arve nr 446100, 2.06.2021.
+-- 11 of 16 --EVS-EN 338:2016
+10
+6 PUIDUKOGUMI PAIGUTAMINE TUGEVUSKLASSI
+6.1 Sortimine
+6.1.1 Visuaalsorditud puit
+Visuaalsorditud puit peab olema sorditud vastavalt sortimisstandardile, mis rahuldab standardi
+EN 14081-1 nõudeid.
+MÄRKUS Standard EN 1912 loetleb teatud arvu visuaalsorte ja puiduliike, mis on paigutatud selle standardi
+tugevusklassidesse.
+6.1.2 Masinsorditud puit
+Masinsorditud puit peab rahuldama standardi EN 14081 (kõikide osade) nõudeid.
+6.2 Liigitus
+6.2.1 Normväärtused
+Käsitletava puidukogumi painde- või tõmbetugevuse, keskmise painde- või tõmbeelastsusmooduli ja
+tiheduse normväärtused peab määrama vastavalt standardile EN 384. Teised tugevus- ja jäikusomadused,
+samuti nagu keskmise tiheduse väärtused määratakse vastavalt standardile EN 384.
+6.2.2 Tugevusklassi paigutamine
+Puidukogumi võib paigutada mingisse tugevusklassi, kui selle tugevuse, keskmise elastsusmooduli ja
+tiheduse normväärtused on võrdsed või ületavad tabelis 1, 2 või 3 sellele tugevusklassile antud väärtusi.
+Kui tunnustatud sortimisaruanded sisaldavad seadistusi, võib sortimismasina seadistada otseselt
+tugevusklassi tugevuse, jäikuse ja tiheduse väärtuste sortimiseks. Selliselt sorditud puitu peaks
+iseloomustama tugevusklassi numbriga ja märgistama vastavalt standarditele EN 14081-1, EN 14081-2 ja
+EN 14081-3.
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.
+EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+-- 12 of 16 --

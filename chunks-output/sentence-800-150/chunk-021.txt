@@ -1,0 +1,21 @@
+================================================================================
+Chunk ID: chunk_20
+Chunk Index: 21/39
+Page: 1 (1-1)
+Size: 721 chars
+Char Range: 4482-5203
+Previous: chunk_19
+Next: chunk_21
+================================================================================
+
+(N/mm2);
+Gmean nihkemooduli 5-protsentiili normväärtus (kN/mm2);
+ρk tiheduse 5-protsentiili normväärtus (kg/m3);
+Standardid on autoriõiguste objektid.Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021. Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele. EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021. -- 7 of 16 --
+
+EVS-EN 338:2016
+6
+ρmean tiheduse keskmine normväärtus (kg/m3)
+5 EHITUSPUIDU LIIGITUS
+See standard sätestab teatud arvu tugevusklasse, kus igaüks on määratud numbriga, mis näitab
+servpaindetugevuse või tõmbetugevuse väärtust, N/mm2.

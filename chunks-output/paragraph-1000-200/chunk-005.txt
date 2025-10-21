@@ -1,0 +1,37 @@
+================================================================================
+Chunk ID: chunk_4
+Chunk Index: 5/15
+Page: 1 (1-1)
+Size: 1958 chars
+Char Range: 9411-11369
+Previous: chunk_3
+Next: chunk_5
+================================================================================
+
+Arve nr 446100, 2.06.2021.
+-- 4 of 16 --EVS-EN 338:2016
+3
+EUROOPA EESSÕNA
+Dokumendi (EN 338:2016) on koostanud tehniline komitee CEN/TC 124 „Puitkonstruktsioonid“, mille
+sekretariaati haldab AFNOR.
+Euroopa standardile tuleb anda rahvusliku standardi staatus kas identse tõlke avaldamisega või
+jõustumisteatega hiljemalt 2016. a oktoobriks ja sellega vastuolus olevad rahvuslikud standardid peavad
+olema kehtetuks tunnistatud hiljemalt 2016. a oktoobriks.
+Tuleb pöörata tähelepanu võimalusele, et standardi mõni osa võib olla patendiõiguse subjekt. CEN [ja/või
+CENELEC] ei vastuta sellis(t)e patendiõigus(t)e väljaselgitamise eest.
+See dokument asendab standardit EN 338:2009.
+Võrreldes standardiga EN 338:2009 on tehtud järgmised muudatused:
+— uus tabel okaspuiduliikide tugevusklassidele, mis põhineb tõmbekatsetel;
+— lehtpuiduliikide tugevusklasside tabeli laiendus uute klassidega, mis põhineb servpaindekatsetel;
+— tugevuse, jäikuse ja tiheduse mõnede normväärtuste muudatused;
+— valemid teiste tugevusomaduste normväärtuste määramiseks sorti määravatest omadustest on üle
+viidud standardisse EN 384.
+CEN-i/CENELEC-i sisereeglite järgi peavad Euroopa standardi kasutusele võtma järgmiste riikide
+rahvuslikud standardimisorganisatsioonid: Austria, Belgia, Bulgaaria, Eesti, endine Jugoslaavia
+Makedoonia Vabariik, Hispaania, Holland, Horvaatia, Iirimaa, Island, Itaalia, Kreeka, Küpros, Leedu,
+Luksemburg, Läti, Malta, Norra, Poola, Portugal, Prantsusmaa, Rootsi, Rumeenia, Saksamaa, Slovakkia,
+Sloveenia, Soome, Šveits, Taani, Tšehhi Vabariik, Türgi, Ungari ja Ühendkuningriik.
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.
+EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+-- 5 of 16 --

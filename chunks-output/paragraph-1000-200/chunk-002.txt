@@ -1,0 +1,48 @@
+================================================================================
+Chunk ID: chunk_1
+Chunk Index: 2/15
+Page: 1 (1-1)
+Size: 2329 chars
+Char Range: 2289-4618
+Previous: chunk_0
+Next: chunk_2
+================================================================================
+
+Arve nr 446100, 2.06.2021.
+-- 1 of 16 --EVS-EN 338:2016
+II
+EESTI STANDARDI EESSÕNA
+See Eesti standard on
+— Euroopa standardi EN 338:2016 ingliskeelse teksti sisu poolest identne tõlge eesti keelde ja sellel on
+sama staatus mis jõustumisteate meetodil vastuvõetud originaalversioonil. Tõlgenduserimeelsuste
+korral tuleb lähtuda ametlikes keeltes avaldatud tekstidest;
+— jõustunud Eesti standardina inglise keeles mais 2016;
+— eesti keeles avaldatud sellekohase teate ilmumisega EVS Teataja 2016. aasta juulikuu numbris.
+Standardi tõlke koostamise ettepaneku on esitanud Rein Reiska, standardi tõlkimist on korraldanud Eesti
+Standardikeskus ning rahastanud Majandus- ja Kommunikatsiooniministeerium.
+Standardi on tõlkinud Rein Reiska.
+Euroopa standardimisorganisatsioonid on teinud Euroopa
+standardi EN 338:2016 rahvuslikele liikmetele
+kättesaadavaks 06.04.2016.
+Date of Availability of the European Standard
+EN 338:2016 is 06.04.2016.
+See standard on Euroopa standardi EN 338:2016
+eestikeelne [et] versioon. Teksti tõlke on avaldanud Eesti
+Standardikeskus ja sellel on sama staatus ametlike keelte
+versioonidega.
+This standard is the Estonian [et] version of the
+European Standard EN 338:2016. It was translated by the
+Estonian Centre for Standardisation. It has the same
+status as the official versions.
+Tagasisidet standardi sisu kohta on võimalik edastada, kasutades EVS-i veebilehel asuvat tagasiside
+vormi või saates e-kirja meiliaadressile standardiosakond@evs.ee.
+ICS 79.040
+Standardite reprodutseerimise ja levitamise õigus kuulub Eesti Standardikeskusele
+Andmete paljundamine, taastekitamine, kopeerimine, salvestamine elektroonsesse süsteemi või edastamine ükskõik millises
+vormis või millisel teel ilma Eesti Standardikeskuse kirjaliku loata on keelatud.
+Kui Teil on küsimusi standardite autorikaitse kohta, võtke palun ühendust Eesti Standardikeskusega:
+Aru 10, 10317 Tallinn, Eesti; koduleht www.evs.ee; telefon 605 5050; e-post info@evs.ee
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.
+EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+-- 2 of 16 --

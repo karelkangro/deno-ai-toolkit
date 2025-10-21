@@ -1,0 +1,21 @@
+================================================================================
+Chunk ID: chunk_32
+Chunk Index: 33/39
+Page: 1 (1-1)
+Size: 717 chars
+Char Range: 11359-12076
+Previous: chunk_31
+Next: chunk_33
+================================================================================
+
+elle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021. -- 11 of 16 --
+
+EVS-EN 338:2016
+10
+6 PUIDUKOGUMI PAIGUTAMINE TUGEVUSKLASSI
+6.1 Sortimine
+6.1.1 Visuaalsorditud puit
+Visuaalsorditud puit peab olema sorditud vastavalt sortimisstandardile, mis rahuldab standardi
+EN 14081-1 nõudeid. MÄRKUS Standard EN 1912 loetleb teatud arvu visuaalsorte ja puiduliike, mis on paigutatud selle standardi
+tugevusklassidesse. 6.1.2 Masinsorditud puit
+Masinsorditud puit peab rahuldama standardi EN 14081 (kõikide osade) nõudeid.

@@ -1,0 +1,352 @@
+================================================================================
+PDF CHUNKING TEST
+================================================================================
+
+Testing file: /Users/leon/Learn/sirkelmall/nihik/knowledge-base/EK/EK_EVS_EN_338_2016_et_ehituspuit.Tugevusklassid.pdf
+
+✓ File loaded: 952344 bytes
+✓ PDF extracted: 1 pages
+
+================================================================================
+DOCUMENT METADATA
+================================================================================
+{
+  "pageCount": 0
+}
+
+================================================================================
+PAGE PREVIEW
+================================================================================
+
+Page 1:
+  Length: 27343 chars
+  Has table: true
+  Preview: EESTI STANDARD EVS-EN 338:2016
+Avaldatud eesti keeles: juuli 2016
+Jõustunud Eesti standardina: mai 2016
+EHITUSPUIT
+Tugevusklassid
+Structural timber
+St...
+
+================================================================================
+CHUNKING STRATEGY: Paragraph (1000/200)
+================================================================================
+
+Total chunks: 15
+Strategy: paragraph
+Max size: 1000 chars
+Overlap: 200 chars
+
+Chunk sizes:
+  Average: 1859 chars
+  Min: 445 chars
+  Max: 3221 chars
+
+First 3 chunks:
+
+--- Chunk 1 (ID: chunk_0) ---
+Page: 1 (1-1)
+Size: 541 chars
+Index: 1/15
+Char range: 0-541
+Next: chunk_1
+
+Content preview (first 200 chars):
+EESTI STANDARD EVS-EN 338:2016
+Avaldatud eesti keeles: juuli 2016
+Jõustunud Eesti standardina: mai 2016
+EHITUSPUIT
+Tugevusklassid
+Structural timber
+Strength classes
+Standardid on autoriõiguste objekti...
+
+--- Chunk 2 (ID: chunk_1) ---
+Page: 1 (1-1)
+Size: 2329 chars
+Index: 2/15
+Char range: 2289-4618
+Previous: chunk_0
+Next: chunk_2
+
+Content preview (first 200 chars):
+Arve nr 446100, 2.06.2021.
+-- 1 of 16 --EVS-EN 338:2016
+II
+EESTI STANDARDI EESSÕNA
+See Eesti standard on
+— Euroopa standardi EN 338:2016 ingliskeelse teksti sisu poolest identne tõlge eesti keelde ja ...
+
+--- Chunk 3 (ID: chunk_2) ---
+Page: 1 (1-1)
+Size: 2063 chars
+Index: 3/15
+Char range: 4312-6375
+Previous: chunk_1
+Next: chunk_3
+
+Content preview (first 200 chars):
+Arve nr 446100, 2.06.2021.
+-- 2 of 16 --EUROOPA STANDARD
+EUROPEAN STANDARD
+NORME EUROPÉENNE
+EUROPÄISCHE NORM
+EN 338
+April 2016
+ICS 79.040 Supersedes EN 338:2009
+English Version
+Structural timber - Str...
+
+... (12 more chunks) ...
+
+--- Last Chunk (ID: chunk_14) ---
+Page: 1 (1-1)
+Size: 445 chars
+Index: 15/15
+
+Content preview (first 200 chars):
+Arve nr 446100, 2.06.2021.
+-- 15 of 16 --standard@evs.ee
+www.evs.ee
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumend...
+
+================================================================================
+CHUNKING STRATEGY: Paragraph (500/100)
+================================================================================
+
+Total chunks: 16
+Strategy: paragraph
+Max size: 500 chars
+Overlap: 100 chars
+
+Chunk sizes:
+  Average: 1745 chars
+  Min: 445 chars
+  Max: 3221 chars
+
+First 3 chunks:
+
+--- Chunk 1 (ID: chunk_0) ---
+Page: 1 (1-1)
+Size: 541 chars
+Index: 1/16
+Char range: 0-541
+Next: chunk_1
+
+Content preview (first 200 chars):
+EESTI STANDARD EVS-EN 338:2016
+Avaldatud eesti keeles: juuli 2016
+Jõustunud Eesti standardina: mai 2016
+EHITUSPUIT
+Tugevusklassid
+Structural timber
+Strength classes
+Standardid on autoriõiguste objekti...
+
+--- Chunk 2 (ID: chunk_1) ---
+Page: 1 (1-1)
+Size: 2329 chars
+Index: 2/16
+Char range: 2289-4618
+Previous: chunk_0
+Next: chunk_2
+
+Content preview (first 200 chars):
+Arve nr 446100, 2.06.2021.
+-- 1 of 16 --EVS-EN 338:2016
+II
+EESTI STANDARDI EESSÕNA
+See Eesti standard on
+— Euroopa standardi EN 338:2016 ingliskeelse teksti sisu poolest identne tõlge eesti keelde ja ...
+
+--- Chunk 3 (ID: chunk_2) ---
+Page: 1 (1-1)
+Size: 2063 chars
+Index: 3/16
+Char range: 4312-6375
+Previous: chunk_1
+Next: chunk_3
+
+Content preview (first 200 chars):
+Arve nr 446100, 2.06.2021.
+-- 2 of 16 --EUROOPA STANDARD
+EUROPEAN STANDARD
+NORME EUROPÉENNE
+EUROPÄISCHE NORM
+EN 338
+April 2016
+ICS 79.040 Supersedes EN 338:2009
+English Version
+Structural timber - Str...
+
+... (13 more chunks) ...
+
+--- Last Chunk (ID: chunk_15) ---
+Page: 1 (1-1)
+Size: 445 chars
+Index: 16/16
+
+Content preview (first 200 chars):
+Arve nr 446100, 2.06.2021.
+-- 15 of 16 --standard@evs.ee
+www.evs.ee
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumend...
+
+================================================================================
+CHUNKING STRATEGY: Sentence (800/150)
+================================================================================
+
+Total chunks: 39
+Strategy: sentence
+Max size: 800 chars
+Overlap: 150 chars
+
+Chunk sizes:
+  Average: 816 chars
+  Min: 272 chars
+  Max: 2291 chars
+
+First 3 chunks:
+
+--- Chunk 1 (ID: chunk_0) ---
+Page: 1 (1-1)
+Size: 786 chars
+Index: 1/39
+Char range: 0-786
+Next: chunk_1
+
+Content preview (first 200 chars):
+EESTI STANDARD EVS-EN 338:2016
+Avaldatud eesti keeles: juuli 2016
+Jõustunud Eesti standardina: mai 2016
+EHITUSPUIT
+Tugevusklassid
+Structural timber
+Strength classes
+Standardid on autoriõiguste objekti...
+
+--- Chunk 2 (ID: chunk_1) ---
+Page: 1 (1-1)
+Size: 799 chars
+Index: 2/39
+Char range: 210-1009
+Previous: chunk_0
+Next: chunk_2
+
+Content preview (first 200 chars):
+016 ingliskeelse teksti sisu poolest identne tõlge eesti keelde ja sellel on
+sama staatus mis jõustumisteate meetodil vastuvõetud originaalversioonil.Tõlgenduserimeelsuste
+korral tuleb lähtuda ametlik...
+
+--- Chunk 3 (ID: chunk_2) ---
+Page: 1 (1-1)
+Size: 607 chars
+Index: 3/39
+Char range: 282-889
+Previous: chunk_1
+Next: chunk_3
+
+Content preview (first 200 chars):
+Date of Availability of the European Standard
+EN 338:2016 is 06.04.2016.See standard on Euroopa standardi EN 338:2016
+eestikeelne [et] versioon. Teksti tõlke on avaldanud Eesti
+Standardikeskus ja sell...
+
+... (36 more chunks) ...
+
+--- Last Chunk (ID: chunk_38) ---
+Page: 1 (1-1)
+Size: 272 chars
+Index: 39/39
+
+Content preview (first 200 chars):
+elle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.EVS, Standardid on autoriõiguste objektid. Mitme k...
+
+================================================================================
+CHUNKING STRATEGY: Section-based
+================================================================================
+
+Total chunks: 14
+Strategy: section
+Max size: 1500 chars
+Overlap: 200 chars
+
+Chunk sizes:
+  Average: 1989 chars
+  Min: 541 chars
+  Max: 3221 chars
+
+First 3 chunks:
+
+--- Chunk 1 (ID: chunk_0) ---
+Page: 1 (1-1)
+Size: 541 chars
+Index: 1/14
+Char range: 0-541
+Next: chunk_1
+
+Content preview (first 200 chars):
+EESTI STANDARD EVS-EN 338:2016
+Avaldatud eesti keeles: juuli 2016
+Jõustunud Eesti standardina: mai 2016
+EHITUSPUIT
+Tugevusklassid
+Structural timber
+Strength classes
+Standardid on autoriõiguste objekti...
+
+--- Chunk 2 (ID: chunk_1) ---
+Page: 1 (1-1)
+Size: 2329 chars
+Index: 2/14
+Char range: 2289-4618
+Previous: chunk_0
+Next: chunk_2
+
+Content preview (first 200 chars):
+Arve nr 446100, 2.06.2021.
+-- 1 of 16 --EVS-EN 338:2016
+II
+EESTI STANDARDI EESSÕNA
+See Eesti standard on
+— Euroopa standardi EN 338:2016 ingliskeelse teksti sisu poolest identne tõlge eesti keelde ja ...
+
+--- Chunk 3 (ID: chunk_2) ---
+Page: 1 (1-1)
+Size: 2063 chars
+Index: 3/14
+Char range: 4312-6375
+Previous: chunk_1
+Next: chunk_3
+
+Content preview (first 200 chars):
+Arve nr 446100, 2.06.2021.
+-- 2 of 16 --EUROOPA STANDARD
+EUROPEAN STANDARD
+NORME EUROPÉENNE
+EUROPÄISCHE NORM
+EN 338
+April 2016
+ICS 79.040 Supersedes EN 338:2009
+English Version
+Structural timber - Str...
+
+... (11 more chunks) ...
+
+--- Last Chunk (ID: chunk_13) ---
+Page: 1 (1-1)
+Size: 853 chars
+Index: 14/14
+
+Content preview (first 200 chars):
+Arve nr 446100, 2.06.2021.
+-- 14 of 16 --Taotluslikult tühjaks jäetud
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokume...
+
+================================================================================
+✓ ALL TESTS COMPLETED SUCCESSFULLY
+================================================================================

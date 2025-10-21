@@ -1,0 +1,17 @@
+================================================================================
+Chunk ID: chunk_15
+Chunk Index: 16/39
+Page: 1 (1-1)
+Size: 729 chars
+Char Range: 2727-3456
+Previous: chunk_14
+Next: chunk_16
+================================================================================
+
+e normväärtuste muudatused;
+— valemid teiste tugevusomaduste normväärtuste määramiseks sorti määravatest omadustest on üle
+viidud standardisse EN 384.CEN-i/CENELEC-i sisereeglite järgi peavad Euroopa standardi kasutusele võtma järgmiste riikide
+rahvuslikud standardimisorganisatsioonid: Austria, Belgia, Bulgaaria, Eesti, endine Jugoslaavia
+Makedoonia Vabariik, Hispaania, Holland, Horvaatia, Iirimaa, Island, Itaalia, Kreeka, Küpros, Leedu,
+Luksemburg, Läti, Malta, Norra, Poola, Portugal, Prantsusmaa, Rootsi, Rumeenia, Saksamaa, Slovakkia,
+Sloveenia, Soome, Šveits, Taani, Tšehhi Vabariik, Türgi, Ungari ja Ühendkuningriik. Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.

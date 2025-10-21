@@ -1,0 +1,34 @@
+================================================================================
+Chunk ID: chunk_7
+Chunk Index: 8/15
+Page: 1 (1-1)
+Size: 1705 chars
+Char Range: 14315-16020
+Previous: chunk_6
+Next: chunk_8
+================================================================================
+
+Arve nr 446100, 2.06.2021.
+-- 7 of 16 --EVS-EN 338:2016
+6
+ρmean tiheduse keskmine normväärtus (kg/m3)
+5 EHITUSPUIDU LIIGITUS
+See standard sätestab teatud arvu tugevusklasse, kus igaüks on määratud numbriga, mis näitab
+servpaindetugevuse või tõmbetugevuse väärtust, N/mm2.
+Okaspuidu liikide servpaindekatsete põhjal on tugevuse, jäikuse ja tiheduse normväärtused
+tugevusklassidele Cxx, kus xx viitab normpaindetugevuse 5-protsentiili väärtusele, antud tabelis 1.
+Okaspuidu liikide tõmbekatsete põhjal on tugevuse, jäikuse ja tiheduse normväärtused tugevusklassidele
+Txx, kus xx viitab normtõmbetugevuse 5-protsentiili väärtusele, antud tabelis 2.
+MÄRKUS 1 T klassi kuuluv puit on mõeldud peamiselt kasutamiseks liimpuidus või muudel juhtudel, kus
+tõmbekoormus on domineerivaks.
+MÄRKUS 2 T klassid vastavad klassile L, LS või LD standardis EN 14081-4 mõnede erinevustega tabelväärtustes ja
+neile on viidatud ka standardis EN 14080.
+Lehtpuidu liikide servpaindekatsete põhjal on tugevuse, jäikuse ja tiheduse normväärtused
+tugevusklassidele Dxx, kus xx viitab normpaindetugevuse 5-protsentiili väärtusele, antud tabelis 3.
+MÄRKUS 3 C ja T klasse võib samuti kasutada sarnaste tugevusomadustega lehtpuidu puhul, nagu seda on näiteks
+pappel või kastan.
+Kõige tavalisemad Euroopas kasutatavad tugevusklassid on trükitud paksus kirjas.
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.
+EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+-- 8 of 16 --

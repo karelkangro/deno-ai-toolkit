@@ -1,0 +1,17 @@
+================================================================================
+Chunk ID: chunk_14
+Chunk Index: 15/39
+Page: 1 (1-1)
+Size: 706 chars
+Char Range: 2251-2957
+Previous: chunk_13
+Next: chunk_15
+================================================================================
+
+olema kehtetuks tunnistatud hiljemalt 2016. a oktoobriks. Tuleb pöörata tähelepanu võimalusele, et standardi mõni osa võib olla patendiõiguse subjekt.CEN [ja/või
+CENELEC] ei vastuta sellis(t)e patendiõigus(t)e väljaselgitamise eest. See dokument asendab standardit EN 338:2009. Võrreldes standardiga EN 338:2009 on tehtud järgmised muudatused:
+— uus tabel okaspuiduliikide tugevusklassidele, mis põhineb tõmbekatsetel;
+— lehtpuiduliikide tugevusklasside tabeli laiendus uute klassidega, mis põhineb servpaindekatsetel;
+— tugevuse, jäikuse ja tiheduse mõnede normväärtuste muudatused;
+— valemid teiste tugevusomaduste normväärtuste määramiseks sorti määravatest omadustest on üle
+viidud standardisse EN 384.

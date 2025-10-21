@@ -1,0 +1,18 @@
+================================================================================
+Chunk ID: chunk_29
+Chunk Index: 30/39
+Page: 1 (1-1)
+Size: 428 chars
+Char Range: 9211-9639
+Previous: chunk_28
+Next: chunk_30
+================================================================================
+
+Mitme kasutaja litsents 3 kasutajale.Arve nr 446100, 2.06.2021. Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele. EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021. -- 10 of 16 --
+
+EVS-EN 338:2016
+9
+MÄRKUS
+ 6
+ 
+Servpaindetugevus võib olla kasutatav ka lamepainde puhul.

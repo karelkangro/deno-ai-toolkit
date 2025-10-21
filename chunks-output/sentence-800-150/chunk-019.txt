@@ -1,0 +1,21 @@
+================================================================================
+Chunk ID: chunk_18
+Chunk Index: 19/39
+Page: 1 (1-1)
+Size: 798 chars
+Char Range: 3199-3997
+Previous: chunk_17
+Next: chunk_19
+================================================================================
+
+ed igale klassile, millele viitab
+EN 14081-1. See standard rakendub kogu ehituses kasutatavale okas- ja lehtpuidule standardi EN 14081-1
+käsitlusalas.2 NORMIVIITED
+Alljärgnevalt loetletud dokumendid, mille kohta on standardis esitatud normiviited, on kas tervenisti või
+osaliselt vajalikud selle standardi rakendamiseks. Dateeritud viidete korral kehtib üksnes viidatud
+väljaanne. Dateerimata viidete korral kehtib viidatud dokumendi uusim väljaanne koos võimalike
+muudatustega. EN 384. Structural timber – Determination of characteristic values of mechanical properties and density
+EN 14081 (kõik osad). Timber structures – Strength graded structural timber with rectangular cross
+section
+3 TERMINID JA MÄÄRATLUSED
+Standardi rakendamisel kasutatakse alljärgnevalt esitatud termineid ja määratlusi.

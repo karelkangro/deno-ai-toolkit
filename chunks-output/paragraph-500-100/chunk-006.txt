@@ -1,0 +1,21 @@
+================================================================================
+Chunk ID: chunk_5
+Chunk Index: 6/16
+Page: 1 (1-1)
+Size: 706 chars
+Char Range: 10077-10783
+Previous: chunk_4
+Next: chunk_6
+================================================================================
+
+Arve nr 446100, 2.06.2021.
+-- 5 of 16 --EVS-EN 338:2016
+4
+SISSEJUHATUS
+Tugevusklasside süsteem grupeerib kokku sarnaste tugevusomadustega sordid, puiduliigid ja päritolud,
+tehes need nii võrdväärseks. See võimaldab inseneril spetsifitseerida valitud tugevusklassi ja kasutada
+selle klassi normtugevuse väärtusi projektarvutustes.
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.
+EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+-- 6 of 16 --

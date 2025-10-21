@@ -139,24 +139,11 @@ export async function downloadFile(
 
   const response = await state.s3Client.send(command);
 
-  // Convert stream to Uint8Array
-  const chunks: Uint8Array[] = [];
-  const reader = response.Body.getReader();
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
+  if (!response.Body) {
+    throw new Error(`Failed to download file: ${key} - no body in response`);
   }
 
-  const content = new Uint8Array(
-    chunks.reduce((acc, chunk) => acc + chunk.length, 0),
-  );
-  let offset = 0;
-  for (const chunk of chunks) {
-    content.set(chunk, offset);
-    offset += chunk.length;
-  }
+  const content = await response.Body.transformToByteArray();
 
   console.log(`✅ Downloaded file: ${key} (${content.length} bytes)`);
 

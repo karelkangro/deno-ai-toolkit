@@ -1,0 +1,29 @@
+Chunking Strategy: Section-based
+Strategy: section
+Max Chunk Size: 1500 chars
+Overlap: 200 chars
+Min Chunk Size: 100 chars
+
+Total Chunks: 14
+Average Size: 1989 chars
+Min Size: 541 chars
+Max Size: 3221 chars
+
+================================================================================
+CHUNKS:
+================================================================================
+
+chunk-001.txt - 541 chars - Page 1
+chunk-002.txt - 2329 chars - Page 1
+chunk-003.txt - 2063 chars - Page 1
+chunk-004.txt - 3221 chars - Page 1
+chunk-005.txt - 1958 chars - Page 1
+chunk-006.txt - 706 chars - Page 1
+chunk-007.txt - 2613 chars - Page 1
+chunk-008.txt - 1705 chars - Page 1
+chunk-009.txt - 2835 chars - Page 1
+chunk-010.txt - 3217 chars - Page 1
+chunk-011.txt - 2784 chars - Page 1
+chunk-012.txt - 1717 chars - Page 1
+chunk-013.txt - 1299 chars - Page 1
+chunk-014.txt - 853 chars - Page 1

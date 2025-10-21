@@ -1,0 +1,24 @@
+================================================================================
+Chunk ID: chunk_0
+Chunk Index: 1/39
+Page: 1 (1-1)
+Size: 786 chars
+Char Range: 0-786
+Next: chunk_1
+================================================================================
+
+EESTI STANDARD EVS-EN 338:2016
+Avaldatud eesti keeles: juuli 2016
+Jõustunud Eesti standardina: mai 2016
+EHITUSPUIT
+Tugevusklassid
+Structural timber
+Strength classes
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021. Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele. EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021. -- 1 of 16 --
+
+EVS-EN 338:2016
+II
+EESTI STANDARDI EESSÕNA
+See Eesti standard on
+— Euroopa standardi EN 338:2016 ingliskeelse teksti sisu poolest identne tõlge eesti keelde ja sellel on
+sama staatus mis jõustumisteate meetodil vastuvõetud originaalversioonil.

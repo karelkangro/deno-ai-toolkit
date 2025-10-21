@@ -1,0 +1,18 @@
+PDF CHUNKING TEST RESULTS
+================================================================================
+Source PDF: /Users/leon/Learn/sirkelmall/nihik/knowledge-base/EK/EK_EVS_EN_338_2016_et_ehituspuit.Tugevusklassid.pdf
+PDF Size: 952344 bytes
+Pages Extracted: 1
+Total Text Length: 27343 chars
+Document Metadata:
+  Page Count: 0
+================================================================================
+CHUNKING STRATEGIES:
+================================================================================
+- Paragraph (1000/200): ./paragraph-1000-200/
+- Paragraph (500/100): ./paragraph-500-100/
+- Sentence (800/150): ./sentence-800-150/
+- Section-based: ./section-based/
+Each directory contains:
+  - Individual chunk files (chunk-001.txt, chunk-002.txt, etc.)
+  - _SUMMARY.txt with overview of all chunks

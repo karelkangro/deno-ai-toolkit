@@ -1,0 +1,18 @@
+================================================================================
+Chunk ID: chunk_17
+Chunk Index: 18/39
+Page: 1 (1-1)
+Size: 639 chars
+Char Range: 3029-3668
+Previous: chunk_16
+Next: chunk_18
+================================================================================
+
+Arve nr 446100, 2.06.2021.Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele. EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021. -- 6 of 16 --
+
+EVS-EN 338:2016
+5
+1 KÄSITLUSALA
+See standard sätestab tugevusklasside süsteemi üldiseks kasutamiseks projektnormides. Standard annab tugevusomaduste, jäikusomaduste ja tiheduse normväärtused igale klassile, millele viitab
+EN 14081-1. See standard rakendub kogu ehituses kasutatavale okas- ja lehtpuidule standardi EN 14081-1
+käsitlusalas.

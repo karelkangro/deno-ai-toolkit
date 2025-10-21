@@ -1,0 +1,19 @@
+================================================================================
+Chunk ID: chunk_1
+Chunk Index: 2/39
+Page: 1 (1-1)
+Size: 799 chars
+Char Range: 210-1009
+Previous: chunk_0
+Next: chunk_2
+================================================================================
+
+016 ingliskeelse teksti sisu poolest identne tõlge eesti keelde ja sellel on
+sama staatus mis jõustumisteate meetodil vastuvõetud originaalversioonil.Tõlgenduserimeelsuste
+korral tuleb lähtuda ametlikes keeltes avaldatud tekstidest;
+— jõustunud Eesti standardina inglise keeles mais 2016;
+— eesti keeles avaldatud sellekohase teate ilmumisega EVS Teataja 2016. aasta juulikuu numbris. Standardi tõlke koostamise ettepaneku on esitanud Rein Reiska, standardi tõlkimist on korraldanud Eesti
+Standardikeskus ning rahastanud Majandus- ja Kommunikatsiooniministeerium. Standardi on tõlkinud Rein Reiska. Euroopa standardimisorganisatsioonid on teinud Euroopa
+standardi EN 338:2016 rahvuslikele liikmetele
+kättesaadavaks 06.04.2016. Date of Availability of the European Standard
+EN 338:2016 is 06.04.2016.

@@ -1,0 +1,19 @@
+================================================================================
+Chunk ID: chunk_2
+Chunk Index: 3/39
+Page: 1 (1-1)
+Size: 607 chars
+Char Range: 282-889
+Previous: chunk_1
+Next: chunk_3
+================================================================================
+
+Date of Availability of the European Standard
+EN 338:2016 is 06.04.2016.See standard on Euroopa standardi EN 338:2016
+eestikeelne [et] versioon. Teksti tõlke on avaldanud Eesti
+Standardikeskus ja sellel on sama staatus ametlike keelte
+versioonidega. This standard is the Estonian [et] version of the
+European Standard EN 338:2016. It was translated by the
+Estonian Centre for Standardisation. It has the same
+status as the official versions. Tagasisidet standardi sisu kohta on võimalik edastada, kasutades EVS-i veebilehel asuvat tagasiside
+vormi või saates e-kirja meiliaadressile standardiosakond@evs.ee.

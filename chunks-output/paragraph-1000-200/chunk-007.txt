@@ -1,0 +1,52 @@
+================================================================================
+Chunk ID: chunk_6
+Chunk Index: 7/15
+Page: 1 (1-1)
+Size: 2613 chars
+Char Range: 12650-15263
+Previous: chunk_5
+Next: chunk_7
+================================================================================
+
+Arve nr 446100, 2.06.2021.
+-- 6 of 16 --EVS-EN 338:2016
+5
+1 KÄSITLUSALA
+See standard sätestab tugevusklasside süsteemi üldiseks kasutamiseks projektnormides.
+Standard annab tugevusomaduste, jäikusomaduste ja tiheduse normväärtused igale klassile, millele viitab
+EN 14081-1.
+See standard rakendub kogu ehituses kasutatavale okas- ja lehtpuidule standardi EN 14081-1
+käsitlusalas.
+2 NORMIVIITED
+Alljärgnevalt loetletud dokumendid, mille kohta on standardis esitatud normiviited, on kas tervenisti või
+osaliselt vajalikud selle standardi rakendamiseks. Dateeritud viidete korral kehtib üksnes viidatud
+väljaanne. Dateerimata viidete korral kehtib viidatud dokumendi uusim väljaanne koos võimalike
+muudatustega.
+EN 384. Structural timber – Determination of characteristic values of mechanical properties and density
+EN 14081 (kõik osad). Timber structures – Strength graded structural timber with rectangular cross
+section
+3 TERMINID JA MÄÄRATLUSED
+Standardi rakendamisel kasutatakse alljärgnevalt esitatud termineid ja määratlusi.
+3.1
+puidukogum (population)
+sama päritolu ühe puiduliigi või puiduliikide kombinatsiooni puit, millele rakenduvad tugevus-, jäikus- ja
+tihedusomadused
+4 TÄHISED JA LÜHENDID
+Em,0,mean elastsusmooduli keskmine normväärtus kiusuunalisel paindel (kN/mm2);
+Et,0,mean elastsusmooduli keskmine normväärtus kiusuunalisel tõmbel (kN/mm2);
+Em,0,k elastsusmooduli 5-protsentiili normväärtus kiusuunalisel paindel (kN/mm2);
+Et,0,k elastsusmooduli 5-protsentiili normväärtus kiusuunalisel tõmbel (kN/mm2);
+Em,90,mean elastsusmooduli keskmine normväärtus kiule ristsuunalisel paindel (kN/mm2);
+Et,90,mean elastsusmooduli keskmine normväärtus kiule ristsuunalisel tõmbel (kN/mm2);
+fc,0,k survetugevuse 5-protsentiili normväärtus kiusuunalisel survel (N/mm2);
+fc,90,k survetugevuse 5-protsentiili normväärtus kiule ristsuunalisel survel (N/mm2);
+fm,k paindetugevuse 5-protsentiili normväärtus (N/mm2);
+ft,0,k tõmbetugevuse 5-protsentiili normväärtus kiusuunalisel tõmbel (N/mm2);
+ft,90,k tõmbetugevuse 5-protsentiili normväärtus kiule ristsuunalisel tõmbel (N/mm2);
+fv,k nihketugevuse 5-protsentiili normväärtus (N/mm2);
+Gmean nihkemooduli 5-protsentiili normväärtus (kN/mm2);
+ρk tiheduse 5-protsentiili normväärtus (kg/m3);
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.
+EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+-- 7 of 16 --

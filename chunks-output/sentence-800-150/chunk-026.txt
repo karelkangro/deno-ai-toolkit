@@ -1,0 +1,83 @@
+================================================================================
+Chunk ID: chunk_25
+Chunk Index: 26/39
+Page: 1 (1-1)
+Size: 729 chars
+Char Range: 6740-7469
+Previous: chunk_24
+Next: chunk_26
+================================================================================
+
+elastsusmooduli
+, 
+keskmise elastsusmooduli ristikiudu
+ 
+ja keskmise nihkemooduli väärtused on arvutatud
+,
+kasutades standardis EN 384 antud valemeid.MÄRKUS
+ 2
+ 
+Tõmbetugev
+use väärtusi on hinnatud varuga, kuna
+ sortimine on tehtud
+ paindetugevusest
+ lähtudes
+. MÄRKUS
+ 3
+ 
+Tabelis
+ 
+toodud
+ 
+omadused
+ 
+kehtivad
+ 
+niiskussisaldus
+el,
+ 
+mis
+ 
+on
+ 
+puidul
+ 
+20
+ °C
+ 
+temperatuuril
+ 
+ja
+ 
+65
+ %
+ 
+keskkonna
+ 
+suhtelisel
+ 
+niiskusel,
+ 
+mis
+ 
+enamikul
+ 
+puiduliikidel
+ 
+vastab
+ni
+iskussisaldusele 12
+ %. MÄRKUS
+ 4
+ 
+Nihketugevuse normväärtused on antud lõhedeta puidule vastavalt standardile
+ EN 408. MÄRKUS
+ 5
+ 
+Neid klasse võib kasutada ka sarna
+ste tugevus
+- ja tihedus
+omadustega lehtpuidu
+ nagu näiteks
+ papli ja kastani puhul
+.

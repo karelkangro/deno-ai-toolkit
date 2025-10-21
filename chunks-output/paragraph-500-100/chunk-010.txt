@@ -1,0 +1,604 @@
+================================================================================
+Chunk ID: chunk_9
+Chunk Index: 10/16
+Page: 1 (1-1)
+Size: 3217 chars
+Char Range: 20287-23504
+Previous: chunk_8
+Next: chunk_10
+================================================================================
+
+Arve nr 446100, 2.06.2021.
+-- 9 of 16 --EVS-EN 338:2016	
+8
+Tabel 2
+ —
+ Tõmbekatsetel põhinevad okaspuidu tugevusklassid
+ –
+ tugevuse, jäikuse ja tiheduse väärtused
+K
+lass
+ 
+T 8
+ 
+T 9
+ 
+T 10
+ 
+T 11
+ 
+T 12
+ 
+T 13
+ 
+T 14
+ 
+T 14,5
+ 
+T 15
+ 
+T 16
+ 
+T 18
+ 
+T 21
+ 
+T 22
+ 
+T 24
+ 
+T 26
+ 
+T 27
+ 
+T 28
+ 
+T 30
+T
+ugevusomadused,
+ N/mm
+2
+Paine
+ 
+fm,,k
+ 
+13,5
+ 
+14,5
+ 
+16
+ 
+17
+ 
+18
+ 
+19,5
+ 
+20,5
+ 
+21
+ 
+22
+ 
+23
+ 
+25,5
+ 
+29
+ 
+30,5
+ 
+33
+ 
+35
+ 
+36,5
+ 
+37,5
+ 
+40
+Tõmme kiusuunas
+ 
+ft,0,k
+ 
+8
+ 
+9
+ 
+10
+ 
+11
+ 
+12
+ 
+13
+ 
+14
+ 
+14,5
+ 
+15
+ 
+16
+ 
+18
+ 
+21
+ 
+22
+ 
+24
+ 
+26
+ 
+27
+ 
+28
+ 
+30
+Tõmme ristikiudu
+ 
+ft,90,k
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0
+,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+ 
+0,4
+Surve kiusuunas
+ 
+fc,0,k
+ 
+16
+ 
+17
+ 
+17
+ 
+18
+ 
+19
+ 
+20
+ 
+21
+ 
+21
+ 
+21
+ 
+22
+ 
+23
+ 
+25
+ 
+26
+ 
+27
+ 
+28
+ 
+29
+ 
+29
+ 
+30
+Surve ristikiudu
+ 
+fc,90,k
+ 
+2,0
+ 
+2,1
+ 
+2,2
+ 
+2,2
+ 
+2,3
+ 
+2,4
+ 
+2,5
+ 
+2,5
+ 
+2,5
+ 
+2,6
+ 
+2,7
+ 
+2,7
+ 
+2,7
+ 
+2,8
+ 
+2,9
+ 
+2,9
+ 
+2,9
+ 
+3,0
+Nihe
+ 
+fv,k
+ 
+2,8
+ 
+3,0
+ 
+3,
+2
+ 
+3,4
+ 
+3,6
+ 
+3,8
+ 
+4,0
+ 
+4,0
+ 
+4,0
+ 
+4,0
+ 
+4,0
+ 
+4,0
+ 
+4,0
+ 
+4,0
+ 
+4,0
+ 
+4,0
+ 
+4,0
+ 
+4,0
+Jäikusomadused,
+ kN/mm
+2
+Keskmine
+ 
+elastsusmoodul
+kiusuunalisel tõmbel
+ 
+E
+t,0,mean
+ 
+7,0
+ 
+7,5
+ 
+8,0
+ 
+9,0
+ 
+9,5
+ 
+10,0
+ 
+11,0
+ 
+11,0
+ 
+11,5
+ 
+11,5
+ 
+12,0
+ 
+13,0
+ 
+13,0
+ 
+13,5
+ 
+14,0
+ 
+15,0
+ 
+15,0
+ 
+15,5
+Elastsusmooduli
+ 
+5
+-
+protsentiil
+ 
+kiusuunalisel
+tõmbel
+E
+t,0,k
+ 
+4,7
+ 
+5,0
+ 
+5,4
+ 
+6,0
+ 
+6,4
+ 
+6,7
+ 
+7,4
+ 
+7,4
+ 
+7,7
+ 
+7,7
+ 
+8,0
+ 
+8,7
+ 
+8,7
+ 
+9,0
+ 
+9,4
+ 
+10,1
+ 
+10,1
+ 
+10,4
+Keskmine
+ 
+elastsusmoodul
+ristikiudu
+ 
+E
+t,90,mean
+ 
+0,23
+ 
+0,25
+ 
+0,27
+ 
+0,30
+ 
+0,32
+ 
+0,33
+ 
+0,37
+ 
+0,37
+ 
+0,38
+ 
+0,38
+ 
+0,40
+ 
+0,43
+ 
+0,43
+ 
+0,4
+5
+ 
+0,47
+ 
+0,50
+ 
+0,50
+ 
+0,52
+Keskmine nihkemoodul
+ 
+G
+mean
+ 
+0,44
+ 
+0,47
+ 
+0,50
+ 
+0,56
+ 
+0,59
+ 
+0,63
+ 
+0,69
+ 
+0,69
+ 
+0,72
+ 
+0,72
+ 
+0,75
+ 
+0,81
+ 
+0,81
+ 
+0,84
+ 
+0,88
+ 
+0,94
+ 
+0,94
+ 
+0,97
+Tihedus, kg/m
+3
+Tiheduse 5
+-protsentiil
+ 
+ρ
+k 
+290
+ 
+300
+ 
+310
+ 
+320
+ 
+330
+ 
+340
+ 
+350
+ 
+350
+ 
+360
+ 
+370
+ 
+380
+ 
+390
+ 
+390
+ 
+400
+ 
+410
+ 
+410
+ 
+420
+ 
+430
+Keskmine tihedus
+ 
+ρ
+mean
+ 
+350
+ 
+360
+ 
+370
+ 
+380
+ 
+400
+ 
+410
+ 
+420
+ 
+420
+ 
+430
+ 
+440
+ 
+460
+ 
+470
+ 
+470
+ 
+480
+ 
+490
+ 
+490
+ 
+500
+ 
+520
+MÄRKUS 1
+ 
+Ülaltoodud tõmbetugevuse, survetugevuse, nihketugevuse, paindeelastsusmooduli, keskmise elastsusmooduli ristikiud
+u
+ ja keskmise nihkemooduli väärtused on arvutatud
+,
+kasutades st
+andardis EN 384 antud valemeid.
+MÄRKUS
+ 2
+ 
+Paindetugevuse väärtusi on hinnatud varuga, kuna
+ sortimine on tehtud tõmbetugevusest
+ lähtudes
+.
+MÄRKUS
+ 3
+ 
+Tabelis toodud omadused kehtivad niiskussisaldus
+el, mis on puidul
+ 
+20
+ °C temperatuuril
+ 
+ja 65
+ % keskkonna suhtelisel niiskusel, mis enamikul puiduliikidel vastab
+niiskussisaldusele 12
+ %.
+MÄRKUS
+ 4
+ 
+Nihketugevuse normväärtused on antud lõhedeta puidule vastavalt standardile
+ EN
+ 408
+.
+MÄRKUS
+ 5
+ 
+Neid klasse võib
+ kasutada ka sarna
+ste tugevu
+s- ja tihedus
+somadustega lehtpuidu
+ nagu näiteks
+ papli ja kastani puhul
+.
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.
+EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+-- 10 of 16 --

@@ -1,0 +1,19 @@
+================================================================================
+Chunk ID: chunk_33
+Chunk Index: 34/39
+Page: 1 (1-1)
+Size: 696 chars
+Char Range: 11553-12250
+Previous: chunk_32
+Next: chunk_34
+================================================================================
+
+paigutatud selle standardi
+tugevusklassidesse. 6.1.2 Masinsorditud puit
+Masinsorditud puit peab rahuldama standardi EN 14081 (kõikide osade) nõudeid.6.2 Liigitus
+6.2.1 Normväärtused
+Käsitletava puidukogumi painde- või tõmbetugevuse, keskmise painde- või tõmbeelastsusmooduli ja
+tiheduse normväärtused peab määrama vastavalt standardile EN 384. Teised tugevus- ja jäikusomadused,
+samuti nagu keskmise tiheduse väärtused määratakse vastavalt standardile EN 384. 6.2.2 Tugevusklassi paigutamine
+Puidukogumi võib paigutada mingisse tugevusklassi, kui selle tugevuse, keskmise elastsusmooduli ja
+tiheduse normväärtused on võrdsed või ületavad tabelis 1, 2 või 3 sellele tugevusklassile antud väärtusi.

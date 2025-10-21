@@ -1,0 +1,54 @@
+Chunking Strategy: Sentence (800/150)
+Strategy: sentence
+Max Chunk Size: 800 chars
+Overlap: 150 chars
+Min Chunk Size: 100 chars
+
+Total Chunks: 39
+Average Size: 816 chars
+Min Size: 272 chars
+Max Size: 2291 chars
+
+================================================================================
+CHUNKS:
+================================================================================
+
+chunk-001.txt - 786 chars - Page 1
+chunk-002.txt - 799 chars - Page 1
+chunk-003.txt - 607 chars - Page 1
+chunk-004.txt - 735 chars - Page 1
+chunk-005.txt - 628 chars - Page 1
+chunk-006.txt - 794 chars - Page 1
+chunk-007.txt - 799 chars - Page 1
+chunk-008.txt - 767 chars - Page 1
+chunk-009.txt - 725 chars - Page 1
+chunk-010.txt - 673 chars - Page 1
+chunk-011.txt - 674 chars - Page 1
+chunk-012.txt - 727 chars - Page 1
+chunk-013.txt - 790 chars - Page 1
+chunk-014.txt - 780 chars - Page 1
+chunk-015.txt - 706 chars - Page 1
+chunk-016.txt - 729 chars - Page 1
+chunk-017.txt - 693 chars - Page 1
+chunk-018.txt - 639 chars - Page 1
+chunk-019.txt - 798 chars - Page 1
+chunk-020.txt - 1396 chars - Page 1
+chunk-021.txt - 721 chars - Page 1
+chunk-022.txt - 654 chars - Page 1
+chunk-023.txt - 777 chars - Page 1
+chunk-024.txt - 323 chars - Page 1
+chunk-025.txt - 1806 chars - Page 1
+chunk-026.txt - 729 chars - Page 1
+chunk-027.txt - 584 chars - Page 1
+chunk-028.txt - 2291 chars - Page 1
+chunk-029.txt - 774 chars - Page 1
+chunk-030.txt - 428 chars - Page 1
+chunk-031.txt - 2052 chars - Page 1
+chunk-032.txt - 777 chars - Page 1
+chunk-033.txt - 717 chars - Page 1
+chunk-034.txt - 696 chars - Page 1
+chunk-035.txt - 791 chars - Page 1
+chunk-036.txt - 655 chars - Page 1
+chunk-037.txt - 776 chars - Page 1
+chunk-038.txt - 772 chars - Page 1
+chunk-039.txt - 272 chars - Page 1

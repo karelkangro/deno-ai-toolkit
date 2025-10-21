@@ -1,0 +1,23 @@
+================================================================================
+Chunk ID: chunk_4
+Chunk Index: 5/39
+Page: 1 (1-1)
+Size: 628 chars
+Char Range: 727-1355
+Previous: chunk_3
+Next: chunk_5
+================================================================================
+
+Arve nr 446100, 2.06.2021.Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele. EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021. -- 2 of 16 --
+
+EUROOPA STANDARD
+EUROPEAN STANDARD
+NORME EUROPÉENNE
+EUROPÄISCHE NORM
+EN 338
+April 2016
+ICS 79.040 Supersedes EN 338:2009
+English Version
+Structural timber - Strength classes
+Bois de structure - Classes de résistance Bauholz für tragende Zwecke - Festigkeitsklassen
+This European Standard was approved by CEN on 30 January 2016.

@@ -1,0 +1,17 @@
+================================================================================
+Chunk ID: chunk_5
+Chunk Index: 6/39
+Page: 1 (1-1)
+Size: 794 chars
+Char Range: 923-1717
+Previous: chunk_4
+Next: chunk_6
+================================================================================
+
+s de structure - Classes de résistance Bauholz für tragende Zwecke - Festigkeitsklassen
+This European Standard was approved by CEN on 30 January 2016.CEN members are bound to comply with the CEN/CENELEC Internal Regulations which stipulate the conditions for giving this
+European Standard the status of a national standard without any alteration. Up-to-date lists and bibliographical references
+concerning such national standards may be obtained on application to the Central Secretariat or to any CEN member. This European Standard exists in three official versions (English, French, German). A version in any other language made by
+translation
+under the responsibility of a CEN member into its own language and notified to the Central Secretariat has the same status as the
+official versions.

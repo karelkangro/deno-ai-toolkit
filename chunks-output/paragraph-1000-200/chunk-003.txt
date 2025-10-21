@@ -1,0 +1,43 @@
+================================================================================
+Chunk ID: chunk_2
+Chunk Index: 3/15
+Page: 1 (1-1)
+Size: 2063 chars
+Char Range: 4312-6375
+Previous: chunk_1
+Next: chunk_3
+================================================================================
+
+Arve nr 446100, 2.06.2021.
+-- 2 of 16 --EUROOPA STANDARD
+EUROPEAN STANDARD
+NORME EUROPÉENNE
+EUROPÄISCHE NORM
+EN 338
+April 2016
+ICS 79.040 Supersedes EN 338:2009
+English Version
+Structural timber - Strength classes
+Bois de structure - Classes de résistance Bauholz für tragende Zwecke - Festigkeitsklassen
+This European Standard was approved by CEN on 30 January 2016.
+CEN members are bound to comply with the CEN/CENELEC Internal Regulations which stipulate the conditions for giving this
+European Standard the status of a national standard without any alteration. Up-to-date lists and bibliographical references
+concerning such national standards may be obtained on application to the Central Secretariat or to any CEN member.
+This European Standard exists in three official versions (English, French, German). A version in any other language made by
+translation
+under the responsibility of a CEN member into its own language and notified to the Central Secretariat has the same status as the
+official versions.
+CEN members are the national standards bodies of Austria, Belgium, Cyprus, Czech Republic, Denmark, Estonia, Finland, France,
+Germany, Greece, Hungary, Iceland, Ireland, Italy, Latvia, Lithuania, Luxembourg, Malta, Netherlands, Norway, Poland, Portugal,
+Romania, Slovakia, Slovenia, Spain, Sweden, Switzerland and United Kingdom.
+EUROPEAN COMMITTEE FOR STANDARDIZATION
+C O M I T É E U R O P É E N D E N O R M A L I S A T I O N
+E U R O P Ä I S C H E S K O M I T E E F Ü R N O R M U N G
+Management Centre: Avenue Marnix 17, B-1000 Brussels
+© 2016 CEN All rights of exploitation in any form and by any means reserved
+worldwide for CEN national Members.
+Ref. No. EN 338:2016: E
+Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.
+EVS, Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021.
+-- 3 of 16 --

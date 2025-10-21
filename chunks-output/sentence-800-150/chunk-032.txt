@@ -1,0 +1,34 @@
+================================================================================
+Chunk ID: chunk_31
+Chunk Index: 32/39
+Page: 1 (1-1)
+Size: 777 chars
+Char Range: 11317-12094
+Previous: chunk_30
+Next: chunk_32
+================================================================================
+
+deelastsusmooduli, keskmise elastsusmooduli r
+istikiudu
+ ja keskmise nihkemooduli väärtused on arvutatud
+,
+kasutades standardis EN 384 antud valemeid.MÄRKUS
+ 2
+ 
+Tabelis toodud omadused kehtivad niiskussisaldusel, mis on puidul
+ 
+20
+ °C temperatuuril
+ 
+ja 65
+ % keskkonna suhtelisel niiskusel, mis enamikul puid
+uliikidel vastab
+niiskussisaldusele 12
+ %. MÄRKUS
+ 3
+ 
+Nihketugevuse normväärtused on antud lõhedeta puidule vastavalt standardile
+ EN 408. MÄRKUS
+ 4
+ 
+Servpaindetugevus võib olla kasutatav ka lamepainde puhul. Standardid on autoriõiguste objektid. Mitme kasutaja litsents 3 kasutajale. Arve nr 446100, 2.06.2021. Selle elektroonilise dokumendi kasutusõigus: Sirkel&Mall OÜ, reprodutseerimis- ja levitamisõigus kuulub Eesti Standardimis- ja Akrediteerimiskeskusele.
