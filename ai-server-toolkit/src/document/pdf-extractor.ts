@@ -1,7 +1,7 @@
 import { Buffer } from "node:buffer";
 import { PDFParse } from "pdf-parse";
 import type { DocumentMetadata, DocumentPage, ProcessedDocument } from "./types.ts";
-import type { PDFParser } from "./pdf-parse-types.ts";
+import "./pdf-parse-types.ts";
 
 /**
  * Extracts complete PDF content including metadata, text, and page-by-page breakdown.
