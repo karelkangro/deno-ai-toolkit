@@ -8,8 +8,8 @@ import {
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
-} from "npm:@aws-sdk/client-s3@^3.0.0";
-import { getSignedUrl } from "npm:@aws-sdk/s3-request-presigner@^3.0.0";
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type {
   DownloadResult,
   FileStorageConfig,

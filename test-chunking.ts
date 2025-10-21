@@ -3,7 +3,8 @@ import { chunkDocumentPages } from "./ai-server-toolkit/src/document/chunking.ts
 import type { ChunkingOptions } from "./ai-server-toolkit/src/document/types.ts";
 
 const testChunking = async () => {
-  const pdfPath = "/Users/leon/Learn/sirkelmall/nihik/knowledge-base/EK/EK_EVS_EN_338_2016_et_ehituspuit.Tugevusklassid.pdf";
+  const pdfPath =
+    "/Users/leon/Learn/sirkelmall/nihik/knowledge-base/EK/EK_EVS_EN_338_2016_et_ehituspuit.Tugevusklassid.pdf";
 
   console.log("=".repeat(80));
   console.log("PDF CHUNKING TEST");
@@ -91,7 +92,7 @@ const testChunking = async () => {
       console.log(`Max size: ${options.maxChunkSize} chars`);
       console.log(`Overlap: ${options.overlap} chars`);
 
-      const chunkSizes = chunks.map(c => c.content.length);
+      const chunkSizes = chunks.map((c) => c.content.length);
       const avgSize = chunkSizes.reduce((a, b) => a + b, 0) / chunks.length;
       const minSize = Math.min(...chunkSizes);
       const maxSize = Math.max(...chunkSizes);
@@ -104,7 +105,11 @@ const testChunking = async () => {
       console.log(`\nFirst 3 chunks:`);
       chunks.slice(0, 3).forEach((chunk, idx) => {
         console.log(`\n--- Chunk ${idx + 1} (ID: ${chunk.id}) ---`);
-        console.log(`Page: ${chunk.pageNumber}${chunk.startPage ? ` (${chunk.startPage}-${chunk.endPage})` : ""}`);
+        console.log(
+          `Page: ${chunk.pageNumber}${
+            chunk.startPage ? ` (${chunk.startPage}-${chunk.endPage})` : ""
+          }`,
+        );
         console.log(`Size: ${chunk.content.length} chars`);
         console.log(`Index: ${chunk.chunkIndex + 1}/${chunk.totalChunks}`);
         console.log(`Char range: ${chunk.charStart}-${chunk.charEnd}`);
@@ -121,7 +126,11 @@ const testChunking = async () => {
 
         const lastChunk = chunks[chunks.length - 1];
         console.log(`\n--- Last Chunk (ID: ${lastChunk.id}) ---`);
-        console.log(`Page: ${lastChunk.pageNumber}${lastChunk.startPage ? ` (${lastChunk.startPage}-${lastChunk.endPage})` : ""}`);
+        console.log(
+          `Page: ${lastChunk.pageNumber}${
+            lastChunk.startPage ? ` (${lastChunk.startPage}-${lastChunk.endPage})` : ""
+          }`,
+        );
         console.log(`Size: ${lastChunk.content.length} chars`);
         console.log(`Index: ${lastChunk.chunkIndex + 1}/${lastChunk.totalChunks}`);
         console.log(`\nContent preview (first 200 chars):`);
@@ -132,7 +141,6 @@ const testChunking = async () => {
     console.log("\n" + "=".repeat(80));
     console.log("✓ ALL TESTS COMPLETED SUCCESSFULLY");
     console.log("=".repeat(80));
-
   } catch (error) {
     console.error("\n❌ ERROR:", error);
     throw error;
@@ -142,4 +150,3 @@ const testChunking = async () => {
 if (import.meta.main) {
   await testChunking();
 }
-

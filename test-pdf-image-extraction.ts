@@ -18,7 +18,9 @@ const testImageExtraction = async () => {
     result1.pages.forEach((page, idx) => {
       console.log(`  Page ${idx + 1}: ${page.images.length} images`);
       page.images.forEach((img, imgIdx) => {
-        console.log(`    Image ${imgIdx + 1}: ${img.data.length} bytes, type: ${img.type || 'unknown'}`);
+        console.log(
+          `    Image ${imgIdx + 1}: ${img.data.length} bytes, type: ${img.type || "unknown"}`,
+        );
       });
     });
 
@@ -30,7 +32,6 @@ const testImageExtraction = async () => {
 
     await parser1.destroy();
     console.log("✓ Parser destroyed");
-
   } catch (error) {
     console.error("❌ Remote PDF test failed:", error);
   }
@@ -38,7 +39,8 @@ const testImageExtraction = async () => {
   try {
     console.log("\n" + "=".repeat(80));
     console.log("--- Test 2: Local Estonian PDF ---");
-    const pdfPath = "/Users/leon/Learn/sirkelmall/nihik/knowledge-base/EK/EK_EVS_EN_338_2016_et_ehituspuit.Tugevusklassid.pdf";
+    const pdfPath =
+      "/Users/leon/Learn/sirkelmall/nihik/knowledge-base/EK/EK_EVS_EN_338_2016_et_ehituspuit.Tugevusklassid.pdf";
     console.log(`File: ${pdfPath}`);
 
     const fileData = await Deno.readFile(pdfPath);
@@ -59,7 +61,7 @@ const testImageExtraction = async () => {
         console.log(`  Page ${idx + 1}: ${imageCount} images`);
         page.images.forEach((img, imgIdx) => {
           console.log(`    Image ${imgIdx + 1}: ${img.data.length} bytes`);
-          console.log(`      Width: ${img.width || 'unknown'}, Height: ${img.height || 'unknown'}`);
+          console.log(`      Width: ${img.width || "unknown"}, Height: ${img.height || "unknown"}`);
         });
       }
     });
@@ -86,7 +88,6 @@ const testImageExtraction = async () => {
 
     await parser2.destroy();
     console.log("✓ Parser destroyed");
-
   } catch (error) {
     console.error("❌ Local PDF test failed:", error);
   }
@@ -94,7 +95,8 @@ const testImageExtraction = async () => {
   try {
     console.log("\n" + "=".repeat(80));
     console.log("--- Test 3: Compare getText vs getImage ---");
-    const pdfPath = "/Users/leon/Learn/sirkelmall/nihik/knowledge-base/EK/EK_EVS_EN_338_2016_et_ehituspuit.Tugevusklassid.pdf";
+    const pdfPath =
+      "/Users/leon/Learn/sirkelmall/nihik/knowledge-base/EK/EK_EVS_EN_338_2016_et_ehituspuit.Tugevusklassid.pdf";
 
     const fileData = await Deno.readFile(pdfPath);
     const buffer = Buffer.from(fileData);
@@ -108,7 +110,6 @@ const testImageExtraction = async () => {
 
     await parser3.destroy();
     console.log("✓ Comparison complete");
-
   } catch (error) {
     console.error("❌ Comparison test failed:", error);
   }
@@ -121,4 +122,3 @@ const testImageExtraction = async () => {
 if (import.meta.main) {
   await testImageExtraction();
 }
-

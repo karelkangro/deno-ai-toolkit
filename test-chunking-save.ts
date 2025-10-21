@@ -3,7 +3,8 @@ import { chunkDocumentPages } from "./ai-server-toolkit/src/document/chunking.ts
 import type { ChunkingOptions } from "./ai-server-toolkit/src/document/types.ts";
 
 const testChunkingAndSave = async () => {
-  const pdfPath = "/Users/leon/Learn/sirkelmall/nihik/knowledge-base/EK/EK_EVS_EN_338_2016_et_ehituspuit.Tugevusklassid.pdf";
+  const pdfPath =
+    "/Users/leon/Learn/sirkelmall/nihik/knowledge-base/EK/EK_EVS_EN_338_2016_et_ehituspuit.Tugevusklassid.pdf";
 
   console.log("=".repeat(80));
   console.log("PDF CHUNKING TEST - SAVING CHUNKS TO FILES");
@@ -84,7 +85,7 @@ const testChunkingAndSave = async () => {
       console.log(`Max size: ${options.maxChunkSize} chars`);
       console.log(`Overlap: ${options.overlap} chars`);
 
-      const chunkSizes = chunks.map(c => c.content.length);
+      const chunkSizes = chunks.map((c) => c.content.length);
       const avgSize = chunkSizes.reduce((a, b) => a + b, 0) / chunks.length;
       const minSize = Math.min(...chunkSizes);
       const maxSize = Math.max(...chunkSizes);
@@ -124,7 +125,9 @@ const testChunkingAndSave = async () => {
         const metadata = [
           `Chunk ID: ${chunk.id}`,
           `Chunk Index: ${chunk.chunkIndex + 1}/${chunk.totalChunks}`,
-          `Page: ${chunk.pageNumber}${chunk.startPage ? ` (${chunk.startPage}-${chunk.endPage})` : ""}`,
+          `Page: ${chunk.pageNumber}${
+            chunk.startPage ? ` (${chunk.startPage}-${chunk.endPage})` : ""
+          }`,
           `Size: ${chunk.content.length} chars`,
           `Char Range: ${chunk.charStart}-${chunk.charEnd}`,
         ];
@@ -179,7 +182,7 @@ const testChunkingAndSave = async () => {
       "  - Individual chunk files (chunk-001.txt, chunk-002.txt, etc.)",
       "  - _SUMMARY.txt with overview of all chunks",
       "",
-    ].filter(line => line !== "").join("\n");
+    ].filter((line) => line !== "").join("\n");
 
     await Deno.writeTextFile(`${outputBaseDir}/INDEX.txt`, indexContent);
 
@@ -188,7 +191,6 @@ const testChunkingAndSave = async () => {
     console.log("=".repeat(80));
     console.log(`\nAll chunks saved to: ${outputBaseDir}/`);
     console.log(`See INDEX.txt for overview`);
-
   } catch (error) {
     console.error("\n❌ ERROR:", error);
     throw error;
@@ -198,4 +200,3 @@ const testChunkingAndSave = async () => {
 if (import.meta.main) {
   await testChunkingAndSave();
 }
-
