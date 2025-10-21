@@ -102,7 +102,7 @@ const testImageExtraction = async () => {
     const buffer = Buffer.from(fileData);
 
     const parser3 = new PDFParse({ data: buffer });
-    const textResult = await parser3.getText();
+    const textResult = await parser3.getText() as any;
     console.log(`Text extraction: ${textResult.text.length} chars, ${textResult.numpages} pages`);
 
     const imageResult = await parser3.getImage();

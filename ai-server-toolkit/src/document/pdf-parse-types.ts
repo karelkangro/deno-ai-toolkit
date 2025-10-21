@@ -9,12 +9,3 @@ export interface PDFInfo {
   Keywords?: string;
   [key: string]: string | undefined;
 }
-
-declare module "pdf-parse" {
-  export interface TextResult {
-    text: string;
-    numpages?: number;
-    numPages?: number;
-    info?: PDFInfo;
-  }
-}
