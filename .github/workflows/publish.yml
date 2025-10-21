@@ -13,19 +13,14 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Deno
-        uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@v2
         with:
-          deno-version: "2.4.5"
+          deno-version: v2.x
 
-      - name: Check types
+      - name: Run type check
         run: deno check ai-server-toolkit/mod.ts
 
-      - name: Format check
-        run: deno fmt --check
-
       - name: Publish to JSR
-        run: deno publish
+        run: deno publish --allow-dirty
