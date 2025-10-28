@@ -598,7 +598,6 @@ export async function deleteWorkspaceTable(
   const tableName = `workspace_${workspaceId}`;
   console.log(`🗑️  deleteWorkspaceTable: Attempting to drop table ${tableName}`);
   console.log(`   - LanceDB Cloud: ${state.isCloud}`);
-  console.log(`   - Connection URI: ${state.connection.uri || 'local'}`);
 
   try {
     // List tables before deletion
