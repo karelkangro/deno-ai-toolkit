@@ -4,7 +4,7 @@
 import type { LanceDBState } from "../vector-store/lancedb.ts";
 import { createWorkspaceTable, deleteWorkspaceTable } from "../vector-store/lancedb.ts";
 import type { FileStorageState } from "../storage/types.ts";
-import { deleteFile, generateStorageKey } from "../storage/s3.ts";
+import { deleteFile } from "../storage/s3.ts";
 import type {
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
@@ -37,7 +37,7 @@ export async function createWorkspaceCoordinated(
   vectorState: LanceDBState,
   request: CreateWorkspaceRequest,
 ): Promise<Workspace> {
-  // 1. Create workspace in KV first (source of truth)
+  // Create workspace in KV first
   const workspace = await kvCreateWorkspace(kvState, {
     ...request,
     metadata: {
@@ -46,7 +46,7 @@ export async function createWorkspaceCoordinated(
     },
   });
 
-  // 2. Create vector DB table
+  // Create vector DB table
   try {
     await createWorkspaceTable(vectorState, workspace.id);
     console.log(`✅ Created vector table for workspace: ${workspace.id}`);
@@ -65,7 +65,9 @@ export async function createWorkspaceCoordinated(
       metadata: {
         ...workspace.metadata,
         vectorDbStatus: "failed",
-        vectorDbError: error instanceof Error ? error.message : "Unknown error",
+        vectorDbError: error instanceof Error
+          ? error.message
+          : "Unknown error",
       },
     });
   }
@@ -94,7 +96,7 @@ export async function deleteWorkspaceCoordinated(
   const workspace = await getWorkspace(kvState, workspaceId);
   if (!workspace) return false;
 
-  // 1. Delete vector DB table first (expensive resource)
+  // Delete vector DB table first (expensive resource)
   try {
     await deleteWorkspaceTable(vectorState, workspaceId);
     console.log(`✅ Deleted vector table: ${workspaceId}`);
@@ -105,9 +107,10 @@ export async function deleteWorkspaceCoordinated(
     );
   }
 
-  // 2. Delete files from storage (if storage configured)
+  // Delete files from storage (if storage configured)
   if (storageState) {
     const documents = await listDocuments(kvState, workspaceId);
+
     for (const doc of documents) {
       try {
         await deleteFile(storageState, doc.storageKey);
@@ -119,8 +122,9 @@ export async function deleteWorkspaceCoordinated(
     }
   }
 
-  // 3. Delete KV metadata last (if this fails, we can retry)
+  // Delete KV metadata last (if this fails, we can retry)
   const deleted = await kvDeleteWorkspace(kvState, workspaceId);
+
   if (!deleted) {
     throw new Error(`Failed to delete workspace metadata: ${workspaceId}`);
   }
@@ -135,6 +139,7 @@ export async function listWorkspacesCoordinated(
   kvState: WorkspaceKVState,
   options?: { limit?: number },
 ): Promise<Workspace[]> {
+
   return await listWorkspaces(kvState, options);
 }
 
@@ -146,6 +151,7 @@ export async function updateWorkspaceCoordinated(
   workspaceId: string,
   updates: UpdateWorkspaceRequest,
 ): Promise<Workspace | null> {
+
   return await kvUpdateWorkspace(kvState, workspaceId, updates);
 }
 
@@ -170,10 +176,15 @@ export async function deleteDocumentCoordinated(
 ): Promise<boolean> {
   // Get document metadata
   const { getDocument } = await import("./kv-store.ts");
-  const doc = await getDocument(kvState, workspaceId, documentId);
-  if (!doc) return false;
 
-  // 1. Delete from file storage
+  const doc = await getDocument(kvState, workspaceId, documentId);
+
+  if (!doc) {
+
+    return false;
+  }
+
+  // Delete from file storage
   if (storageState) {
     try {
       await deleteFile(storageState, doc.storageKey);
@@ -184,11 +195,9 @@ export async function deleteDocumentCoordinated(
     }
   }
 
-  // 2. Delete from vector DB
+  // Delete from vector DB
   try {
-    const { deleteWorkspaceDocument } = await import(
-      "../vector-store/lancedb.ts"
-    );
+    const { deleteWorkspaceDocument } = await import("../vector-store/lancedb.ts");
     await deleteWorkspaceDocument(vectorState, workspaceId, documentId);
     console.log(`✅ Deleted vector embedding: ${documentId}`);
   } catch (error) {
@@ -196,6 +205,6 @@ export async function deleteDocumentCoordinated(
     // Continue anyway
   }
 
-  // 3. Delete from KV metadata
+  // Delete from KV metadata
   return await kvDeleteDocument(kvState, workspaceId, documentId);
 }

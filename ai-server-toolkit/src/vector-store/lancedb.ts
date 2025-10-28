@@ -1,6 +1,7 @@
 // Functional LanceDB vector store implementation
 import { connect, type Connection, type Table } from "vectordb";
 import { createOpenAIEmbeddings, embedText, embedTexts } from "../embeddings/openai.ts";
+
 import type {
   EmbeddingConfig,
   SearchOptions,
@@ -595,10 +596,27 @@ export async function deleteWorkspaceTable(
   workspaceId: string,
 ): Promise<void> {
   const tableName = `workspace_${workspaceId}`;
+  console.log(`🗑️  deleteWorkspaceTable: Attempting to drop table ${tableName}`);
+  console.log(`   - LanceDB Cloud: ${state.isCloud}`);
+  console.log(`   - Connection URI: ${state.connection.uri || 'local'}`);
+
   try {
+    // List tables before deletion
+    const tablesBefore = await state.connection.tableNames();
+    console.log(`   - Tables before deletion:`, tablesBefore);
+    console.log(`   - Table ${tableName} exists: ${tablesBefore.includes(tableName)}`);
+
     await state.connection.dropTable(tableName);
+
+    // List tables after deletion
+    const tablesAfter = await state.connection.tableNames();
+    console.log(`✅ deleteWorkspaceTable: Successfully dropped table ${tableName}`);
+    console.log(`   - Tables after deletion:`, tablesAfter);
+    console.log(`   - Table ${tableName} still exists: ${tablesAfter.includes(tableName)}`);
   } catch (error) {
-    console.error(`Failed to drop workspace table ${tableName}:`, error);
+    console.error(`❌ deleteWorkspaceTable: Failed to drop workspace table ${tableName}:`, error);
+    console.error(`   Error type:`, error?.constructor?.name);
+    console.error(`   Error message:`, error instanceof Error ? error.message : String(error));
     throw error;
   }
 }

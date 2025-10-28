@@ -39,7 +39,9 @@ export async function createWorkspaceKV(
   config: WorkspaceStoreConfig,
 ): Promise<WorkspaceKVState> {
   // Open KV with path (local) or without path (Deno Deploy managed KV)
-  const kv = config.path ? await Deno.openKv(config.path) : await Deno.openKv();
+  const kv = config.path
+    ? await Deno.openKv(config.path)
+    : await Deno.openKv();
   console.log(
     `✅ Workspace KV initialized: ${config.path || "Deno Deploy managed KV"}`,
   );
@@ -158,7 +160,12 @@ export async function updateWorkspace(
   updates: UpdateWorkspaceRequest,
 ): Promise<Workspace | null> {
   const existing = await getWorkspace(state, workspaceId);
-  if (!existing) return null;
+
+  if (!existing) {
+    console.warn(`❌ Workspace not found: ${workspaceId}`);
+
+    return null;
+  }
 
   const updated: Workspace = {
     ...existing,
@@ -168,6 +175,7 @@ export async function updateWorkspace(
 
   await state.kv.set(["workspaces", workspaceId], updated);
   console.log(`✅ Updated workspace: ${workspaceId}`);
+
   return updated;
 }
 
@@ -186,7 +194,11 @@ export async function deleteWorkspace(
   workspaceId: string,
 ): Promise<boolean> {
   const workspace = await getWorkspace(state, workspaceId);
-  if (!workspace) return false;
+
+  if (!workspace) {
+    console.warn(`❌ Workspace not found: ${workspaceId}`);
+    return false;
+  }
 
   // Collect all keys to delete
   const documentKeys: Deno.KvKey[] = [];
@@ -203,6 +215,7 @@ export async function deleteWorkspace(
   }
 
   const result = await atomic.commit();
+
   if (!result.ok) {
     throw new Error(`Failed to delete workspace: ${workspaceId}`);
   }
@@ -237,6 +250,7 @@ export async function addDocument(
 
   // Update workspace document count
   const workspace = await getWorkspace(state, doc.workspaceId);
+
   if (workspace) {
     await state.kv.set(["workspaces", doc.workspaceId], {
       ...workspace,
@@ -343,6 +357,7 @@ export async function deleteDocument(
 
   // Update workspace document count
   const workspace = await getWorkspace(state, workspaceId);
+
   if (workspace) {
     await state.kv.set(["workspaces", workspaceId], {
       ...workspace,
@@ -374,9 +389,14 @@ export async function getWorkspaceStats(
   workspaceId: string,
 ): Promise<WorkspaceStats | null> {
   const documents = await listDocuments(state, workspaceId);
+
   if (documents.length === 0) {
+
     const workspace = await getWorkspace(state, workspaceId);
-    if (!workspace) return null;
+    if (!workspace) {
+
+      return null;
+    }
   }
 
   const stats: WorkspaceStats = {
