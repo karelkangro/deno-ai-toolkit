@@ -9,7 +9,8 @@ import * as pdfjsLib from "npm:pdfjs-dist@4.0.379";
 import type { DocumentMetadata, DocumentPage, ProcessedDocument } from "./types.ts";
 
 // Disable worker to avoid canvas dependency issues in Deno
-pdfjsLib.GlobalWorkerOptions.workerSrc = "";
+// Setting to false disables the worker entirely
+(pdfjsLib.GlobalWorkerOptions as any).workerSrc = false;
 
 /**
  * Extract PDF content using pdfjs-dist with proper UTF-8 encoding
