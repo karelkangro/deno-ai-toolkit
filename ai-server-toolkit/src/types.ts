@@ -16,7 +16,7 @@ export interface SearchResult {
 export interface SearchOptions {
   limit?: number;
   threshold?: number;
-  filter?: Record<string, any>;
+  filter?: Record<string, any> | string; // Can be object or SQL WHERE string
   includeEmbeddings?: boolean;
 }
 

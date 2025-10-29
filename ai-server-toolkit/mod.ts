@@ -99,6 +99,19 @@ export {
   updateWorkspaceDocument,
 } from "./src/vector-store/lancedb.ts";
 
+// Vector store schemas - single source of truth for metadata structures
+export {
+  type BaseVectorMetadata,
+  buildRuleFilters,
+  createRuleRecord,
+  extractMetadataFromResult,
+  type FileVectorMetadata,
+  getFieldName,
+  ruleToVectorMetadata,
+  type RuleVectorMetadata,
+  transformMetadataForStorage,
+} from "./src/vector-store/schemas.ts";
+
 // Embedding functionality
 export {
   calculateSimilarity,

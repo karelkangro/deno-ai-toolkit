@@ -68,13 +68,13 @@ export async function extractPDFContentWithPdfjs(
       const pageText = textContent.items
         .map((item: any) => {
           // Handle text items with proper string extraction
-          if ('str' in item) {
+          if ("str" in item) {
             return item.str;
           }
-          return '';
+          return "";
         })
-        .join(' ')
-        .replace(/\s+/g, ' ')  // Normalize whitespace
+        .join(" ")
+        .replace(/\s+/g, " ") // Normalize whitespace
         .trim();
 
       pages.push({
@@ -93,9 +93,9 @@ export async function extractPDFContentWithPdfjs(
     console.log(`✅ [pdfjs] Extracted text from ${pages.length} pages`);
 
     // Log character encoding sample
-    const allText = pages.map(p => p.text).join('\n\n');
+    const allText = pages.map((p) => p.text).join("\n\n");
     const hasUnicode = /[äöüõšžÄÖÜÕŠŽ]/.test(allText);
-    console.log(`🔤 [pdfjs] Unicode characters detected: ${hasUnicode ? 'YES ✓' : 'NO'}`);
+    console.log(`🔤 [pdfjs] Unicode characters detected: ${hasUnicode ? "YES ✓" : "NO"}`);
 
     return {
       pages,
@@ -122,7 +122,7 @@ export async function extractPDFContentWithPdfjs(
  */
 export async function extractTextOnlyWithPdfjs(content: Uint8Array): Promise<string> {
   const doc = await extractPDFContentWithPdfjs(content);
-  return doc.pages.map(p => p.text).join('\n\n');
+  return doc.pages.map((p) => p.text).join("\n\n");
 }
 
 function detectTable(text: string): boolean {

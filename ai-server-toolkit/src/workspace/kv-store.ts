@@ -39,9 +39,7 @@ export async function createWorkspaceKV(
   config: WorkspaceStoreConfig,
 ): Promise<WorkspaceKVState> {
   // Open KV with path (local) or without path (Deno Deploy managed KV)
-  const kv = config.path
-    ? await Deno.openKv(config.path)
-    : await Deno.openKv();
+  const kv = config.path ? await Deno.openKv(config.path) : await Deno.openKv();
   console.log(
     `✅ Workspace KV initialized: ${config.path || "Deno Deploy managed KV"}`,
   );
@@ -391,10 +389,8 @@ export async function getWorkspaceStats(
   const documents = await listDocuments(state, workspaceId);
 
   if (documents.length === 0) {
-
     const workspace = await getWorkspace(state, workspaceId);
     if (!workspace) {
-
       return null;
     }
   }

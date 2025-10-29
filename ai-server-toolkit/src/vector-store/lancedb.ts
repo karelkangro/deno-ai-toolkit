@@ -175,12 +175,20 @@ async function getEmbeddingsForDocuments(
 // Helper: Apply search filters
 function applySearchFilters<T>(
   searchQuery: T,
-  filter: Record<string, unknown> | undefined,
+  filter: Record<string, unknown> | string | undefined,
   isCloud: boolean,
 ): T {
   if (!filter) return searchQuery;
 
   let query = searchQuery as { where: (condition: string) => unknown };
+
+  // If filter is a string (from buildRuleFilters), use it directly
+  if (typeof filter === "string") {
+    query = query.where(filter) as typeof query;
+    return query as T;
+  }
+
+  // If filter is an object, build filter conditions
   Object.entries(filter).forEach(([key, value]) => {
     const filterPath = isCloud ? `meta_${key}` : `metadata.${key}`;
     query = query.where(`${filterPath} = '${value}'`) as typeof query;

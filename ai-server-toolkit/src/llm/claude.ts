@@ -76,12 +76,8 @@ export async function generateResponse(
 ): Promise<LLMResponse> {
   return await withRateLimit(state.rateLimiter, async () => {
     const anthropicMessages = messages.map((msg) => ({
-      role: msg.role === "system"
-        ? "user"
-        : msg.role,
-      content: msg.role === "system"
-        ? `System: ${msg.content}`
-        : msg.content,
+      role: msg.role === "system" ? "user" : msg.role,
+      content: msg.role === "system" ? `System: ${msg.content}` : msg.content,
     }));
 
     const requestBody: any = {
@@ -156,15 +152,10 @@ export async function streamResponse(
   onChunk?: (chunk: string) => void,
   tools?: ToolDefinition[],
 ): Promise<LLMResponse> {
-
   return await withRateLimit(state.rateLimiter, async () => {
     const anthropicMessages = messages.map((msg) => ({
-      role: msg.role === "system"
-        ? "user"
-        : msg.role,
-      content: msg.role === "system"
-        ? `System: ${msg.content}`
-        : msg.content,
+      role: msg.role === "system" ? "user" : msg.role,
+      content: msg.role === "system" ? `System: ${msg.content}` : msg.content,
     }));
 
     const requestBody: any = {

@@ -4,17 +4,25 @@
 import type { LanceDBState } from "../vector-store/lancedb.ts";
 import {
   addWorkspaceDocument,
+  addWorkspaceDocuments,
   createWorkspaceTable,
   deleteWorkspaceDocument,
   searchWorkspace,
 } from "../vector-store/lancedb.ts";
 import type { Rule } from "./types.ts";
+import {
+  buildRuleFilters,
+  createRuleRecord,
+  extractMetadataFromResult,
+  ruleToVectorMetadata,
+  type RuleVectorMetadata,
+} from "../vector-store/schemas.ts";
 
 /**
  * Get the table name for rules in a workspace
  */
 function getRulesTableName(workspaceId: string): string {
-  return `${workspaceId}_rules`;
+  return `workspace_${workspaceId}_rules`;
 }
 
 /**
@@ -24,9 +32,8 @@ export async function initializeRulesVectorTable(
   vectorState: LanceDBState,
   workspaceId: string,
 ): Promise<void> {
-  const tableName = getRulesTableName(workspaceId);
-  await createWorkspaceTable(vectorState, tableName);
-  console.log(`✅ Initialized rules vector table: ${tableName}`);
+  await createWorkspaceTable(vectorState, `${workspaceId}_rules`);
+  console.log(`✅ Initialized rules vector table: workspace_${workspaceId}_rules`);
 }
 
 /**
@@ -39,36 +46,36 @@ export async function embedRule(
 ): Promise<void> {
   const tableName = getRulesTableName(workspaceId);
 
-  // Create a document from the rule
-  const document = {
-    id: rule.id,
-    content: rule.content,
-    metadata: {
-      ruleId: rule.id,
-      name: rule.name,
-      description: rule.description || "",
-      category: rule.category,
-      severity: rule.severity,
-      enabled: rule.enabled,
-      schemaId: rule.schemaId,
-      keywords: rule.keywords,
-      version: rule.version,
-      createdAt: rule.createdAt,
-      updatedAt: rule.updatedAt,
-      // Include custom rule data as well
-      ...Object.fromEntries(
-        Object.entries(rule.data).map(([key, value]) => [
-          `data_${key}`,
-          typeof value === "string" || typeof value === "number" ||
-            typeof value === "boolean"
-            ? value
-            : JSON.stringify(value),
-        ]),
-      ),
-    },
-  };
+  // Check if table exists
+  let tableExists = false;
+  try {
+    await vectorState.connection.openTable(tableName);
+    tableExists = true;
+  } catch {
+    tableExists = false;
+  }
 
-  await addWorkspaceDocument(vectorState, tableName, document);
+  if (tableExists) {
+    // Table exists, add document using centralized metadata schema
+    const metadata = ruleToVectorMetadata(rule);
+    await addWorkspaceDocument(vectorState, `${workspaceId}_rules`, {
+      id: rule.id,
+      content: rule.content,
+      metadata,
+    });
+  } else {
+    // Table doesn't exist, create it with proper schema using centralized function
+    console.log(`📝 Creating rules table with proper schema: ${tableName}`);
+    const { embedText } = await import("../embeddings/openai.ts");
+    const embedding = await embedText(vectorState.embeddings, rule.content);
+
+    // Use centralized createRuleRecord for consistent schema
+    const record = createRuleRecord(rule, embedding, vectorState.isCloud);
+
+    await vectorState.connection.createTable(tableName, [record]);
+    console.log(`✅ Created rules table with schema: ${tableName}`);
+  }
+
   console.log(`✅ Embedded rule in vector store: ${rule.id}`);
 }
 
@@ -94,8 +101,7 @@ export async function deleteRuleFromVectorStore(
   workspaceId: string,
   ruleId: string,
 ): Promise<void> {
-  const tableName = getRulesTableName(workspaceId);
-  await deleteWorkspaceDocument(vectorState, tableName, ruleId);
+  await deleteWorkspaceDocument(vectorState, `${workspaceId}_rules`, ruleId);
   console.log(`🗑️ Deleted rule from vector store: ${ruleId}`);
 }
 
@@ -119,49 +125,35 @@ export async function searchRulesVector(
   const tableName = getRulesTableName(workspaceId);
   const limit = options?.limit || 10;
 
-  // Build filter conditions
-  const filterConditions: string[] = [];
-  if (options?.filters?.category) {
-    filterConditions.push(`metadata.category = '${options.filters.category}'`);
-  }
-  if (options?.filters?.enabled !== undefined) {
-    filterConditions.push(`metadata.enabled = ${options.filters.enabled}`);
-  }
-  if (options?.filters?.severity && options.filters.severity.length > 0) {
-    const severityFilter = options.filters.severity
-      .map((s) => `'${s}'`)
-      .join(", ");
-    filterConditions.push(
-      `metadata.severity IN (${severityFilter})`,
-    );
-  }
-
-  const filter = filterConditions.length > 0 ? filterConditions.join(" AND ") : undefined;
+  // Use centralized filter building function
+  const filter = options?.filters
+    ? buildRuleFilters(options.filters, vectorState.isCloud)
+    : undefined;
 
   const results = await searchWorkspace(
     vectorState,
-    tableName,
+    `${workspaceId}_rules`,
     query,
-    { limit, filter: filter as Record<string, unknown> | undefined },
+    { limit, filter },
   );
 
-  return results.map((result) => ({
-    rule: {
-      id: result.metadata?.ruleId as string,
-      name: result.metadata?.name as string,
-      description: result.metadata?.description as string,
-      category: result.metadata?.category as string,
-      severity: result.metadata?.severity as
-        | "critical"
-        | "high"
-        | "medium"
-        | "low",
-      enabled: result.metadata?.enabled as boolean,
-      content: result.content,
-      keywords: result.metadata?.keywords as string[],
-    },
-    score: result.score || 0,
-  }));
+  // Extract metadata using centralized function
+  return results.map((result) => {
+    const metadata = extractMetadataFromResult<RuleVectorMetadata>(result, vectorState.isCloud);
+    return {
+      rule: {
+        id: metadata.ruleId,
+        name: metadata.name,
+        description: metadata.description,
+        category: metadata.category,
+        severity: metadata.severity,
+        enabled: metadata.enabled,
+        content: result.content,
+        keywords: metadata.keywords,
+      },
+      score: result.score || 0,
+    };
+  });
 }
 
 /**

@@ -65,9 +65,7 @@ export async function createWorkspaceCoordinated(
       metadata: {
         ...workspace.metadata,
         vectorDbStatus: "failed",
-        vectorDbError: error instanceof Error
-          ? error.message
-          : "Unknown error",
+        vectorDbError: error instanceof Error ? error.message : "Unknown error",
       },
     });
   }
@@ -139,7 +137,6 @@ export async function listWorkspacesCoordinated(
   kvState: WorkspaceKVState,
   options?: { limit?: number },
 ): Promise<Workspace[]> {
-
   return await listWorkspaces(kvState, options);
 }
 
@@ -151,7 +148,6 @@ export async function updateWorkspaceCoordinated(
   workspaceId: string,
   updates: UpdateWorkspaceRequest,
 ): Promise<Workspace | null> {
-
   return await kvUpdateWorkspace(kvState, workspaceId, updates);
 }
 
@@ -180,7 +176,6 @@ export async function deleteDocumentCoordinated(
   const doc = await getDocument(kvState, workspaceId, documentId);
 
   if (!doc) {
-
     return false;
   }
 
