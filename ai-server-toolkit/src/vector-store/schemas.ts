@@ -29,6 +29,8 @@ export interface RuleVectorMetadata extends BaseVectorMetadata {
   updatedAt: string;
   // Dynamic data fields from rule.data are prefixed with data_
   [key: `data_${string}`]: string | number | boolean;
+  // General index signature for compatibility with Record<string, unknown>
+  [key: string]: unknown;
 }
 
 /**
@@ -40,6 +42,8 @@ export interface FileVectorMetadata extends BaseVectorMetadata {
   uploadedAt: string;
   fileSize?: number;
   pageNumber?: number;
+  // General index signature for compatibility with Record<string, unknown>
+  [key: string]: unknown;
 }
 
 /**

@@ -11,6 +11,8 @@ export interface SearchResult {
   content: string;
   metadata?: Record<string, unknown>;
   score: number;
+  // General index signature for compatibility with Record<string, unknown>
+  [key: string]: unknown;
 }
 
 export interface SearchOptions {
