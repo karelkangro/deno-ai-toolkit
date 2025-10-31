@@ -144,7 +144,6 @@ export async function searchRulesVector(
       rule: {
         id: metadata.ruleId,
         name: metadata.name,
-        description: metadata.description,
         category: metadata.category,
         severity: metadata.severity,
         enabled: metadata.enabled,

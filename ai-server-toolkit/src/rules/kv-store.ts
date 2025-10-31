@@ -152,7 +152,6 @@ export async function createRule(
     workspaceId: request.workspaceId,
     schemaId: request.schemaId,
     name: request.name,
-    description: request.description,
     category: request.category,
     severity: request.severity,
     enabled: request.enabled ?? true,

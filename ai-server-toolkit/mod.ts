@@ -116,9 +116,9 @@ export {
 
 // Schema registry for multi-table workspace management
 export {
+  createWorkspaceTableRegistry,
   type TableConfig,
   type WorkspaceTableRegistry,
-  createWorkspaceTableRegistry,
 } from "./src/vector-store/schema-registry.ts";
 
 // Embedding functionality
