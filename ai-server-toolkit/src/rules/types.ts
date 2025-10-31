@@ -42,7 +42,6 @@ export interface Rule {
   workspaceId: string;
   schemaId: string; // Links to RuleMetadataSchema
   name: string;
-  description?: string;
   category: string;
   severity: "critical" | "high" | "medium" | "low";
   enabled: boolean;
@@ -119,7 +118,6 @@ export interface CreateRuleRequest {
   workspaceId: string;
   schemaId: string;
   name: string;
-  description?: string;
   category: string;
   severity: "critical" | "high" | "medium" | "low";
   enabled?: boolean;
@@ -134,7 +132,6 @@ export interface CreateRuleRequest {
  */
 export interface UpdateRuleRequest {
   name?: string;
-  description?: string;
   category?: string;
   severity?: "critical" | "high" | "medium" | "low";
   enabled?: boolean;

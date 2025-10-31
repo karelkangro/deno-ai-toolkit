@@ -18,7 +18,6 @@ export interface BaseVectorMetadata {
 export interface RuleVectorMetadata extends BaseVectorMetadata {
   ruleId: string;
   name: string;
-  description: string;
   category: string;
   severity: "critical" | "high" | "medium" | "low";
   enabled: boolean;
@@ -34,7 +33,45 @@ export interface RuleVectorMetadata extends BaseVectorMetadata {
 }
 
 /**
- * File/document metadata schema
+ * Base document metadata schema for document embedding systems
+ * Common fields that any document chunking/embedding system would need
+ * Extend this for app-specific metadata requirements
+ */
+export interface BaseDocumentMetadata extends BaseVectorMetadata {
+  /** Document identifier */
+  documentId: string;
+  /** Human-readable document name */
+  documentName: string;
+  /** Index of this chunk within the document (0-based) */
+  chunkIndex: number;
+  /** Total number of chunks in the document */
+  totalChunks: number;
+  /** Workspace/namespace identifier */
+  workspaceId: string;
+}
+
+/**
+ * Helper function to create base document metadata
+ * Ensures consistent structure for document chunks
+ */
+export function createBaseDocumentMetadata(
+  documentId: string,
+  documentName: string,
+  chunkIndex: number,
+  totalChunks: number,
+  workspaceId: string,
+): BaseDocumentMetadata {
+  return {
+    documentId: String(documentId),
+    documentName: String(documentName),
+    chunkIndex,
+    totalChunks,
+    workspaceId: String(workspaceId),
+  };
+}
+
+/**
+ * File/document metadata schema (legacy, use BaseDocumentMetadata for new code)
  */
 export interface FileVectorMetadata extends BaseVectorMetadata {
   fileName: string;
@@ -53,7 +90,6 @@ export function ruleToVectorMetadata(rule: Rule): RuleVectorMetadata {
   const metadata: RuleVectorMetadata = {
     ruleId: rule.id,
     name: rule.name,
-    description: rule.description || "",
     category: rule.category,
     severity: rule.severity,
     enabled: rule.enabled,

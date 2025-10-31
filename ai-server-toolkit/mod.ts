@@ -101,8 +101,10 @@ export {
 
 // Vector store schemas - single source of truth for metadata structures
 export {
+  type BaseDocumentMetadata,
   type BaseVectorMetadata,
   buildRuleFilters,
+  createBaseDocumentMetadata,
   createRuleRecord,
   extractMetadataFromResult,
   type FileVectorMetadata,
@@ -111,6 +113,13 @@ export {
   type RuleVectorMetadata,
   transformMetadataForStorage,
 } from "./src/vector-store/schemas.ts";
+
+// Schema registry for multi-table workspace management
+export {
+  type TableConfig,
+  type WorkspaceTableRegistry,
+  createWorkspaceTableRegistry,
+} from "./src/vector-store/schema-registry.ts";
 
 // Embedding functionality
 export {

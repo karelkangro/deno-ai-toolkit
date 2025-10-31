@@ -53,6 +53,8 @@ import { createRAGSystem, createVectorSearchSystem } from "jsr:@karelkangro/deno
 
 ### Version History
 
+- **v1.8.0** - Added schema registry for multi-table workspace management, comprehensive examples documentation, removed redundant description field from rules
+- **v1.7.x** - Document processing pipeline improvements, PDF extraction enhancements
 - **v1.2.0** - Added workspace isolation support, refactored to DRY principles,
   improved code quality
 - **v1.1.0** - Added LanceDB Cloud support (cloud vector database)
