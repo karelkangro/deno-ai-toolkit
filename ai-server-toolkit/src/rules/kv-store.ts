@@ -13,6 +13,9 @@ import type {
   UpdateRuleRequest,
 } from "./types.ts";
 import { generateId } from "../workspace/kv-store.ts";
+import { createSubLogger } from "../utils/logger.ts";
+
+const logger = createSubLogger("rules-kv-store");
 
 /**
  * Generate unique rule ID
@@ -69,7 +72,7 @@ export async function createRuleSchema(
     throw new Error(`Failed to create rule schema: ${schema.id}`);
   }
 
-  console.log(`✅ Created rule schema: ${schema.id} (${schema.schemaName})`);
+  logger.info("Created rule schema", { schemaId: schema.id, schemaName: schema.schemaName });
   return schema;
 }
 
@@ -121,7 +124,7 @@ export async function deleteRuleSchema(
 
   const key = ["workspaces", workspaceId, "rule_schemas", schemaId];
   await kvState.kv.delete(key);
-  console.log(`🗑️ Deleted rule schema: ${schemaId}`);
+  logger.info("Deleted rule schema", { schemaId });
   return true;
 }
 
@@ -184,7 +187,11 @@ export async function createRule(
     throw new Error(`Failed to create rule: ${rule.id}`);
   }
 
-  console.log(`✅ Created rule: ${rule.id} (${rule.name})`);
+  logger.info("Created rule", {
+    ruleId: rule.id,
+    ruleName: rule.name,
+    workspaceId: rule.workspaceId,
+  });
   return rule;
 }
 
@@ -245,7 +252,7 @@ export async function updateRule(
     await kvState.kv.set(newCategoryKey, ruleId);
   }
 
-  console.log(`✏️ Updated rule: ${ruleId}`);
+  logger.info("Updated rule", { ruleId });
   return updated;
 }
 
@@ -276,7 +283,7 @@ export async function deleteRule(
     .delete(categoryKey)
     .commit();
 
-  console.log(`🗑️ Deleted rule: ${ruleId}`);
+  logger.info("Deleted rule", { ruleId });
   return true;
 }
 
@@ -359,7 +366,7 @@ export async function storeRuleConflict(
   ];
   await kvState.kv.set(key, fullConflict);
 
-  console.log(`⚠️ Stored rule conflict: ${fullConflict.id}`);
+  logger.warn("Stored rule conflict", { conflictId: fullConflict.id });
   return fullConflict;
 }
 

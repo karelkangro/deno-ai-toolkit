@@ -11,6 +11,10 @@ import type {
   Workspace,
   WorkspaceKVState,
 } from "./types.ts";
+import { createSubLogger } from "../utils/logger.ts";
+
+const logger = createSubLogger("workspace-coordinator");
+
 import {
   createWorkspace as kvCreateWorkspace,
   deleteDocument as kvDeleteDocument,
@@ -49,7 +53,7 @@ export async function createWorkspaceCoordinated(
   // Create vector DB table
   try {
     await createWorkspaceTable(vectorState, workspace.id);
-    console.log(`✅ Created vector table for workspace: ${workspace.id}`);
+    logger.info("Created vector table for workspace", { workspaceId: workspace.id });
 
     // Update status
     await kvUpdateWorkspace(kvState, workspace.id, {
@@ -59,7 +63,7 @@ export async function createWorkspaceCoordinated(
       },
     });
   } catch (error) {
-    console.error(`⚠️ Vector DB creation failed for ${workspace.id}:`, error);
+    logger.error("Vector DB creation failed", error, { workspaceId: workspace.id });
     // Workspace exists but vector DB pending - can retry later
     await kvUpdateWorkspace(kvState, workspace.id, {
       metadata: {
@@ -97,9 +101,9 @@ export async function deleteWorkspaceCoordinated(
   // Delete vector DB table first (expensive resource)
   try {
     await deleteWorkspaceTable(vectorState, workspaceId);
-    console.log(`✅ Deleted vector table: ${workspaceId}`);
+    logger.info("Deleted vector table", { workspaceId });
   } catch (error) {
-    console.error(`⚠️ Vector DB deletion failed for ${workspaceId}:`, error);
+    logger.error("Vector DB deletion failed", error, { workspaceId });
     throw new Error(
       `Failed to delete vector database for workspace ${workspaceId}`,
     );
@@ -112,9 +116,12 @@ export async function deleteWorkspaceCoordinated(
     for (const doc of documents) {
       try {
         await deleteFile(storageState, doc.storageKey);
-        console.log(`✅ Deleted file: ${doc.storageKey}`);
+        logger.debug("Deleted file", { documentId: doc.id, storageKey: doc.storageKey });
       } catch (error) {
-        console.error(`⚠️ File deletion failed for ${doc.id}:`, error);
+        logger.error("File deletion failed", error, {
+          documentId: doc.id,
+          storageKey: doc.storageKey,
+        });
         // Continue with other files
       }
     }
@@ -183,9 +190,12 @@ export async function deleteDocumentCoordinated(
   if (storageState) {
     try {
       await deleteFile(storageState, doc.storageKey);
-      console.log(`✅ Deleted file: ${doc.storageKey}`);
+      logger.debug("Deleted file", { documentId: doc.id, storageKey: doc.storageKey });
     } catch (error) {
-      console.error(`⚠️ File deletion failed for ${doc.id}:`, error);
+      logger.error("File deletion failed", error, {
+        documentId: doc.id,
+        storageKey: doc.storageKey,
+      });
       // Continue anyway
     }
   }
@@ -194,9 +204,9 @@ export async function deleteDocumentCoordinated(
   try {
     const { deleteWorkspaceDocument } = await import("../vector-store/lancedb.ts");
     await deleteWorkspaceDocument(vectorState, workspaceId, documentId);
-    console.log(`✅ Deleted vector embedding: ${documentId}`);
+    logger.debug("Deleted vector embedding", { documentId });
   } catch (error) {
-    console.error(`⚠️ Vector deletion failed for ${doc.id}:`, error);
+    logger.error("Vector deletion failed", error, { documentId: doc.id });
     // Continue anyway
   }
 

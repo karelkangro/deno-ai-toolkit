@@ -121,6 +121,14 @@ export {
   type WorkspaceTableRegistry,
 } from "./src/vector-store/schema-registry.ts";
 
+// Vector database connection management
+export {
+  createDefaultConnectionManager,
+  createVectorDBConnectionManager,
+  type VectorDBConnectionConfig,
+  type VectorDBConnectionManager,
+} from "./src/vector-store/connection-manager.ts";
+
 // Embedding functionality
 export {
   calculateSimilarity,

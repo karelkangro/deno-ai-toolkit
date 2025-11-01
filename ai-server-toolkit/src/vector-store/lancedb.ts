@@ -10,6 +10,9 @@ import type {
   VectorStoreConfig,
   VectorStoreStats,
 } from "../types.ts";
+import { createSubLogger } from "../utils/logger.ts";
+
+const logger = createSubLogger("lancedb");
 
 // Constants
 const DEFAULT_TABLE_NAME = "documents";
@@ -383,8 +386,9 @@ export async function addDocuments(
  *   filter: { category: "tech" }
  * });
  *
+ * const logger = createSubLogger("my-module");
  * results.forEach(result => {
- *   console.log(`Score: ${result.score}, Content: ${result.content}`);
+ *   logger.debug("Search result", { score: result.score, content: result.content });
  * });
  * ```
  */
@@ -395,6 +399,11 @@ export async function searchSimilar(
   tableName?: string,
 ): Promise<SearchResult[]> {
   const table = await getTable(state, tableName);
+  logger.debug("Searching table", {
+    tableName: tableName || "default",
+    tableFound: !!table,
+    queryPreview: query.substring(0, 50),
+  });
   const queryEmbedding = await embedText(state.embeddings, query);
 
   return await searchByEmbedding(state, queryEmbedding, options, tableName);
@@ -604,26 +613,32 @@ export async function deleteWorkspaceTable(
   workspaceId: string,
 ): Promise<void> {
   const tableName = `workspace_${workspaceId}`;
-  console.log(`🗑️  deleteWorkspaceTable: Attempting to drop table ${tableName}`);
-  console.log(`   - LanceDB Cloud: ${state.isCloud}`);
+  logger.debug("Attempting to drop workspace table", { tableName, isCloud: state.isCloud });
 
   try {
     // List tables before deletion
     const tablesBefore = await state.connection.tableNames();
-    console.log(`   - Tables before deletion:`, tablesBefore);
-    console.log(`   - Table ${tableName} exists: ${tablesBefore.includes(tableName)}`);
+    logger.debug("Tables before deletion", {
+      tableName,
+      tablesBefore,
+      exists: tablesBefore.includes(tableName),
+    });
 
     await state.connection.dropTable(tableName);
 
     // List tables after deletion
     const tablesAfter = await state.connection.tableNames();
-    console.log(`✅ deleteWorkspaceTable: Successfully dropped table ${tableName}`);
-    console.log(`   - Tables after deletion:`, tablesAfter);
-    console.log(`   - Table ${tableName} still exists: ${tablesAfter.includes(tableName)}`);
+    logger.info("Successfully dropped workspace table", {
+      tableName,
+      tablesAfter,
+      stillExists: tablesAfter.includes(tableName),
+    });
   } catch (error) {
-    console.error(`❌ deleteWorkspaceTable: Failed to drop workspace table ${tableName}:`, error);
-    console.error(`   Error type:`, error?.constructor?.name);
-    console.error(`   Error message:`, error instanceof Error ? error.message : String(error));
+    logger.error("Failed to drop workspace table", error, {
+      tableName,
+      errorType: error?.constructor?.name,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     throw error;
   }
 }

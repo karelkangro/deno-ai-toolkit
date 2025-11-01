@@ -1,6 +1,9 @@
 import type { LanceDBState } from "./lancedb.ts";
 import type { BaseDocumentMetadata } from "./schemas.ts";
 import { listWorkspaceTables } from "./lancedb.ts";
+import { createSubLogger } from "../utils/logger.ts";
+
+const logger = createSubLogger("schema-registry");
 
 /**
  * Configuration for a workspace table with typed metadata schema
@@ -156,6 +159,10 @@ export const createWorkspaceTableRegistry = (): WorkspaceTableRegistry => {
         await vectorStore.connection.dropTable(tableName);
       } catch (error) {
         // Table might not exist, continue
+        logger.debug("Table might not exist (expected)", {
+          tableName,
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
 
       await initializeTable(tables, vectorStore, workspaceId, tableKey);

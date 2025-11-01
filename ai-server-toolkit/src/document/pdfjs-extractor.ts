@@ -7,10 +7,18 @@
 
 import * as pdfjsLib from "npm:pdfjs-dist@4.0.379";
 import type { DocumentMetadata, DocumentPage, ProcessedDocument } from "./types.ts";
+import { createSubLogger } from "../utils/logger.ts";
+
+const logger = createSubLogger("pdfjs-extractor");
 
 // Disable worker to avoid canvas dependency issues in Deno
 // Setting to false disables the worker entirely
-(pdfjsLib.GlobalWorkerOptions as any).workerSrc = false;
+if (
+  "GlobalWorkerOptions" in pdfjsLib && typeof pdfjsLib.GlobalWorkerOptions === "object" &&
+  pdfjsLib.GlobalWorkerOptions !== null
+) {
+  (pdfjsLib.GlobalWorkerOptions as { workerSrc?: unknown }).workerSrc = false;
+}
 
 /**
  * Extract PDF content using pdfjs-dist with proper UTF-8 encoding
@@ -22,7 +30,7 @@ export async function extractPDFContentWithPdfjs(
   content: Uint8Array,
 ): Promise<ProcessedDocument> {
   try {
-    console.log(`🔍 [pdfjs] Loading PDF document...`);
+    logger.debug("Loading PDF document");
 
     // Load PDF document
     const loadingTask = pdfjsLib.getDocument({
@@ -34,7 +42,7 @@ export async function extractPDFContentWithPdfjs(
 
     const pdfDocument = await loadingTask.promise;
 
-    console.log(`✅ [pdfjs] PDF loaded: ${pdfDocument.numPages} pages`);
+    logger.debug("PDF loaded", { pageCount: pdfDocument.numPages });
 
     // Extract metadata
     const metadata = await pdfDocument.getMetadata();
@@ -52,7 +60,7 @@ export async function extractPDFContentWithPdfjs(
       creator: info?.Creator,
     };
 
-    console.log(`📊 [pdfjs] Metadata extracted:`, {
+    logger.debug("Metadata extracted", {
       title: documentMetadata.title,
       pages: documentMetadata.pageCount,
     });
@@ -86,16 +94,16 @@ export async function extractPDFContentWithPdfjs(
       });
 
       if (pageNum % 10 === 0) {
-        console.log(`📄 [pdfjs] Processed ${pageNum}/${pdfDocument.numPages} pages`);
+        logger.debug("Processing page", { currentPage: pageNum, totalPages: pdfDocument.numPages });
       }
     }
 
-    console.log(`✅ [pdfjs] Extracted text from ${pages.length} pages`);
+    logger.info("Extracted text from PDF", { pageCount: pages.length });
 
     // Log character encoding sample
     const allText = pages.map((p) => p.text).join("\n\n");
     const hasUnicode = /[äöüõšžÄÖÜÕŠŽ]/.test(allText);
-    console.log(`🔤 [pdfjs] Unicode characters detected: ${hasUnicode ? "YES ✓" : "NO"}`);
+    logger.debug("Unicode characters detected", { hasUnicode });
 
     return {
       pages,
@@ -107,7 +115,7 @@ export async function extractPDFContentWithPdfjs(
       },
     };
   } catch (error) {
-    console.error(`❌ [pdfjs] PDF extraction failed:`, error);
+    logger.error("PDF extraction failed", error);
     throw new Error(
       `pdfjs-dist extraction failed: ${error instanceof Error ? error.message : String(error)}`,
     );

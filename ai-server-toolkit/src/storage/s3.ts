@@ -17,6 +17,9 @@ import type {
   PresignedUrlOptions,
   UploadOptions,
 } from "./types.ts";
+import { createSubLogger } from "../utils/logger.ts";
+
+const logger = createSubLogger("s3-storage");
 
 /**
  * Create S3-compatible file storage client
@@ -74,9 +77,10 @@ export function createS3Storage(config: FileStorageConfig): FileStorageState {
     forcePathStyle: config.forcePathStyle,
   });
 
-  console.log(
-    `✅ S3 storage initialized: ${config.endpoint || "AWS S3"} / ${config.bucket}`,
-  );
+  logger.info("S3 storage initialized", {
+    endpoint: config.endpoint || "AWS S3",
+    bucket: config.bucket,
+  });
 
   return {
     config,
@@ -117,7 +121,7 @@ export async function uploadFile(
   });
 
   await state.s3Client.send(command);
-  console.log(`✅ Uploaded file: ${key} (${content.length} bytes)`);
+  logger.debug("Uploaded file", { key, size: content.length });
   return key;
 }
 
@@ -145,7 +149,7 @@ export async function downloadFile(
 
   const content = await response.Body.transformToByteArray();
 
-  console.log(`✅ Downloaded file: ${key} (${content.length} bytes)`);
+  logger.debug("Downloaded file", { key, size: content.length });
 
   return {
     content,
@@ -172,7 +176,7 @@ export async function deleteFile(
   });
 
   await state.s3Client.send(command);
-  console.log(`✅ Deleted file: ${key}`);
+  logger.debug("Deleted file", { key });
   return true;
 }
 
@@ -269,7 +273,7 @@ export async function getPresignedUrl(
     expiresIn: options?.expiresIn || 3600,
   });
 
-  console.log(`✅ Generated presigned URL for ${operation}: ${key}`);
+  logger.debug("Generated presigned URL", { operation, key });
   return url;
 }
 

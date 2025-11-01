@@ -194,7 +194,11 @@ export async function streamResponse(
     }
 
     let fullContent = "";
-    let usage = undefined;
+    let usage: {
+      promptTokens: number;
+      completionTokens: number;
+      totalTokens: number;
+    } | undefined = undefined;
 
     if (response.body) {
       const reader = response.body.getReader();
@@ -230,6 +234,8 @@ export async function streamResponse(
                 }
               } catch (e) {
                 // Ignore JSON parse errors for incomplete chunks
+                // JSON parse errors for incomplete chunks are expected during streaming
+                // Silently ignore to avoid log spam
               }
             }
           }

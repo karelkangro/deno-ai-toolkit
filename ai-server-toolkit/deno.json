@@ -1,6 +1,6 @@
 {
   "name": "@karelkangro/deno-ai-toolkit",
-  "version": "1.8.1",
+  "version": "1.9.0",
   "description": "Complete functional toolkit for building AI-powered Deno servers with vector databases and agent orchestration",
   "license": "MIT",
   "exports": "./mod.ts",
@@ -19,7 +19,8 @@
     "@aws-sdk/client-s3": "npm:@aws-sdk/client-s3@^3.0.0",
     "@aws-sdk/s3-request-presigner": "npm:@aws-sdk/s3-request-presigner@^3.0.0",
     "pdf-parse": "npm:pdf-parse@^2.4.3",
-    "pdfjs-dist": "npm:pdfjs-dist@^4.0.379"
+    "pdfjs-dist": "npm:pdfjs-dist@^4.0.379",
+    "tslog": "npm:tslog@^4.9.3"
   },
   "compilerOptions": {
     "lib": ["deno.window", "deno.unstable"],
@@ -35,12 +36,7 @@
   "lint": {
     "rules": {
       "tags": ["recommended"],
-      "exclude": [
-        "no-explicit-any",
-        "no-unused-vars",
-        "require-await",
-        "no-import-prefix"
-      ]
+      "exclude": ["no-explicit-any", "require-await", "no-import-prefix"]
     }
   }
 }

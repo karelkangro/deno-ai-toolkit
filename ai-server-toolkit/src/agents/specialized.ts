@@ -1,7 +1,9 @@
 // Specialized agents for different domains - configurable for any project
 import { type AgentState, createAgent, runAgent } from "./base.ts";
-import { type ClaudeLLMState, createClaudeLLM } from "../llm/claude.ts";
 import type { LLMConfig } from "../types.ts";
+import { createSubLogger } from "../utils/logger.ts";
+
+const logger = createSubLogger("agent-specialized");
 
 /**
  * Configuration for creating specialized domain-specific agents.
@@ -103,7 +105,10 @@ export interface AgentAnalysisResult {
 export function createSpecializedAgent(
   config: SpecializedAgentConfig,
 ): AgentState {
-  const llm = createClaudeLLM(config.llm);
+  logger.debug("Creating specialized agent", {
+    agentName: config.name,
+    llmModel: config.llm.model,
+  });
 
   return createAgent({
     name: config.name,
@@ -145,7 +150,10 @@ export async function runSpecializedAnalysis(
 ): Promise<AgentAnalysisResult> {
   const startTime = performance.now();
 
-  console.log(`🔧 ${config.name} starting for ${files.length} files...`);
+  logger.info("Starting specialized agent analysis", {
+    agentName: config.name,
+    fileCount: files.length,
+  });
 
   try {
     const agent = createSpecializedAgent(config);
@@ -162,11 +170,11 @@ export async function runSpecializedAnalysis(
       context,
     );
 
-    console.log(`🤖 Calling ${config.name} for analysis...`);
+    logger.debug("Calling agent for analysis", { agentName: config.name });
     const result = await runAgent(agent, analysisPrompt);
 
     const executionTime = Math.round(performance.now() - startTime);
-    console.log(`✅ ${config.name} completed in ${executionTime}ms`);
+    logger.info("Agent analysis completed", { agentName: config.name, executionTime });
 
     if (!result.success) {
       throw new Error(result.error || "Analysis failed");
@@ -190,14 +198,19 @@ export async function runSpecializedAnalysis(
       }
       : undefined;
 
-    console.log(
-      `📊 ${config.name} - Issues: ${analysisResult.issues.length}, Recommendations: ${analysisResult.recommendations.length}`,
-    );
+    logger.info("Agent analysis results", {
+      agentName: config.name,
+      issuesCount: analysisResult.issues.length,
+      recommendationsCount: analysisResult.recommendations.length,
+    });
 
     return analysisResult;
   } catch (error) {
     const executionTime = Math.round(performance.now() - startTime);
-    console.error(`❌ ${config.name} failed after ${executionTime}ms:`, error);
+    logger.error("Agent analysis failed", error, {
+      agentName: config.name,
+      executionTime,
+    });
 
     const isEstonian = context.language === "et";
     return {
@@ -307,7 +320,10 @@ function parseJSONAnalysisResult(
       delegationRequests: result.delegationRequests || [],
     };
   } catch (error) {
-    console.warn("Failed to parse JSON analysis result, using fallback");
+    logger.warn("Failed to parse JSON analysis result, using fallback", {
+      error: error instanceof Error ? error.message : String(error),
+      domain,
+    });
     return parseTextAnalysisResult(content, domain);
   }
 }

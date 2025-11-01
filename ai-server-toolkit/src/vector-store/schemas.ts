@@ -1,14 +1,14 @@
 // Single source of truth for LanceDB vector store schemas
 // Ensures type safety and consistency across all table operations
 
-import type { LanceDBState } from "./lancedb.ts";
 import type { Rule } from "../rules/types.ts";
 
 /**
  * Base metadata that all documents have
+ * Empty interface used as a marker type for extending metadata interfaces
  */
 export interface BaseVectorMetadata {
-  // Add common fields here if needed
+  [key: string]: unknown;
 }
 
 /**

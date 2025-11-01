@@ -2,13 +2,7 @@
 // Enables semantic search over rules for RAG applications
 
 import type { LanceDBState } from "../vector-store/lancedb.ts";
-import {
-  addWorkspaceDocument,
-  addWorkspaceDocuments,
-  createWorkspaceTable,
-  deleteWorkspaceDocument,
-  searchWorkspace,
-} from "../vector-store/lancedb.ts";
+import { createWorkspaceTable, deleteWorkspaceDocument } from "../vector-store/lancedb.ts";
 import type { Rule } from "./types.ts";
 import {
   buildRuleFilters,
@@ -17,6 +11,9 @@ import {
   ruleToVectorMetadata,
   type RuleVectorMetadata,
 } from "../vector-store/schemas.ts";
+import { createSubLogger } from "../utils/logger.ts";
+
+const logger = createSubLogger("rules-vector-store");
 
 /**
  * Get the table name for rules in a workspace
@@ -33,7 +30,7 @@ export async function initializeRulesVectorTable(
   workspaceId: string,
 ): Promise<void> {
   await createWorkspaceTable(vectorState, `${workspaceId}_rules`);
-  console.log(`✅ Initialized rules vector table: workspace_${workspaceId}_rules`);
+  logger.info("Initialized rules vector table", { tableName: `workspace_${workspaceId}_rules` });
 }
 
 /**
@@ -57,15 +54,14 @@ export async function embedRule(
 
   if (tableExists) {
     // Table exists, add document using centralized metadata schema
-    const metadata = ruleToVectorMetadata(rule);
-    await addWorkspaceDocument(vectorState, `${workspaceId}_rules`, {
-      id: rule.id,
-      content: rule.content,
-      metadata,
-    });
+    const { embedText } = await import("../embeddings/openai.ts");
+    const embedding = await embedText(vectorState.embeddings, rule.content);
+    const record = createRuleRecord(rule, embedding, vectorState.isCloud);
+    const table = await vectorState.connection.openTable(tableName);
+    await table.add([record]);
   } else {
     // Table doesn't exist, create it with proper schema using centralized function
-    console.log(`📝 Creating rules table with proper schema: ${tableName}`);
+    logger.debug("Creating rules table with proper schema", { tableName });
     const { embedText } = await import("../embeddings/openai.ts");
     const embedding = await embedText(vectorState.embeddings, rule.content);
 
@@ -73,10 +69,10 @@ export async function embedRule(
     const record = createRuleRecord(rule, embedding, vectorState.isCloud);
 
     await vectorState.connection.createTable(tableName, [record]);
-    console.log(`✅ Created rules table with schema: ${tableName}`);
+    logger.info("Created rules table with schema", { tableName });
   }
 
-  console.log(`✅ Embedded rule in vector store: ${rule.id}`);
+  logger.debug("Embedded rule in vector store", { ruleId: rule.id, tableName });
 }
 
 /**
@@ -90,7 +86,7 @@ export async function embedRules(
   for (const rule of rules) {
     await embedRule(vectorState, workspaceId, rule);
   }
-  console.log(`✅ Embedded ${rules.length} rules in vector store`);
+  logger.info("Embedded rules in vector store", { count: rules.length, workspaceId });
 }
 
 /**
@@ -102,7 +98,7 @@ export async function deleteRuleFromVectorStore(
   ruleId: string,
 ): Promise<void> {
   await deleteWorkspaceDocument(vectorState, `${workspaceId}_rules`, ruleId);
-  console.log(`🗑️ Deleted rule from vector store: ${ruleId}`);
+  logger.debug("Deleted rule from vector store", { ruleId, workspaceId });
 }
 
 /**
@@ -130,11 +126,13 @@ export async function searchRulesVector(
     ? buildRuleFilters(options.filters, vectorState.isCloud)
     : undefined;
 
-  const results = await searchWorkspace(
+  // Use searchSimilar directly with table name, not searchWorkspace which adds workspace_ prefix
+  const { searchSimilar } = await import("../vector-store/lancedb.ts");
+  const results = await searchSimilar(
     vectorState,
-    `${workspaceId}_rules`,
     query,
     { limit, filter },
+    tableName,
   );
 
   // Extract metadata using centralized function

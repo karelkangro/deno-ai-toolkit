@@ -1,6 +1,9 @@
 // Functional agent implementation
 import { type ClaudeLLMState, createClaudeLLM, generateResponse } from "../llm/claude.ts";
-import type { AgentConfig, AgentResult, LLMConfig, LLMMessage, ToolDefinition } from "../types.ts";
+import type { AgentConfig, AgentResult, LLMMessage, ToolDefinition } from "../types.ts";
+import { createSubLogger } from "../utils/logger.ts";
+
+const logger = createSubLogger("agent-base");
 
 export interface AgentState {
   name: string;
@@ -134,6 +137,9 @@ export async function runAgent(
           }
         }
       } catch (parseError) {
+        logger.warn("Failed to parse tool calls from response, using fallback detection", {
+          error: parseError instanceof Error ? parseError.message : String(parseError),
+        });
         // Fallback to simple detection
         for (const tool of state.tools) {
           if (response.content.includes(tool.name)) {
@@ -308,6 +314,9 @@ export function createCalculatorTool(): ToolDefinition<
         )();
         return { result };
       } catch (error) {
+        logger.error("Mathematical expression evaluation failed", error, {
+          expression: params.expression,
+        });
         return { error: "Invalid mathematical expression" };
       }
     },
@@ -345,6 +354,11 @@ interface WebSearchResult {
 export function createWebSearchTool(
   apiKey?: string,
 ): ToolDefinition<{ query: string; limit?: number }, WebSearchResult> {
+  if (!apiKey) {
+    logger.warn(
+      "Web search tool created without API key - web search functionality will be limited",
+    );
+  }
   return {
     name: "web_search",
     description: "Search the web for current information",

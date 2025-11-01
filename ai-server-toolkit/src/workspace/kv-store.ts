@@ -11,6 +11,9 @@ import type {
   WorkspaceStats,
   WorkspaceStoreConfig,
 } from "./types.ts";
+import { createSubLogger } from "../utils/logger.ts";
+
+const logger = createSubLogger("workspace-kv-store");
 
 /**
  * Generate a short, readable workspace/document ID (8 characters)
@@ -40,9 +43,7 @@ export async function createWorkspaceKV(
 ): Promise<WorkspaceKVState> {
   // Open KV with path (local) or without path (Deno Deploy managed KV)
   const kv = config.path ? await Deno.openKv(config.path) : await Deno.openKv();
-  console.log(
-    `✅ Workspace KV initialized: ${config.path || "Deno Deploy managed KV"}`,
-  );
+  logger.info("Workspace KV initialized", { path: config.path || "Deno Deploy managed KV" });
   return { kv, config };
 }
 
@@ -101,7 +102,7 @@ export async function createWorkspace(
     throw new Error(`Workspace ID collision: ${workspace.id}`);
   }
 
-  console.log(`✅ Created workspace: ${workspace.id} (${workspace.name})`);
+  logger.info("Created workspace", { workspaceId: workspace.id, workspaceName: workspace.name });
   return workspace;
 }
 
@@ -160,7 +161,7 @@ export async function updateWorkspace(
   const existing = await getWorkspace(state, workspaceId);
 
   if (!existing) {
-    console.warn(`❌ Workspace not found: ${workspaceId}`);
+    logger.warn("Workspace not found", { workspaceId });
 
     return null;
   }
@@ -172,7 +173,7 @@ export async function updateWorkspace(
   };
 
   await state.kv.set(["workspaces", workspaceId], updated);
-  console.log(`✅ Updated workspace: ${workspaceId}`);
+  logger.info("Updated workspace", { workspaceId });
 
   return updated;
 }
@@ -194,7 +195,7 @@ export async function deleteWorkspace(
   const workspace = await getWorkspace(state, workspaceId);
 
   if (!workspace) {
-    console.warn(`❌ Workspace not found: ${workspaceId}`);
+    logger.warn("Workspace not found", { workspaceId });
     return false;
   }
 
@@ -257,7 +258,7 @@ export async function addDocument(
     });
   }
 
-  console.log(`✅ Added document: ${doc.id} to workspace ${doc.workspaceId}`);
+  logger.info("Added document to workspace", { documentId: doc.id, workspaceId: doc.workspaceId });
   return doc;
 }
 
@@ -334,7 +335,7 @@ export async function updateDocument(
     }
   }
 
-  console.log(`✅ Updated document: ${documentId}`);
+  logger.info("Updated document", { documentId });
   return updated;
 }
 
@@ -367,7 +368,7 @@ export async function deleteDocument(
     });
   }
 
-  console.log(`✅ Deleted document: ${documentId}`);
+  logger.info("Deleted document", { documentId });
   return true;
 }
 
