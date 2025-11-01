@@ -20,8 +20,8 @@ export interface SpecializedAgentConfig {
   tools?: Array<{
     name: string;
     description: string;
-    parameters: Record<string, any>;
-    handler: (params: any) => Promise<any> | any;
+    parameters: Record<string, unknown>;
+    handler: (params: Record<string, unknown>) => Promise<unknown> | unknown;
   }>;
   responseFormat?: "json" | "text";
   language?: "en" | "et";
@@ -48,7 +48,7 @@ export interface ProjectContext {
   userRole?: string;
   files: ProjectFile[];
   language?: string;
-  [key: string]: any; // Allow additional context properties
+  [key: string]: unknown; // Allow additional context properties
 }
 
 /**
@@ -413,7 +413,12 @@ function parseTextAnalysisResult(
 export function createArchitectureAgentConfig(
   llmConfig: LLMConfig,
   language: "en" | "et" = "en",
-  vectorSearchTool?: any,
+  vectorSearchTool?: {
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;
+    handler: (params: Record<string, unknown>) => Promise<unknown> | unknown;
+  },
 ): SpecializedAgentConfig {
   const isEstonian = language === "et";
 

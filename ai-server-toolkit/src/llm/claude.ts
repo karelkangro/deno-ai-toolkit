@@ -10,6 +10,40 @@ export interface ClaudeLLMState {
   rateLimiter: RateLimitState;
 }
 
+interface ClaudeRequestBody {
+  model: string;
+  max_tokens: number;
+  temperature: number;
+  messages: Array<{ role: string; content: string }>;
+  stream?: boolean;
+  tools?: Array<{
+    name: string;
+    description: string;
+    input_schema: {
+      type: string;
+      properties: Record<string, unknown>;
+    };
+  }>;
+}
+
+interface ClaudeContentItem {
+  type: string;
+  text?: string;
+}
+
+interface ClaudeUsage {
+  input_tokens?: number;
+  output_tokens?: number;
+}
+
+interface ClaudeResponse {
+  content?: ClaudeContentItem[];
+  usage?: ClaudeUsage;
+  model?: string;
+  stop_reason?: string;
+  error?: { message: string };
+}
+
 /**
  * Creates a Claude LLM client with rate limiting.
  *
@@ -80,23 +114,24 @@ export async function generateResponse(
       content: msg.role === "system" ? `System: ${msg.content}` : msg.content,
     }));
 
-    const requestBody: any = {
+    const requestBody: ClaudeRequestBody = {
       model: state.model,
       max_tokens: state.maxTokens,
       temperature: state.temperature,
       messages: anthropicMessages,
+      ...(tools && tools.length > 0
+        ? {
+          tools: tools.map((tool) => ({
+            name: tool.name,
+            description: tool.description,
+            input_schema: {
+              type: "object",
+              properties: tool.parameters,
+            },
+          })),
+        }
+        : {}),
     };
-
-    if (tools && tools.length > 0) {
-      requestBody.tools = tools.map((tool) => ({
-        name: tool.name,
-        description: tool.description,
-        input_schema: {
-          type: "object",
-          properties: tool.parameters,
-        },
-      }));
-    }
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -114,7 +149,7 @@ export async function generateResponse(
       throw new Error(`Claude API error: ${response.status} - ${error}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as ClaudeResponse;
 
     if (data.error) {
       throw new Error(`Claude API error: ${data.error.message}`);
@@ -123,8 +158,8 @@ export async function generateResponse(
     let content = "";
     if (data.content && Array.isArray(data.content)) {
       content = data.content
-        .filter((item: any) => item.type === "text")
-        .map((item: any) => item.text)
+        .filter((item) => item.type === "text")
+        .map((item) => item.text || "")
         .join("");
     }
 
@@ -158,24 +193,25 @@ export async function streamResponse(
       content: msg.role === "system" ? `System: ${msg.content}` : msg.content,
     }));
 
-    const requestBody: any = {
+    const requestBody: ClaudeRequestBody = {
       model: state.model,
       max_tokens: state.maxTokens,
       temperature: state.temperature,
       messages: anthropicMessages,
       stream: true,
+      ...(tools && tools.length > 0
+        ? {
+          tools: tools.map((tool) => ({
+            name: tool.name,
+            description: tool.description,
+            input_schema: {
+              type: "object",
+              properties: tool.parameters,
+            },
+          })),
+        }
+        : {}),
     };
-
-    if (tools && tools.length > 0) {
-      requestBody.tools = tools.map((tool) => ({
-        name: tool.name,
-        description: tool.description,
-        input_schema: {
-          type: "object",
-          properties: tool.parameters,
-        },
-      }));
-    }
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -232,7 +268,7 @@ export async function streamResponse(
                     totalTokens: data.usage.output_tokens || 0,
                   };
                 }
-              } catch (e) {
+              } catch (_e) {
                 // Ignore JSON parse errors for incomplete chunks
                 // JSON parse errors for incomplete chunks are expected during streaming
                 // Silently ignore to avoid log spam

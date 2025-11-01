@@ -8,7 +8,6 @@ import {
   buildRuleFilters,
   createRuleRecord,
   extractMetadataFromResult,
-  ruleToVectorMetadata,
   type RuleVectorMetadata,
 } from "../vector-store/schemas.ts";
 import { createSubLogger } from "../utils/logger.ts";

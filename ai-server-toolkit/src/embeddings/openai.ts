@@ -9,6 +9,10 @@ export interface OpenAIEmbeddingState {
   rateLimiter: RateLimitState;
 }
 
+interface OpenAIEmbeddingResponse {
+  data: Array<{ embedding: number[] }>;
+}
+
 /**
  * Creates an OpenAI embeddings provider with rate limiting.
  *
@@ -146,13 +150,13 @@ export async function embedTexts(
       throw new Error(`OpenAI API error: ${response.status} - ${error}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as OpenAIEmbeddingResponse;
 
     if (!data.data || !Array.isArray(data.data)) {
       throw new Error("Invalid response from OpenAI API");
     }
 
-    return data.data.map((item: any) => item.embedding);
+    return data.data.map((item) => item.embedding);
   });
 }
 

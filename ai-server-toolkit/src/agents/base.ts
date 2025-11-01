@@ -69,7 +69,7 @@ export function createAgent(config: AgentConfig): AgentState {
 export async function runAgent(
   state: AgentState,
   input: string,
-  context?: Record<string, any>,
+  context?: Record<string, unknown>,
 ): Promise<AgentResult> {
   try {
     const messages: LLMMessage[] = [
@@ -103,7 +103,7 @@ export async function runAgent(
     );
 
     // Handle tool calls if present
-    const toolCalls: Array<{ tool: string; params: any; result: any }> = [];
+    const toolCalls: Array<{ tool: string; params: Record<string, unknown>; result: unknown }> = [];
 
     // Enhanced tool call detection with JSON parsing
     if (state.tools.length > 0 && response.content.includes('"tool_calls"')) {

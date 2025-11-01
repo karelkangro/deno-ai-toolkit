@@ -2,7 +2,7 @@
 // Provides consistent logging across the toolkit
 // Environment-aware: pretty format for dev, JSON for production
 
-import { Logger } from "tslog";
+import { Logger } from "npm:tslog@^4.9.3";
 
 const mapLogLevel = (level: string): number => {
   const levelMap: Record<string, number> = {
@@ -51,11 +51,11 @@ export const logger = new Logger(loggerSettings);
 // Optional file logging if LOG_FILE env var is set
 if (Deno.env.get("LOG_FILE")) {
   const logFile = Deno.env.get("LOG_FILE")!;
-  logger.attachTransport((logObj) => {
+  logger.attachTransport((logObj: unknown) => {
     try {
       const logLine = logger.settings.type === "json"
         ? JSON.stringify(logObj) + "\n"
-        : logObj.toString() + "\n";
+        : String(logObj) + "\n";
       Deno.writeTextFile(logFile, logLine, { append: true }).catch((err) => {
         console.error(`Failed to write to log file ${logFile}:`, err);
       });

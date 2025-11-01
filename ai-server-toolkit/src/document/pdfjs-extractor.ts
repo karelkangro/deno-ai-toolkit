@@ -46,18 +46,20 @@ export async function extractPDFContentWithPdfjs(
 
     // Extract metadata
     const metadata = await pdfDocument.getMetadata();
-    const info = metadata.info as any;
+    const info = metadata.info as Record<string, unknown>;
 
     const documentMetadata: DocumentMetadata = {
-      title: info?.Title,
-      author: info?.Author,
-      subject: info?.Subject,
-      keywords: info?.Keywords?.split(",").map((k: string) => k.trim()),
-      creationDate: info?.CreationDate,
-      modificationDate: info?.ModDate,
+      title: typeof info?.Title === "string" ? info.Title : undefined,
+      author: typeof info?.Author === "string" ? info.Author : undefined,
+      subject: typeof info?.Subject === "string" ? info.Subject : undefined,
+      keywords: typeof info?.Keywords === "string"
+        ? info.Keywords.split(",").map((k) => k.trim())
+        : undefined,
+      creationDate: typeof info?.CreationDate === "string" ? info.CreationDate : undefined,
+      modificationDate: typeof info?.ModDate === "string" ? info.ModDate : undefined,
       pageCount: pdfDocument.numPages,
-      producer: info?.Producer,
-      creator: info?.Creator,
+      producer: typeof info?.Producer === "string" ? info.Producer : undefined,
+      creator: typeof info?.Creator === "string" ? info.Creator : undefined,
     };
 
     logger.debug("Metadata extracted", {
@@ -74,10 +76,11 @@ export async function extractPDFContentWithPdfjs(
 
       // Combine text items with proper spacing
       const pageText = textContent.items
-        .map((item: any) => {
+        .map((item: unknown) => {
           // Handle text items with proper string extraction
-          if ("str" in item) {
-            return item.str;
+          if (typeof item === "object" && item !== null && "str" in item) {
+            const textItem = item as { str: unknown };
+            return typeof textItem.str === "string" ? textItem.str : "";
           }
           return "";
         })
