@@ -1,7 +1,7 @@
 // Basic RAG (Retrieval-Augmented Generation) Example
 // Demonstrates how to set up a simple question-answering system with document search
 
-import { createRAGSystem } from "../ai-server-toolkit/mod.ts";
+import { createRAGSystem, type SearchResult } from "../ai-server-toolkit/mod.ts";
 
 // Set up environment variables
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
@@ -100,7 +100,7 @@ Always search for relevant information before answering questions. Be specific a
     );
 
     console.log(`Found ${searchResults.length} relevant documents:`);
-    searchResults.forEach((result: any, index: number) => {
+    searchResults.forEach((result: SearchResult, index: number) => {
       console.log(
         `${index + 1}. ${result.id} (score: ${result.score.toFixed(3)})`,
       );

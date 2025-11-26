@@ -1,6 +1,20 @@
 // Functional Claude LLM integration
 import { createRateLimiter, type RateLimitState, withRateLimit } from "../utils/rate-limiter.ts";
-import type { LLMConfig, LLMMessage, LLMResponse, ToolDefinition } from "../types.ts";
+import type {
+  LLMConfig,
+  LLMMessage,
+  LLMResponse,
+  SystemMessageBlock,
+  ToolDefinition,
+} from "../types.ts";
+
+/**
+ * Anthropic API version constants.
+ * - BASELINE: Standard API version without prompt caching support
+ * - WITH_CACHING: API version that supports prompt caching via system messages
+ */
+const ANTHROPIC_API_VERSION_BASELINE = "2025-06-01";
+const ANTHROPIC_API_VERSION_WITH_CACHING = "2025-11-01";
 
 export interface ClaudeLLMState {
   apiKey: string;
@@ -14,7 +28,8 @@ interface ClaudeRequestBody {
   model: string;
   max_tokens: number;
   temperature: number;
-  messages: Array<{ role: string; content: string }>;
+  system?: Array<SystemMessageBlock>;
+  messages: Array<{ role: string; content: string | Array<{ type: string; text: string }> }>;
   stream?: boolean;
   tools?: Array<{
     name: string;
@@ -34,6 +49,8 @@ interface ClaudeContentItem {
 interface ClaudeUsage {
   input_tokens?: number;
   output_tokens?: number;
+  cache_creation_input_tokens?: number;
+  cache_read_input_tokens?: number;
 }
 
 interface ClaudeResponse {
@@ -81,15 +98,24 @@ export function createClaudeLLM(config: LLMConfig): ClaudeLLMState {
   };
 }
 
+export interface GenerateResponseOptions {
+  system?: SystemMessageBlock[];
+  cacheControl?: {
+    type: "ephemeral" | "ephemeral-1h";
+  };
+}
+
 /**
  * Generates a response from Claude LLM.
  *
  * Sends messages to Claude and returns the AI-generated response. Supports
  * tool use for function calling and multi-turn conversations.
+ * Supports prompt caching via system messages with cache_control.
  *
  * @param state Claude LLM state from createClaudeLLM
  * @param messages Array of conversation messages (role + content)
  * @param tools Optional array of tool definitions for function calling
+ * @param options Optional configuration including system messages with cache control
  * @returns Promise resolving to LLM response with content and optional tool calls
  *
  * @example
@@ -101,24 +127,51 @@ export function createClaudeLLM(config: LLMConfig): ClaudeLLMState {
  *
  * // With tools
  * const response = await generateResponse(llm, messages, [calculatorTool]);
+ *
+ * // With prompt caching
+ * const response = await generateResponse(llm, messages, undefined, {
+ *   system: [
+ *     { type: "text", text: "You are a helpful assistant." },
+ *     { type: "text", text: cachedContent, cache_control: { type: "ephemeral" } }
+ *   ]
+ * });
  * ```
  */
 export async function generateResponse(
   state: ClaudeLLMState,
   messages: LLMMessage[],
   tools?: ToolDefinition[],
+  options?: GenerateResponseOptions,
 ): Promise<LLMResponse> {
   return await withRateLimit(state.rateLimiter, async () => {
-    const anthropicMessages = messages.map((msg) => ({
-      role: msg.role === "system" ? "user" : msg.role,
-      content: msg.role === "system" ? `System: ${msg.content}` : msg.content,
-    }));
+    // Separate system messages from regular messages
+    const systemMessages: SystemMessageBlock[] = [];
+    const regularMessages: Array<{ role: string; content: string }> = [];
+
+    // Process messages - system messages go to system array, others to messages
+    for (const msg of messages) {
+      if (msg.role === "system") {
+        systemMessages.push({
+          type: "text",
+          text: msg.content,
+        });
+      } else {
+        regularMessages.push({
+          role: msg.role,
+          content: msg.content,
+        });
+      }
+    }
+
+    // Merge with options.system if provided
+    const finalSystem = options?.system || systemMessages;
 
     const requestBody: ClaudeRequestBody = {
       model: state.model,
       max_tokens: state.maxTokens,
       temperature: state.temperature,
-      messages: anthropicMessages,
+      ...(finalSystem.length > 0 ? { system: finalSystem } : {}),
+      messages: regularMessages,
       ...(tools && tools.length > 0
         ? {
           tools: tools.map((tool) => ({
@@ -133,12 +186,17 @@ export async function generateResponse(
         : {}),
     };
 
+    // Use newer API version for prompt caching support
+    const apiVersion = finalSystem.length > 0
+      ? ANTHROPIC_API_VERSION_WITH_CACHING
+      : ANTHROPIC_API_VERSION_BASELINE;
+
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "x-api-key": state.apiKey,
         "Content-Type": "application/json",
-        "anthropic-version": "2023-06-01",
+        "anthropic-version": apiVersion,
         ...(tools && tools.length > 0 ? { "anthropic-beta": "tools-2024-04-04" } : {}),
       },
       body: JSON.stringify(requestBody),
@@ -171,6 +229,8 @@ export async function generateResponse(
           completionTokens: data.usage.output_tokens || 0,
           totalTokens: (data.usage.input_tokens || 0) +
             (data.usage.output_tokens || 0),
+          cacheCreationInputTokens: data.usage.cache_creation_input_tokens,
+          cacheReadInputTokens: data.usage.cache_read_input_tokens,
         }
         : undefined,
       metadata: {
@@ -218,7 +278,7 @@ export async function streamResponse(
       headers: {
         "x-api-key": state.apiKey,
         "Content-Type": "application/json",
-        "anthropic-version": "2023-06-01",
+        "anthropic-version": ANTHROPIC_API_VERSION_BASELINE,
         ...(tools && tools.length > 0 ? { "anthropic-beta": "tools-2024-04-04" } : {}),
       },
       body: JSON.stringify(requestBody),

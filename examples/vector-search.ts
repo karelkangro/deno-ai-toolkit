@@ -1,7 +1,7 @@
 // Vector Search Example
 // Demonstrates pure vector search capabilities without AI agents
 
-import { createVectorSearchSystem } from "../ai-server-toolkit/mod.ts";
+import { createVectorSearchSystem, type SearchResult } from "../ai-server-toolkit/mod.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
@@ -112,7 +112,7 @@ async function main() {
 
       if (results.length > 0) {
         console.log(`✅ Found ${results.length} relevant results:`);
-        results.forEach((result: any, index: number) => {
+        results.forEach((result: SearchResult, index: number) => {
           console.log(
             `   ${index + 1}. ${result.id} (similarity: ${result.score.toFixed(3)})`,
           );
@@ -137,7 +137,7 @@ async function main() {
     });
 
     console.log(`Found ${filteredResults.length} compiled languages:`);
-    filteredResults.forEach((result: any) => {
+    filteredResults.forEach((result: SearchResult) => {
       console.log(
         `• ${result.id} (${result.metadata?.year}): ${result.content.slice(0, 60)}...`,
       );

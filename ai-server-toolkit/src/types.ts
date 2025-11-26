@@ -18,7 +18,7 @@ export interface SearchResult {
 export interface SearchOptions {
   limit?: number;
   threshold?: number;
-  filter?: Record<string, any> | string; // Can be object or SQL WHERE string
+  filter?: Record<string, unknown> | string; // Can be object or SQL WHERE string
   includeEmbeddings?: boolean;
 }
 
@@ -46,6 +46,16 @@ export interface LLMMessage {
   metadata?: Record<string, unknown>;
 }
 
+export interface CacheControl {
+  type: "ephemeral" | "ephemeral-1h";
+}
+
+export interface SystemMessageBlock {
+  type: "text";
+  text: string;
+  cache_control?: CacheControl;
+}
+
 export interface LLMConfig {
   provider: "claude" | "openai" | "local";
   apiKey: string;
@@ -60,6 +70,8 @@ export interface LLMResponse {
     promptTokens: number;
     completionTokens: number;
     totalTokens: number;
+    cacheCreationInputTokens?: number;
+    cacheReadInputTokens?: number;
   };
   metadata?: Record<string, unknown>;
 }

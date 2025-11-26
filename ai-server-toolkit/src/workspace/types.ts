@@ -38,6 +38,20 @@ export interface WorkspaceDocument {
 export type DocumentStatus = "uploaded" | "processing" | "embedded" | "error";
 
 /**
+ * Standard document content types
+ * Used for identifying document formats for parsing and processing
+ */
+export type DocumentContentType =
+  | "text"
+  | "markdown"
+  | "html"
+  | "pdf"
+  | "url"
+  | "json"
+  | "csv"
+  | "xml";
+
+/**
  * Request to create a new workspace
  */
 export interface CreateWorkspaceRequest {

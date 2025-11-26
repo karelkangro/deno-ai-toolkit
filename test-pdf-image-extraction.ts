@@ -1,5 +1,6 @@
 import { Buffer } from "node:buffer";
 import { PDFParse } from "pdf-parse";
+import type { PDFParseResult } from "./ai-server-toolkit/src/document/pdf-parse-types.ts";
 
 const testImageExtraction = async () => {
   console.log("=".repeat(80));
@@ -102,7 +103,7 @@ const testImageExtraction = async () => {
     const buffer = Buffer.from(fileData);
 
     const parser3 = new PDFParse({ data: buffer });
-    const textResult = await parser3.getText() as any;
+    const textResult = (await parser3.getText()) as PDFParseResult;
     console.log(`Text extraction: ${textResult.text.length} chars, ${textResult.numpages} pages`);
 
     const imageResult = await parser3.getImage();

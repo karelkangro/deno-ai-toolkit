@@ -9,3 +9,11 @@ export interface PDFInfo {
   Keywords?: string;
   [key: string]: string | undefined;
 }
+
+export interface PDFParseResult {
+  text: string;
+  info?: PDFInfo;
+  numpages?: number;
+  numPages?: number;
+  metadata?: Record<string, unknown>;
+}

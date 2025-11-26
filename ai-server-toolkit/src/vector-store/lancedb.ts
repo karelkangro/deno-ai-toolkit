@@ -270,8 +270,21 @@ export async function initializeTable(
 
   try {
     await state.connection.openTable(targetTable);
-  } catch {
-    // Table doesn't exist, create it
+    logger.debug("Table already exists", { tableName: targetTable });
+  } catch (error) {
+    const isNotFound = error instanceof Error && (
+      error.message.includes("404") ||
+      error.message.includes("Not Found") ||
+      (error as { status?: number; response?: { status?: number } }).status === 404 ||
+      (error as { status?: number; response?: { status?: number } }).response?.status === 404
+    );
+
+    if (!isNotFound) {
+      throw error;
+    }
+
+    logger.debug("Table not found, creating new table", { tableName: targetTable });
+
     const sampleData = [{
       id: INIT_DOC_ID,
       content: "initialization document",
@@ -279,8 +292,10 @@ export async function initializeTable(
       ...transformMetadata({}, state.isCloud),
     }];
 
-    const table = await state.connection.createTable(targetTable, sampleData);
+    await state.connection.createTable(targetTable, sampleData);
+    const table = await state.connection.openTable(targetTable);
     await table.delete(`id = '${INIT_DOC_ID}'`);
+    logger.info("Table created successfully", { tableName: targetTable });
   }
 }
 
@@ -653,7 +668,7 @@ export async function listWorkspaceTables(
   state: LanceDBState,
 ): Promise<string[]> {
   const allTables = await state.connection.tableNames();
-  return allTables.filter((name) => name.startsWith("workspace_"));
+  return allTables.filter((name: string) => name.startsWith("workspace_"));
 }
 
 /**

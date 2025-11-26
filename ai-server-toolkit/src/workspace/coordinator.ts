@@ -9,6 +9,7 @@ import type {
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
   Workspace,
+  WorkspaceDocument,
   WorkspaceKVState,
 } from "./types.ts";
 import { createSubLogger } from "../utils/logger.ts";
@@ -212,4 +213,220 @@ export async function deleteDocumentCoordinated(
 
   // Delete from KV metadata
   return await kvDeleteDocument(kvState, workspaceId, documentId);
+}
+
+/**
+ * Embedding workflow helpers
+ * Coordinated operations for document embedding with status updates
+ */
+
+import type { VectorDocument } from "../types.ts";
+import { addWorkspaceDocument } from "../vector-store/lancedb.ts";
+import type { DocumentStatus } from "./types.ts";
+import { getDocument, updateDocument } from "./kv-store.ts";
+import { extractContentFromMetadata } from "../utils/document.ts";
+
+/**
+ * Embed a document and update its status in KV
+ *
+ * Reads content from WorkspaceDocument.metadata.content, embeds it in vector store,
+ * then updates document status to "embedded" in KV.
+ *
+ * @param kvState Workspace KV state
+ * @param vectorState LanceDB state
+ * @param workspaceId Workspace ID
+ * @param documentId Document ID
+ * @param options Optional embedding options
+ * @returns Promise resolving to updated WorkspaceDocument
+ *
+ * @example
+ * ```ts
+ * const updated = await embedDocumentAndUpdateStatus(
+ *   kvState,
+ *   vectorState,
+ *   "workspace_123",
+ *   "doc_456"
+ * );
+ * ```
+ */
+export async function embedDocumentAndUpdateStatus(
+  kvState: WorkspaceKVState,
+  vectorState: LanceDBState,
+  workspaceId: string,
+  documentId: string,
+  options?: {
+    embeddingModel?: string;
+  },
+): Promise<WorkspaceDocument | null> {
+  const doc = await getDocument(kvState, workspaceId, documentId);
+  if (!doc) {
+    return null;
+  }
+
+  // Extract content from metadata
+  const content = extractContentFromMetadata(doc);
+  if (!content) {
+    logger.warn("Document has no content to embed", { documentId });
+    return doc;
+  }
+
+  // Create vector document
+  const vectorDoc: VectorDocument = {
+    id: doc.id,
+    content,
+    metadata: {
+      workspaceId: doc.workspaceId,
+      ...doc.metadata,
+    },
+  };
+
+  // Add to vector store
+  await addWorkspaceDocument(vectorState, workspaceId, vectorDoc);
+
+  // Update status in KV
+  const updated = await updateDocument(kvState, workspaceId, documentId, {
+    status: "embedded" as DocumentStatus,
+    embeddedAt: new Date().toISOString(),
+    metadata: {
+      ...doc.metadata,
+      embedded: true,
+      embeddingModel: options?.embeddingModel || "text-embedding-3-small",
+      updatedAt: new Date().toISOString(),
+    },
+  });
+
+  logger.info("Document embedded and status updated", { documentId, workspaceId });
+  return updated;
+}
+
+/**
+ * Create document and embed it immediately
+ *
+ * Creates WorkspaceDocument in KV, then embeds it in vector store.
+ * If embedding fails, document remains in KV with "uploaded" status.
+ *
+ * @param kvState Workspace KV state
+ * @param vectorState LanceDB state
+ * @param document Document metadata to create
+ * @param options Optional options for embedding
+ * @returns Promise resolving to created and embedded WorkspaceDocument
+ *
+ * @example
+ * ```ts
+ * const doc = await createAndEmbedDocument(
+ *   kvState,
+ *   vectorState,
+ *   {
+ *     workspaceId: "workspace_123",
+ *     name: "Document Title",
+ *     storageKey: "s3://bucket/key",
+ *     fileSize: 1024,
+ *     mimeType: "text/plain",
+ *     status: "uploaded" as DocumentStatus,
+ *     uploadedAt: new Date().toISOString(),
+ *     metadata: { content: "document content here" }
+ *   },
+ *   { embedImmediately: true }
+ * );
+ * ```
+ */
+export async function createAndEmbedDocument(
+  kvState: WorkspaceKVState,
+  vectorState: LanceDBState,
+  document: Omit<WorkspaceDocument, "id">,
+  options?: {
+    embedImmediately?: boolean;
+    embeddingModel?: string;
+  },
+): Promise<WorkspaceDocument> {
+  const { addDocument } = await import("./kv-store.ts");
+
+  // Create document in KV
+  const created = await addDocument(kvState, document);
+
+  // Embed immediately if requested
+  if (options?.embedImmediately !== false) {
+    try {
+      await embedDocumentAndUpdateStatus(
+        kvState,
+        vectorState,
+        created.workspaceId,
+        created.id,
+        { embeddingModel: options?.embeddingModel },
+      );
+    } catch (error) {
+      logger.error("Failed to embed document immediately", error, {
+        documentId: created.id,
+      });
+      // Document remains in KV with "uploaded" status - can retry later
+    }
+  }
+
+  return created;
+}
+
+/**
+ * Re-embed document if content has changed
+ *
+ * Checks if content in metadata has changed, and if so, re-embeds the document.
+ * Updates vector store and document status.
+ *
+ * @param kvState Workspace KV state
+ * @param vectorState LanceDB state
+ * @param workspaceId Workspace ID
+ * @param documentId Document ID
+ * @param newContent New content to check against
+ * @param options Optional options
+ * @returns Promise resolving to true if re-embedded, false if not needed
+ *
+ * @example
+ * ```ts
+ * const reembedded = await reembedIfContentChanged(
+ *   kvState,
+ *   vectorState,
+ *   "workspace_123",
+ *   "doc_456",
+ *   "new content here"
+ * );
+ * ```
+ */
+export async function reembedIfContentChanged(
+  kvState: WorkspaceKVState,
+  vectorState: LanceDBState,
+  workspaceId: string,
+  documentId: string,
+  newContent: string,
+  options?: {
+    embeddingModel?: string;
+  },
+): Promise<boolean> {
+  const doc = await getDocument(kvState, workspaceId, documentId);
+  if (!doc) {
+    return false;
+  }
+
+  const currentContent = extractContentFromMetadata(doc);
+  if (currentContent === newContent) {
+    logger.debug("Content unchanged, skipping re-embedding", { documentId });
+    return false;
+  }
+
+  // Update content in metadata first
+  const { storeContentInMetadata } = await import("../utils/document.ts");
+  await updateDocument(kvState, workspaceId, documentId, {
+    metadata: storeContentInMetadata(doc.metadata, newContent),
+    status: "uploaded" as DocumentStatus, // Reset to uploaded before re-embedding
+  });
+
+  // Re-embed
+  await embedDocumentAndUpdateStatus(
+    kvState,
+    vectorState,
+    workspaceId,
+    documentId,
+    { embeddingModel: options?.embeddingModel },
+  );
+
+  logger.info("Document re-embedded due to content change", { documentId });
+  return true;
 }

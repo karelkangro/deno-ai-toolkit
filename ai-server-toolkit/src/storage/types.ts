@@ -37,7 +37,8 @@ export interface DownloadResult {
  */
 export interface FileStorageState {
   config: FileStorageConfig;
-  s3Client: any; // AWS SDK S3Client
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  s3Client: any; // AWS SDK S3Client (external dependency, typed as any for flexibility)
 }
 
 /**

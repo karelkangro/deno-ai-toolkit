@@ -118,9 +118,9 @@ console.log(`Found ${results.length} similar documents`);
 
 ```typescript
 import {
-  createWorkspaceTableRegistry,
-  createBaseDocumentMetadata,
   type BaseDocumentMetadata,
+  createBaseDocumentMetadata,
+  createWorkspaceTableRegistry,
 } from "./ai-server-toolkit/mod.ts";
 import { createLanceDB } from "./ai-server-toolkit/mod.ts";
 
@@ -492,4 +492,3 @@ if (import.meta.main) quickStart();
 ---
 
 **🎯 Ready to implement? All examples are production-ready and fully functional!**
-

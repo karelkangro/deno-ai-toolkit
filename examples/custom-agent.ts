@@ -6,6 +6,7 @@ import {
   createCalculatorTool,
   createClaudeLLM,
   runAgent,
+  type ToolDefinition,
 } from "../ai-server-toolkit/mod.ts";
 
 const CLAUDE_API_KEY = Deno.env.get("CLAUDE_API_KEY");
@@ -135,10 +136,10 @@ You can:
 Always use the appropriate tools when asked to calculate, convert, or provide facts.
 Be friendly and explain your reasoning.`,
       tools: [
-        createCalculatorTool() as any,
-        createUnitConverterTool() as any,
-        createFactTool() as any,
-      ],
+        createCalculatorTool(),
+        createUnitConverterTool(),
+        createFactTool(),
+      ] as ToolDefinition[],
       llm: {
         provider: "claude",
         apiKey: CLAUDE_API_KEY || "",

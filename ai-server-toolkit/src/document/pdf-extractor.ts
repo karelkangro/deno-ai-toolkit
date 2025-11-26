@@ -1,7 +1,7 @@
 import { Buffer } from "node:buffer";
 import { PDFParse } from "pdf-parse";
 import type { DocumentMetadata, DocumentPage, ProcessedDocument } from "./types.ts";
-import type { PDFInfo } from "./pdf-parse-types.ts";
+import type { PDFInfo, PDFParseResult } from "./pdf-parse-types.ts";
 
 /**
  * Extracts complete PDF content including metadata, text, and page-by-page breakdown.
@@ -28,7 +28,7 @@ export async function extractPDFContent(
     const buffer = Buffer.from(content);
     const parser = new PDFParse({ data: buffer });
 
-    const pdfData = await parser.getText() as any;
+    const pdfData = (await parser.getText()) as PDFParseResult;
 
     const info: PDFInfo = pdfData.info || {};
     const pageCount = pdfData.numpages || pdfData.numPages || 0;
@@ -143,7 +143,7 @@ function detectTable(text: string): boolean {
 export async function extractTextOnly(content: Uint8Array): Promise<string> {
   const buffer = Buffer.from(content);
   const parser = new PDFParse({ data: buffer });
-  const pdfData = await parser.getText() as any;
+  const pdfData = (await parser.getText()) as PDFParseResult;
   await parser.destroy();
   return pdfData.text || "";
 }

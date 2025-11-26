@@ -1,5 +1,13 @@
 // AI Server Toolkit - Complete functional toolkit for AI-powered Deno servers
-import { createSearchTool, runAgent } from "./src/agents/base.ts";
+import { createSearchTool, runAgent, type AgentState } from "./src/agents/base.ts";
+import type {
+  AgentConfig,
+  AgentResult,
+  LLMMessage,
+  SearchOptions,
+  SearchResult,
+  VectorDocument,
+} from "./src/types.ts";
 
 // Re-export all types
 export * from "./src/types.ts";
@@ -23,15 +31,62 @@ export {
   updateWorkspace,
 } from "./src/workspace/kv-store.ts";
 export {
+  createAndEmbedDocument,
   createWorkspaceCoordinated,
   deleteDocumentCoordinated,
   deleteWorkspaceCoordinated,
+  embedDocumentAndUpdateStatus,
   listWorkspacesCoordinated,
+  reembedIfContentChanged,
   updateWorkspaceCoordinated,
 } from "./src/workspace/coordinator.ts";
 
 // Rules management types and functions (NEW)
-export * from "./src/rules/mod.ts";
+export {
+  type BusinessRule,
+  type ComparisonOperator,
+  type RuleCondition,
+  type RuleEvaluationContext,
+  type RuleScope,
+  type RuleTarget,
+} from "./src/rules/types.ts";
+export { evaluateCondition, evaluateRule, filterApplicableRules } from "./src/rules/evaluator.ts";
+export { addRule, deleteRule, getRule, listRules, updateRule } from "./src/rules/kv-store.ts";
+
+// Product management types and functions (NEW)
+export {
+  type Product,
+  type ProductCategory,
+  type ProductConfiguration,
+  type ProductEvaluationContext,
+  type ProductEvaluationResult,
+  type ProductMetadata,
+  type ProductRestriction,
+} from "./src/products/mod.ts";
+export {
+  addCategory,
+  addConfiguration,
+  addProduct,
+  addRestriction,
+  checkProductRestrictions,
+  deleteCategory,
+  deleteConfiguration,
+  deleteProduct,
+  deleteRestriction,
+  evaluateProductMetadata,
+  evaluateProductRules,
+  getCategory,
+  getConfiguration,
+  getProduct,
+  getRestriction,
+  listCategories,
+  listConfigurations,
+  listProducts,
+  listRestrictions,
+  updateCategory,
+  updateConfiguration,
+  updateProduct,
+} from "./src/products/mod.ts";
 
 // File storage types and functions (NEW in v1.4.0)
 export * from "./src/storage/types.ts";
@@ -183,6 +238,11 @@ export {
   recordRequest,
   withRateLimit,
 } from "./src/utils/rate-limiter.ts";
+export {
+  contentTypeToMimeType,
+  extractContentFromMetadata,
+  storeContentInMetadata,
+} from "./src/utils/document.ts";
 
 // High-level factory functions for easy setup
 
@@ -248,11 +308,14 @@ export async function createAISystem(config: {
     ReturnType<typeof import("./src/vector-store/lancedb.ts").createLanceDB>
   >;
   llm: ReturnType<typeof import("./src/llm/claude.ts").createClaudeLLM>;
-  search: (query: string, options?: any) => Promise<any>;
-  addDocument: (doc: any) => Promise<any>;
-  addDocuments: (docs: any[]) => Promise<any>;
-  generateResponse: (messages: any[], tools?: any[]) => Promise<any>;
-  createAgent: (config: any) => any;
+  search: (query: string, options?: SearchOptions) => Promise<SearchResult[]>;
+  addDocument: (doc: VectorDocument) => Promise<void>;
+  addDocuments: (docs: VectorDocument[]) => Promise<void>;
+  generateResponse: (
+    messages: LLMMessage[],
+    tools?: import("./src/types.ts").ToolDefinition[],
+  ) => Promise<import("./src/types.ts").LLMResponse>;
+  createAgent: (config: AgentConfig) => AgentState;
 }> {
   const { createOpenAIEmbeddings } = await import("./src/embeddings/openai.ts");
   const {
@@ -287,25 +350,28 @@ export async function createAISystem(config: {
     vectorStore,
     llm,
     // Convenience methods
-    async search(query: string, options?: any) {
+    async search(query: string, options?: SearchOptions) {
       return await searchSimilar(vectorStore, query, options);
     },
-    async addDocument(doc: any) {
+    async addDocument(doc: VectorDocument) {
       return await addDocument(vectorStore, doc);
     },
-    async addDocuments(docs: any[]) {
+    async addDocuments(docs: VectorDocument[]) {
       return await addDocuments(vectorStore, docs);
     },
-    async generateResponse(messages: any[], tools?: any[]) {
+    async generateResponse(
+      messages: LLMMessage[],
+      tools?: import("./src/types.ts").ToolDefinition[],
+    ) {
       return await generateResponse(llm, messages, tools);
     },
-    createAgent(config: any) {
+    createAgent(agentConfig: AgentConfig) {
       return createAgent({
-        ...config,
-        llm: config.llm || {
-          provider: "claude",
-          apiKey: config.llm?.apiKey || llm.apiKey,
-          model: config.llm?.model || llm.model,
+        ...agentConfig,
+        llm: agentConfig.llm || {
+          provider: "claude" as const,
+          apiKey: llm.apiKey,
+          model: llm.model,
         },
       });
     },
@@ -344,14 +410,21 @@ export async function createVectorSearchSystem(config: {
   openaiApiKey: string;
   claudeApiKey?: string;
 }): Promise<{
-  embeddings: any;
-  vectorStore: any;
-  llm: any;
-  search: (query: string, options?: any) => Promise<any>;
-  addDocument: (doc: any) => Promise<any>;
-  addDocuments: (docs: any[]) => Promise<any>;
-  generateResponse: (messages: any[], tools?: any[]) => Promise<any>;
-  createAgent: (config: any) => any;
+  embeddings: ReturnType<
+    typeof import("./src/embeddings/openai.ts").createOpenAIEmbeddings
+  >;
+  vectorStore: Awaited<
+    ReturnType<typeof import("./src/vector-store/lancedb.ts").createLanceDB>
+  >;
+  llm: ReturnType<typeof import("./src/llm/claude.ts").createClaudeLLM>;
+  search: (query: string, options?: SearchOptions) => Promise<SearchResult[]>;
+  addDocument: (doc: VectorDocument) => Promise<void>;
+  addDocuments: (docs: VectorDocument[]) => Promise<void>;
+  generateResponse: (
+    messages: LLMMessage[],
+    tools?: import("./src/types.ts").ToolDefinition[],
+  ) => Promise<import("./src/types.ts").LLMResponse>;
+  createAgent: (config: AgentConfig) => AgentState;
 }> {
   return await createAISystem({
     vectorStore: {
@@ -408,16 +481,23 @@ export async function createRAGSystem(config: {
   claudeApiKey: string;
   systemPrompt?: string;
 }): Promise<{
-  embeddings: any;
-  vectorStore: any;
-  llm: any;
-  search: (query: string, options?: any) => Promise<any>;
-  addDocument: (doc: any) => Promise<any>;
-  addDocuments: (docs: any[]) => Promise<any>;
-  generateResponse: (messages: any[], tools?: any[]) => Promise<any>;
-  createAgent: (config: any) => any;
-  agent: any;
-  ask: (question: string, context?: any) => Promise<any>;
+  embeddings: ReturnType<
+    typeof import("./src/embeddings/openai.ts").createOpenAIEmbeddings
+  >;
+  vectorStore: Awaited<
+    ReturnType<typeof import("./src/vector-store/lancedb.ts").createLanceDB>
+  >;
+  llm: ReturnType<typeof import("./src/llm/claude.ts").createClaudeLLM>;
+  search: (query: string, options?: SearchOptions) => Promise<SearchResult[]>;
+  addDocument: (doc: VectorDocument) => Promise<void>;
+  addDocuments: (docs: VectorDocument[]) => Promise<void>;
+  generateResponse: (
+    messages: LLMMessage[],
+    tools?: import("./src/types.ts").ToolDefinition[],
+  ) => Promise<import("./src/types.ts").LLMResponse>;
+  createAgent: (config: AgentConfig) => AgentState;
+  agent: AgentState;
+  ask: (question: string, context?: Record<string, unknown>) => Promise<AgentResult>;
 }> {
   const system = await createAISystem({
     vectorStore: {
@@ -443,14 +523,18 @@ Use the search tool to find relevant information before answering questions.`,
     tools: [
       createSearchTool(async (query: string) => {
         return await system.search(query, { limit: 5 });
-      }),
+      }) as import("./src/types.ts").ToolDefinition,
     ],
+    llm: {
+      provider: "claude",
+      apiKey: config.claudeApiKey,
+    },
   });
 
   return {
     ...system,
     agent,
-    async ask(question: string, context?: any) {
+    async ask(question: string, context?: Record<string, unknown>) {
       return await runAgent(agent, question, context);
     },
   };
