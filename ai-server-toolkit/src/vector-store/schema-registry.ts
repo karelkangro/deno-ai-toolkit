@@ -1,4 +1,13 @@
 import type { LanceDBState } from "./lancedb.ts";
+import type { VectorStore } from "../types.ts";
+import type { Connection } from "vectordb";
+
+// Internal LanceDB state with additional properties
+interface LanceDBInternalState extends VectorStore {
+  dimensions: number;
+  isCloud: boolean;
+  connection: Connection;
+}
 import type { BaseDocumentMetadata } from "./schemas.ts";
 import { listWorkspaceTables } from "./lancedb.ts";
 import { createSubLogger } from "../utils/logger.ts";
@@ -65,18 +74,21 @@ const initializeTable = async (
 
   const sampleMetadata = config.createSampleMetadata(workspaceId);
 
+  // Cast to internal state to access LanceDB-specific properties
+  const internalState = vectorStore as unknown as LanceDBInternalState;
+
   const sampleDoc = {
     id: "_init_",
     content: "initialization",
-    vector: new Array(vectorStore.dimensions).fill(0),
-    ...(vectorStore.isCloud
+    vector: new Array(internalState.dimensions).fill(0),
+    ...(internalState.isCloud
       ? Object.fromEntries(
         Object.entries(sampleMetadata).map(([k, v]) => [`meta_${k}`, v]),
       )
       : { metadata: sampleMetadata }),
   };
 
-  const table = await vectorStore.connection.createTable(tableName, [sampleDoc]);
+  const table = await internalState.connection.createTable(tableName, [sampleDoc]);
   await table.delete(`id = '_init_'`);
 };
 
@@ -155,8 +167,10 @@ export const createWorkspaceTableRegistry = (): WorkspaceTableRegistry => {
         ? config.tableName(workspaceId)
         : config.tableName;
 
+      // Cast to internal state to access LanceDB-specific properties
+      const internalState = vectorStore as unknown as LanceDBInternalState;
       try {
-        await vectorStore.connection.dropTable(tableName);
+        await internalState.connection.dropTable(tableName);
       } catch (error) {
         // Table might not exist, continue
         logger.debug("Table might not exist (expected)", {
