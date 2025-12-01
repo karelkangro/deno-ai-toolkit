@@ -16,6 +16,9 @@ import { createSubLogger } from "../utils/logger.ts";
 
 const logger = createSubLogger("lancedb");
 
+// Export LanceDBState as alias for VectorStore for backward compatibility
+export type LanceDBState = VectorStore;
+
 // Constants
 const DEFAULT_TABLE_NAME = "documents";
 const DEFAULT_DIMENSIONS = 1536;
