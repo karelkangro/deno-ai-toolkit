@@ -2,7 +2,7 @@
 // Provides consistent logging across the toolkit
 // Environment-aware: pretty format for dev, JSON for production
 
-import { Logger } from "npm:tslog@^4.9.3";
+import { Logger } from "tslog";
 
 const mapLogLevel = (level: string): number => {
   const levelMap: Record<string, number> = {
@@ -24,7 +24,19 @@ const shouldUseJson = (): boolean => {
   return Deno.env.get("DENO_ENV") === "production";
 };
 
-const loggerSettings = {
+// Explicit type for JSR slow type compliance
+const loggerSettings: {
+  type: "json" | "pretty";
+  minLevel: number;
+  prettyLogTemplate: string;
+  prettyErrorTemplate: string;
+  prettyErrorStackTemplate: string;
+  prettyErrorParentNamesSeparator: string;
+  prettyErrorLoggerNameDelimiter: string;
+  prettyLogStyles: {
+    logLevelName: Record<string, string[]>;
+  };
+} = {
   type: (shouldUseJson() ? "json" : "pretty") as "json" | "pretty",
   minLevel: mapLogLevel(Deno.env.get("LOG_LEVEL") || "info"),
   prettyLogTemplate: "{{yyyy}}.{{mm}}.{{dd}} {{hh}}:{{MM}}:{{ss}}:{{ms}}\t{{logLevelName}}\t",
@@ -46,7 +58,7 @@ const loggerSettings = {
   },
 };
 
-export const logger = new Logger(loggerSettings);
+export const logger: Logger<Record<string, unknown>> = new Logger(loggerSettings);
 
 // Optional file logging if LOG_FILE env var is set
 if (Deno.env.get("LOG_FILE")) {
@@ -78,6 +90,6 @@ if (Deno.env.get("LOG_FILE")) {
  * moduleLogger.info("Table created", { tableName: "documents" });
  * ```
  */
-export const createSubLogger = (name: string) => {
+export const createSubLogger = (name: string): Logger<Record<string, unknown>> => {
   return logger.getSubLogger({ name });
 };
