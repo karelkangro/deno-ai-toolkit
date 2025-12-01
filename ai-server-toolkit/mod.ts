@@ -1,5 +1,5 @@
 // AI Server Toolkit - Complete functional toolkit for AI-powered Deno servers
-import { createSearchTool, runAgent, type AgentState } from "./src/agents/base.ts";
+import { type AgentState, createSearchTool, runAgent } from "./src/agents/base.ts";
 import type {
   AgentConfig,
   AgentResult,
@@ -48,12 +48,25 @@ export {
 export * from "./src/rules/types.ts";
 export { evaluateCondition, evaluateRule, filterApplicableRules } from "./src/rules/evaluator.ts";
 export { addRule, deleteRule, updateRule } from "./src/rules/kv-store.ts";
-export { getRule as getBusinessRule, listRules as listBusinessRules } from "./src/rules/kv-store.ts";
+export {
+  getRule as getBusinessRule,
+  listRules as listBusinessRules,
+} from "./src/rules/kv-store.ts";
 
 // Import types and functions needed for wrapper functions
 import type { WorkspaceKVState } from "./src/workspace/types.ts";
-import type { Rule, BusinessRule, RuleTarget, RuleScope, RuleMetadataSchema } from "./src/rules/types.ts";
-import { addRule, getRule as getBusinessRuleFromKV, listRules as listBusinessRulesFromKV } from "./src/rules/kv-store.ts";
+import type {
+  BusinessRule,
+  Rule,
+  RuleMetadataSchema,
+  RuleScope,
+  RuleTarget,
+} from "./src/rules/types.ts";
+import {
+  addRule,
+  getRule as getBusinessRuleFromKV,
+  listRules as listBusinessRulesFromKV,
+} from "./src/rules/kv-store.ts";
 import { detectSimpleConflicts } from "./src/rules/validator.ts";
 
 // Wrapper functions to convert between BusinessRule and Rule types
@@ -69,7 +82,8 @@ export async function getRule(
     id: businessRule.id,
     name: businessRule.name,
     category: (businessRule.metadata?.category as string) || "",
-    severity: (businessRule.metadata?.severity as "critical" | "high" | "medium" | "low") || "medium",
+    severity: (businessRule.metadata?.severity as "critical" | "high" | "medium" | "low") ||
+      "medium",
     enabled: businessRule.active,
     content: businessRule.description || "",
     keywords: (businessRule.metadata?.keywords as string[]) || [],
@@ -181,14 +195,14 @@ export async function createRule(
 }
 
 // Export rule validation and vector store functions
-export { validateRuleAgainstSchema, detectSimpleConflicts } from "./src/rules/validator.ts";
+export { detectSimpleConflicts, validateRuleAgainstSchema } from "./src/rules/validator.ts";
 export {
-  initializeRulesVectorTable,
+  deleteRuleFromVectorStore,
   embedRule,
   embedRules,
-  deleteRuleFromVectorStore,
-  searchRulesVector,
   getRelevantRules,
+  initializeRulesVectorTable,
+  searchRulesVector,
 } from "./src/rules/vector-store.ts";
 
 // Schema management functions - TODO: Implement properly
@@ -248,9 +262,10 @@ export async function createRuleSchema(
       required: f.required,
       description: f.description,
       enumValues: f.enumValues,
-      validation: typeof f.validation === "object" && f.validation !== null && !Array.isArray(f.validation)
-        ? (f.validation as { min?: number; max?: number; pattern?: string })
-        : undefined,
+      validation:
+        typeof f.validation === "object" && f.validation !== null && !Array.isArray(f.validation)
+          ? (f.validation as { min?: number; max?: number; pattern?: string })
+          : undefined,
     })),
     createdAt: now,
     updatedAt: now,
@@ -463,11 +478,7 @@ export {
 } from "./src/embeddings/openai.ts";
 
 // LLM functionality
-export {
-  createClaudeLLM,
-  generateResponse,
-  streamResponse,
-} from "./src/llm/claude.ts";
+export { createClaudeLLM, generateResponse, streamResponse } from "./src/llm/claude.ts";
 
 // Agent functionality
 export {
