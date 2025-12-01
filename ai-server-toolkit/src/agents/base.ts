@@ -1,6 +1,13 @@
 // Functional agent implementation
-import { type ClaudeLLMState, createClaudeLLM, generateResponse } from "../llm/claude.ts";
-import type { AgentConfig, AgentResult, LLMMessage, ToolDefinition } from "../types.ts";
+import { createClaudeLLM } from "../llm/claude.ts";
+import type {
+  AgentConfig,
+  AgentResult,
+  LLMConfig,
+  LLMMessage,
+  LLMModel,
+  ToolDefinition,
+} from "../types.ts";
 import { createSubLogger } from "../utils/logger.ts";
 
 const logger = createSubLogger("agent-base");
@@ -10,7 +17,7 @@ export interface AgentState {
   description: string;
   systemPrompt: string;
   tools: ToolDefinition[];
-  llm: ClaudeLLMState;
+  llm: LLMModel;
   memory: LLMMessage[];
   memoryEnabled: boolean;
 }
@@ -31,18 +38,33 @@ export interface AgentState {
  *   description: "Helpful math assistant",
  *   systemPrompt: "You are a math expert. Use tools to help solve problems.",
  *   tools: [createCalculatorTool()],
- *   llm: { provider: "claude", apiKey: "sk-ant-..." },
+ *   llm: { provider: "claude", apiKey: "sk-ant-..." }, // Config object
+ *   // OR
+ *   // llm: myLLMModelInstance // Pre-created LLMModel
  *   memory: true
  * });
  * ```
  */
 export function createAgent(config: AgentConfig): AgentState {
+  let llm: LLMModel;
+
+  // Check if config.llm is an LLMModel (dependency injection) or LLMConfig
+  if (
+    "generateResponse" in config.llm &&
+    typeof (config.llm as LLMModel).generateResponse === "function"
+  ) {
+    llm = config.llm as LLMModel;
+  } else {
+    // Default to Claude if config object passed
+    llm = createClaudeLLM(config.llm as LLMConfig);
+  }
+
   return {
     name: config.name,
     description: config.description,
     systemPrompt: config.systemPrompt,
     tools: config.tools || [],
-    llm: createClaudeLLM(config.llm),
+    llm,
     memory: [],
     memoryEnabled: config.memory || false,
   };
@@ -95,9 +117,8 @@ export async function runAgent(
     // Add user input
     messages.push({ role: "user", content: input });
 
-    // Generate response
-    const response = await generateResponse(
-      state.llm,
+    // Generate response using the LLMModel interface
+    const response = await state.llm.generateResponse(
       messages,
       state.tools.length > 0 ? state.tools : undefined,
     );
@@ -240,6 +261,7 @@ export function updateSystemPrompt(state: AgentState, prompt: string): void {
 }
 
 // Predefined tool factories
+// ... (keeping existing tool factories) ...
 
 /**
  * Creates a search tool that uses a custom search function.

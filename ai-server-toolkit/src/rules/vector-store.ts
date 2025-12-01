@@ -1,15 +1,10 @@
 // Rules vector storage using LanceDB
 // Enables semantic search over rules for RAG applications
 
-import type { LanceDBState } from "../vector-store/lancedb.ts";
 import { createWorkspaceTable, deleteWorkspaceDocument } from "../vector-store/lancedb.ts";
+import { ruleToVectorMetadata, type RuleVectorMetadata } from "../vector-store/schemas.ts";
+import type { VectorDocument, VectorStore } from "../types.ts";
 import type { Rule } from "./types.ts";
-import {
-  buildRuleFilters,
-  createRuleRecord,
-  extractMetadataFromResult,
-  type RuleVectorMetadata,
-} from "../vector-store/schemas.ts";
 import { createSubLogger } from "../utils/logger.ts";
 
 const logger = createSubLogger("rules-vector-store");
@@ -25,10 +20,10 @@ function getRulesTableName(workspaceId: string): string {
  * Initialize rules vector table for a workspace
  */
 export async function initializeRulesVectorTable(
-  vectorState: LanceDBState,
+  vectorStore: VectorStore,
   workspaceId: string,
 ): Promise<void> {
-  await createWorkspaceTable(vectorState, `${workspaceId}_rules`);
+  await createWorkspaceTable(vectorStore, `${workspaceId}_rules`);
   logger.info("Initialized rules vector table", { tableName: `workspace_${workspaceId}_rules` });
 }
 
@@ -36,40 +31,24 @@ export async function initializeRulesVectorTable(
  * Add a rule to the vector store
  */
 export async function embedRule(
-  vectorState: LanceDBState,
+  vectorStore: VectorStore,
   workspaceId: string,
   rule: Rule,
 ): Promise<void> {
   const tableName = getRulesTableName(workspaceId);
 
-  // Check if table exists
-  let tableExists = false;
-  try {
-    await vectorState.connection.openTable(tableName);
-    tableExists = true;
-  } catch {
-    tableExists = false;
-  }
+  // Ensure table exists
+  await vectorStore.createTable(tableName);
 
-  if (tableExists) {
-    // Table exists, add document using centralized metadata schema
-    const { embedText } = await import("../embeddings/openai.ts");
-    const embedding = await embedText(vectorState.embeddings, rule.content);
-    const record = createRuleRecord(rule, embedding, vectorState.isCloud);
-    const table = await vectorState.connection.openTable(tableName);
-    await table.add([record]);
-  } else {
-    // Table doesn't exist, create it with proper schema using centralized function
-    logger.debug("Creating rules table with proper schema", { tableName });
-    const { embedText } = await import("../embeddings/openai.ts");
-    const embedding = await embedText(vectorState.embeddings, rule.content);
+  const metadata = ruleToVectorMetadata(rule);
 
-    // Use centralized createRuleRecord for consistent schema
-    const record = createRuleRecord(rule, embedding, vectorState.isCloud);
+  const doc: VectorDocument = {
+    id: rule.id,
+    content: rule.content,
+    metadata: metadata as unknown as Record<string, unknown>,
+  };
 
-    await vectorState.connection.createTable(tableName, [record]);
-    logger.info("Created rules table with schema", { tableName });
-  }
+  await vectorStore.addDocument(doc, tableName);
 
   logger.debug("Embedded rule in vector store", { ruleId: rule.id, tableName });
 }
@@ -78,12 +57,12 @@ export async function embedRule(
  * Embed multiple rules
  */
 export async function embedRules(
-  vectorState: LanceDBState,
+  vectorStore: VectorStore,
   workspaceId: string,
   rules: Rule[],
 ): Promise<void> {
   for (const rule of rules) {
-    await embedRule(vectorState, workspaceId, rule);
+    await embedRule(vectorStore, workspaceId, rule);
   }
   logger.info("Embedded rules in vector store", { count: rules.length, workspaceId });
 }
@@ -92,11 +71,11 @@ export async function embedRules(
  * Delete a rule from the vector store
  */
 export async function deleteRuleFromVectorStore(
-  vectorState: LanceDBState,
+  vectorStore: VectorStore,
   workspaceId: string,
   ruleId: string,
 ): Promise<void> {
-  await deleteWorkspaceDocument(vectorState, `${workspaceId}_rules`, ruleId);
+  await deleteWorkspaceDocument(vectorStore, `${workspaceId}_rules`, ruleId);
   logger.debug("Deleted rule from vector store", { ruleId, workspaceId });
 }
 
@@ -104,7 +83,7 @@ export async function deleteRuleFromVectorStore(
  * Search rules semantically
  */
 export async function searchRulesVector(
-  vectorState: LanceDBState,
+  vectorStore: VectorStore,
   workspaceId: string,
   query: string,
   options?: {
@@ -120,23 +99,30 @@ export async function searchRulesVector(
   const tableName = getRulesTableName(workspaceId);
   const limit = options?.limit || 10;
 
-  // Use centralized filter building function
-  const filter = options?.filters
-    ? buildRuleFilters(options.filters, vectorState.isCloud)
-    : undefined;
+  // Build filter object for VectorStore
+  const filter: Record<string, unknown> = {};
+  if (options?.filters) {
+    if (options.filters.category) {
+      filter.category = options.filters.category;
+    }
+    if (options.filters.enabled !== undefined) {
+      filter.enabled = options.filters.enabled;
+    }
+    if (options.filters.severity && options.filters.severity.length > 0) {
+      filter.severity = options.filters.severity;
+    }
+  }
 
-  // Use searchSimilar directly with table name, not searchWorkspace which adds workspace_ prefix
-  const { searchSimilar } = await import("../vector-store/lancedb.ts");
-  const results = await searchSimilar(
-    vectorState,
+  const results = await vectorStore.search(
     query,
     { limit, filter },
     tableName,
   );
 
-  // Extract metadata using centralized function
+  // Map results to Rule format
   return results.map((result) => {
-    const metadata = extractMetadataFromResult<RuleVectorMetadata>(result, vectorState.isCloud);
+    // VectorStore returns normalized metadata (no meta_ prefix)
+    const metadata = result.metadata as unknown as RuleVectorMetadata;
     return {
       rule: {
         id: metadata.ruleId,
@@ -156,7 +142,7 @@ export async function searchRulesVector(
  * Get relevant rules for a given context (RAG)
  */
 export async function getRelevantRules(
-  vectorState: LanceDBState,
+  vectorStore: VectorStore,
   workspaceId: string,
   context: string,
   options?: {
@@ -171,7 +157,7 @@ export async function getRelevantRules(
   const allowedSeverities = severityOrder.slice(minSeverityIndex);
 
   const results = await searchRulesVector(
-    vectorState,
+    vectorStore,
     workspaceId,
     context,
     {

@@ -1,9 +1,4 @@
-import type {
-  BusinessRule,
-  ComparisonOperator,
-  RuleCondition,
-  RuleEvaluationContext,
-} from "./types.ts";
+import type { BusinessRule, RuleCondition, RuleEvaluationContext } from "./types.ts";
 
 export const evaluateCondition = (condition: RuleCondition, userValue: unknown): boolean => {
   switch (condition.operator) {

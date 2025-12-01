@@ -2,7 +2,13 @@
 import { createRateLimiter, type RateLimitState, withRateLimit } from "../utils/rate-limiter.ts";
 import type { EmbeddingConfig } from "../types.ts";
 
-export interface OpenAIEmbeddingState {
+// Define locally to avoid import issues, but must match types.ts
+export interface EmbeddingModel {
+  embedText(text: string): Promise<number[]>;
+  embedTexts(texts: string[]): Promise<number[][]>;
+}
+
+interface OpenAIState {
   apiKey: string;
   model: string;
   dimensions: number;
@@ -20,7 +26,7 @@ interface OpenAIEmbeddingResponse {
  * Includes automatic rate limiting to stay within OpenAI API limits.
  *
  * @param config Embedding configuration with API key, model, and dimensions
- * @returns OpenAI embedding state for use with embedText and embedTexts
+ * @returns OpenAI embedding model implementing the EmbeddingModel interface
  *
  * @example
  * ```ts
@@ -34,12 +40,12 @@ interface OpenAIEmbeddingResponse {
  */
 export function createOpenAIEmbeddings(
   config: EmbeddingConfig,
-): OpenAIEmbeddingState {
+): EmbeddingModel {
   if (!config.apiKey) {
     throw new Error("OpenAI API key is required");
   }
 
-  return {
+  const state: OpenAIState = {
     apiKey: config.apiKey,
     model: config.model || "text-embedding-3-small",
     dimensions: config.dimensions || 1536,
@@ -48,116 +54,99 @@ export function createOpenAIEmbeddings(
       requestsPerHour: 200000,
     }),
   };
+
+  const embedText = async (text: string): Promise<number[]> => {
+    return await withRateLimit(state.rateLimiter, async () => {
+      const response = await fetch("https://api.openai.com/v1/embeddings", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${state.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: state.model,
+          input: text,
+          dimensions: state.dimensions,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`OpenAI API error: ${response.status} - ${error}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.data || !data.data[0] || !data.data[0].embedding) {
+        throw new Error("Invalid response from OpenAI API");
+      }
+
+      return data.data[0].embedding;
+    });
+  };
+
+  const embedTexts = async (texts: string[]): Promise<number[][]> => {
+    if (texts.length === 0) {
+      return [];
+    }
+
+    if (texts.length === 1) {
+      return [await embedText(texts[0])];
+    }
+
+    return await withRateLimit(state.rateLimiter, async () => {
+      const response = await fetch("https://api.openai.com/v1/embeddings", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${state.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: state.model,
+          input: texts,
+          dimensions: state.dimensions,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`OpenAI API error: ${response.status} - ${error}`);
+      }
+
+      const data = await response.json() as OpenAIEmbeddingResponse;
+
+      if (!data.data || !Array.isArray(data.data)) {
+        throw new Error("Invalid response from OpenAI API");
+      }
+
+      return data.data.map((item) => item.embedding);
+    });
+  };
+
+  return {
+    embedText,
+    embedTexts,
+  };
 }
 
 /**
- * Converts a text string into a vector embedding.
- *
- * Uses OpenAI's embedding API to generate a numerical vector representation
- * of the input text, suitable for semantic search and similarity comparisons.
- *
- * @param state OpenAI embedding state from createOpenAIEmbeddings
- * @param text Text to convert into embedding
- * @returns Promise resolving to embedding vector (array of numbers)
- *
- * @example
- * ```ts
- * const embedding = await embedText(embeddings, "Hello world");
- * console.log(embedding.length); // 1536
- * ```
+ * @deprecated Use createOpenAIEmbeddings().embedText() instead
  */
 export async function embedText(
-  state: OpenAIEmbeddingState,
+  model: EmbeddingModel,
   text: string,
 ): Promise<number[]> {
-  return await withRateLimit(state.rateLimiter, async () => {
-    const response = await fetch("https://api.openai.com/v1/embeddings", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${state.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: state.model,
-        input: text,
-        dimensions: state.dimensions,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`OpenAI API error: ${response.status} - ${error}`);
-    }
-
-    const data = await response.json();
-
-    if (!data.data || !data.data[0] || !data.data[0].embedding) {
-      throw new Error("Invalid response from OpenAI API");
-    }
-
-    return data.data[0].embedding;
-  });
+  return await model.embedText(text);
 }
 
 /**
- * Converts multiple text strings into vector embeddings in batch.
- *
- * More efficient than calling embedText multiple times. Uses a single API
- * call to generate embeddings for all texts.
- *
- * @param state OpenAI embedding state from createOpenAIEmbeddings
- * @param texts Array of text strings to convert into embeddings
- * @returns Promise resolving to array of embedding vectors
- *
- * @example
- * ```ts
- * const embeddings = await embedTexts(embeddingState, [
- *   "First document",
- *   "Second document",
- *   "Third document"
- * ]);
- * console.log(embeddings.length); // 3
- * ```
+ * @deprecated Use createOpenAIEmbeddings().embedTexts() instead
  */
 export async function embedTexts(
-  state: OpenAIEmbeddingState,
+  model: EmbeddingModel,
   texts: string[],
 ): Promise<number[][]> {
-  if (texts.length === 0) {
-    return [];
-  }
-
-  if (texts.length === 1) {
-    return [await embedText(state, texts[0])];
-  }
-
-  return await withRateLimit(state.rateLimiter, async () => {
-    const response = await fetch("https://api.openai.com/v1/embeddings", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${state.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: state.model,
-        input: texts,
-        dimensions: state.dimensions,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`OpenAI API error: ${response.status} - ${error}`);
-    }
-
-    const data = await response.json() as OpenAIEmbeddingResponse;
-
-    if (!data.data || !Array.isArray(data.data)) {
-      throw new Error("Invalid response from OpenAI API");
-    }
-
-    return data.data.map((item) => item.embedding);
-  });
+  return await model.embedTexts(texts);
 }
 
 export function calculateSimilarity(

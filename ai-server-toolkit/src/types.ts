@@ -1,4 +1,45 @@
 // Core types for the AI Server Toolkit
+
+// Ports & Adapters Interfaces - Moved to top for visibility
+export interface VectorStore {
+  addDocument(doc: VectorDocument, tableName?: string): Promise<void>;
+  addDocuments(docs: VectorDocument[], tableName?: string): Promise<void>;
+  search(query: string, options?: SearchOptions, tableName?: string): Promise<SearchResult[]>;
+  searchByEmbedding(
+    embedding: number[],
+    options?: SearchOptions,
+    tableName?: string,
+  ): Promise<SearchResult[]>;
+  getDocument(id: string, tableName?: string): Promise<VectorDocument | null>;
+  deleteDocument(id: string, tableName?: string): Promise<void>;
+  updateDocument(doc: VectorDocument, tableName?: string): Promise<void>;
+  createTable(tableName: string, sampleData?: VectorDocument): Promise<void>;
+  deleteTable(tableName: string): Promise<void>;
+  getStats(tableName?: string): Promise<VectorStoreStats>;
+  listTables(): Promise<string[]>;
+  clear(tableName?: string): Promise<void>;
+}
+
+export interface LLMModel {
+  generateResponse(
+    messages: LLMMessage[],
+    tools?: ToolDefinition[],
+    options?: GenerateResponseOptions,
+  ): Promise<LLMResponse>;
+  streamResponse(
+    messages: LLMMessage[],
+    onChunk?: (chunk: string) => void,
+    tools?: ToolDefinition[],
+  ): Promise<LLMResponse>;
+}
+
+export interface EmbeddingModel {
+  embedText(text: string): Promise<number[]>;
+  embedTexts(texts: string[]): Promise<number[][]>;
+}
+
+// Domain Types
+
 export interface VectorDocument {
   id: string;
   content: string;
@@ -91,7 +132,7 @@ export interface AgentConfig {
   description: string;
   systemPrompt: string;
   tools?: ToolDefinition[];
-  llm: LLMConfig;
+  llm: LLMConfig | LLMModel;
   memory?: boolean;
 }
 
@@ -121,4 +162,11 @@ export interface VectorStoreStats {
   totalDocuments: number;
   totalSize: number;
   lastUpdated: Date;
+}
+
+export interface GenerateResponseOptions {
+  system?: SystemMessageBlock[];
+  cacheControl?: {
+    type: "ephemeral" | "ephemeral-1h";
+  };
 }

@@ -1,12 +1,14 @@
 // Functional LanceDB vector store implementation
 import { connect, type Connection, type Table } from "vectordb";
-import { createOpenAIEmbeddings, embedText, embedTexts } from "../embeddings/openai.ts";
+import { createOpenAIEmbeddings } from "../embeddings/openai.ts";
 
 import type {
   EmbeddingConfig,
+  EmbeddingModel,
   SearchOptions,
   SearchResult,
   VectorDocument,
+  VectorStore,
   VectorStoreConfig,
   VectorStoreStats,
 } from "../types.ts";
@@ -21,10 +23,10 @@ const DEFAULT_REGION = "us-east-1";
 const DEFAULT_SEARCH_LIMIT = 10;
 const INIT_DOC_ID = "init";
 
-export interface LanceDBState {
+interface LanceDBInternalState {
   connection: Connection;
   tableName: string;
-  embeddings: ReturnType<typeof createOpenAIEmbeddings>;
+  embeddings: EmbeddingModel;
   dimensions: number;
   isCloud: boolean;
 }
@@ -58,31 +60,6 @@ async function createConnection(
   return await connect(config.path);
 }
 
-// Helper: Get table with dynamic name support
-async function getTable(
-  state: LanceDBState,
-  tableName?: string,
-): Promise<Table> {
-  return await state.connection.openTable(tableName || state.tableName);
-}
-
-// Helper: Transform metadata for cloud/local storage
-function transformMetadata(
-  metadata: Record<string, unknown>,
-  isCloud: boolean,
-): Record<string, unknown> {
-  if (!isCloud) {
-    return { metadata };
-  }
-
-  // Cloud: flatten metadata as individual columns with meta_ prefix
-  const metaFields: Record<string, string> = {};
-  Object.entries(metadata).forEach(([key, value]) => {
-    metaFields[`meta_${key}`] = typeof value === "string" ? value : JSON.stringify(value);
-  });
-  return metaFields;
-}
-
 // LanceDB result interface
 interface LanceDBSearchResult {
   id: string;
@@ -93,115 +70,6 @@ interface LanceDBSearchResult {
   [key: string]: unknown; // For cloud meta_* fields
 }
 
-// Helper: Create record with proper structure
-function createRecord(
-  id: string,
-  content: string,
-  vector: number[],
-  metadata: Record<string, unknown>,
-  isCloud: boolean,
-): Record<string, unknown> {
-  return {
-    id,
-    content,
-    vector,
-    ...transformMetadata(metadata, isCloud),
-  };
-}
-
-// Helper: Process search results
-function processSearchResults(
-  results: unknown[],
-  options: SearchOptions,
-  isCloud: boolean,
-): SearchResult[] {
-  return (results as LanceDBSearchResult[])
-    .filter((result) => !options.threshold || (1 - result._distance) >= options.threshold)
-    .map((result) => {
-      // Extract metadata based on storage type
-      let metadata: Record<string, unknown> = {};
-
-      if (isCloud) {
-        // Extract meta_* fields for cloud
-        for (const [key, value] of Object.entries(result)) {
-          if (key.startsWith("meta_") && value !== null) {
-            const metaKey = key.replace("meta_", "");
-            try {
-              metadata[metaKey] = typeof value === "string" && value.startsWith("{")
-                ? JSON.parse(value)
-                : value;
-            } catch {
-              metadata[metaKey] = value;
-            }
-          }
-        }
-      } else {
-        metadata = result.metadata || {};
-      }
-
-      return {
-        id: result.id,
-        content: result.content,
-        metadata,
-        score: 1 - result._distance,
-      };
-    });
-}
-
-// Helper: Get embeddings for batch documents
-async function getEmbeddingsForDocuments(
-  state: LanceDBState,
-  documents: VectorDocument[],
-): Promise<Map<number, number[]>> {
-  const textsToEmbed: string[] = [];
-  const textIndices: number[] = [];
-
-  documents.forEach((doc, index) => {
-    if (!doc.embedding) {
-      textsToEmbed.push(doc.content);
-      textIndices.push(index);
-    }
-  });
-
-  const embeddingMap = new Map<number, number[]>();
-
-  if (textsToEmbed.length > 0) {
-    const newEmbeddings = await embedTexts(state.embeddings, textsToEmbed);
-    textIndices.forEach((docIndex, embIndex) => {
-      embeddingMap.set(docIndex, newEmbeddings[embIndex]);
-    });
-  }
-
-  return embeddingMap;
-}
-
-// Helper: Apply search filters
-function applySearchFilters<T>(
-  searchQuery: T,
-  filter: Record<string, unknown> | string | undefined,
-  isCloud: boolean,
-): T {
-  if (!filter) return searchQuery;
-
-  let query = searchQuery as { where: (condition: string) => unknown };
-
-  // If filter is a string (from buildRuleFilters), use it directly
-  if (typeof filter === "string") {
-    query = query.where(filter) as typeof query;
-    return query as T;
-  }
-
-  // If filter is an object, build filter conditions
-  Object.entries(filter).forEach(([key, value]) => {
-    const filterPath = isCloud ? `meta_${key}` : `metadata.${key}`;
-    query = query.where(`${filterPath} = '${value}'`) as typeof query;
-  });
-
-  return query as T;
-}
-
-// Main API
-
 /**
  * Creates and initializes a LanceDB vector store connection.
  *
@@ -210,638 +78,541 @@ function applySearchFilters<T>(
  *
  * @param config Vector store configuration
  * @param embeddingConfig OpenAI embedding configuration
- * @returns Promise resolving to initialized LanceDB state
- *
- * @example
- * ```ts
- * // Local LanceDB
- * const store = await createLanceDB(
- *   { provider: "lancedb", path: "./vector-db" },
- *   { provider: "openai", apiKey: "sk-..." }
- * );
- *
- * // LanceDB Cloud
- * const cloudStore = await createLanceDB(
- *   {
- *     provider: "lancedb",
- *     path: "db://my-database-id",
- *     apiKey: "ldb_...",
- *     region: "us-east-1"
- *   },
- *   { provider: "openai", apiKey: "sk-..." }
- * );
- * ```
+ * @returns Promise resolving to initialized VectorStore
  */
 export async function createLanceDB(
   config: VectorStoreConfig,
   embeddingConfig: EmbeddingConfig,
-): Promise<LanceDBState> {
+): Promise<VectorStore> {
   const connection = await createConnection(config);
+  // Assuming createOpenAIEmbeddings returns EmbeddingModel now
   const embeddings = createOpenAIEmbeddings(embeddingConfig);
 
-  return {
+  const state: LanceDBInternalState = {
     connection,
     tableName: config.tableName || DEFAULT_TABLE_NAME,
     embeddings,
     dimensions: config.dimensions || DEFAULT_DIMENSIONS,
     isCloud: isCloudPath(config.path!),
   };
-}
 
-/**
- * Initializes a table in the vector store.
- *
- * Creates the table if it doesn't exist. If the table already exists, this is a no-op.
- *
- * @param state LanceDB state from createLanceDB
- * @param tableName Optional table name (defaults to state.tableName)
- *
- * @example
- * ```ts
- * await initializeTable(store);
- * await initializeTable(store, "custom_table");
- * ```
- */
-export async function initializeTable(
-  state: LanceDBState,
-  tableName?: string,
-): Promise<void> {
-  const targetTable = tableName || state.tableName;
+  // Internal Helpers
 
-  try {
-    await state.connection.openTable(targetTable);
-    logger.debug("Table already exists", { tableName: targetTable });
-  } catch (error) {
-    const isNotFound = error instanceof Error && (
-      error.message.includes("404") ||
-      error.message.includes("Not Found") ||
-      (error as { status?: number; response?: { status?: number } }).status === 404 ||
-      (error as { status?: number; response?: { status?: number } }).response?.status === 404
-    );
+  async function getTable(tableName?: string): Promise<Table> {
+    return await state.connection.openTable(tableName || state.tableName);
+  }
 
-    if (!isNotFound) {
-      throw error;
+  function transformMetadata(
+    metadata: Record<string, unknown>,
+  ): Record<string, unknown> {
+    if (!state.isCloud) {
+      return { metadata };
     }
-
-    logger.debug("Table not found, creating new table", { tableName: targetTable });
-
-    const sampleData = [{
-      id: INIT_DOC_ID,
-      content: "initialization document",
-      vector: new Array(state.dimensions).fill(0),
-      ...transformMetadata({}, state.isCloud),
-    }];
-
-    await state.connection.createTable(targetTable, sampleData);
-    const table = await state.connection.openTable(targetTable);
-    await table.delete(`id = '${INIT_DOC_ID}'`);
-    logger.info("Table created successfully", { tableName: targetTable });
-  }
-}
-
-/**
- * Adds a single document to the vector store.
- *
- * If the document doesn't have an embedding, one will be generated automatically
- * using the configured embedding provider.
- *
- * @param state LanceDB state from createLanceDB
- * @param document Document to add with id, content, optional metadata and embedding
- * @param tableName Optional table name (defaults to state.tableName)
- *
- * @example
- * ```ts
- * await addDocument(store, {
- *   id: "doc1",
- *   content: "Deno is a modern runtime",
- *   metadata: { category: "tech" }
- * });
- * ```
- */
-export async function addDocument(
-  state: LanceDBState,
-  document: VectorDocument,
-  tableName?: string,
-): Promise<void> {
-  const table = await getTable(state, tableName);
-
-  const embedding = document.embedding ||
-    await embedText(state.embeddings, document.content);
-  const record = createRecord(
-    document.id,
-    document.content,
-    embedding,
-    document.metadata || {},
-    state.isCloud,
-  );
-
-  await table.add([record]);
-}
-
-/**
- * Adds multiple documents to the vector store in batch.
- *
- * More efficient than calling addDocument multiple times. Embeddings are generated
- * for all documents without embeddings in a single batch operation.
- *
- * @param state LanceDB state from createLanceDB
- * @param documents Array of documents to add
- * @param tableName Optional table name (defaults to state.tableName)
- *
- * @example
- * ```ts
- * await addDocuments(store, [
- *   { id: "1", content: "First document" },
- *   { id: "2", content: "Second document" },
- *   { id: "3", content: "Third document" }
- * ]);
- * ```
- */
-export async function addDocuments(
-  state: LanceDBState,
-  documents: VectorDocument[],
-  tableName?: string,
-): Promise<void> {
-  if (documents.length === 0) return;
-
-  const table = await getTable(state, tableName);
-  const embeddingMap = await getEmbeddingsForDocuments(state, documents);
-
-  const records = documents.map((doc, index) => {
-    const embedding = doc.embedding || embeddingMap.get(index)!;
-    return createRecord(
-      doc.id,
-      doc.content,
-      embedding,
-      doc.metadata || {},
-      state.isCloud,
-    );
-  });
-
-  await table.add(records);
-}
-
-/**
- * Searches for documents similar to a text query using semantic search.
- *
- * Converts the query to an embedding and finds the most similar documents
- * in the vector store based on cosine similarity.
- *
- * @param state LanceDB state from createLanceDB
- * @param query Text query to search for
- * @param options Search options (limit, threshold, filter)
- * @param tableName Optional table name (defaults to state.tableName)
- * @returns Array of search results with score, content, and metadata
- *
- * @example
- * ```ts
- * const results = await searchSimilar(store, "JavaScript runtime", {
- *   limit: 5,
- *   threshold: 0.7,
- *   filter: { category: "tech" }
- * });
- *
- * const logger = createSubLogger("my-module");
- * results.forEach(result => {
- *   logger.debug("Search result", { score: result.score, content: result.content });
- * });
- * ```
- */
-export async function searchSimilar(
-  state: LanceDBState,
-  query: string,
-  options: SearchOptions = {},
-  tableName?: string,
-): Promise<SearchResult[]> {
-  const table = await getTable(state, tableName);
-  logger.debug("Searching table", {
-    tableName: tableName || "default",
-    tableFound: !!table,
-    queryPreview: query.substring(0, 50),
-  });
-  const queryEmbedding = await embedText(state.embeddings, query);
-
-  return await searchByEmbedding(state, queryEmbedding, options, tableName);
-}
-
-/**
- * Searches for documents using a pre-computed embedding vector.
- *
- * Use this when you already have an embedding vector and want to find
- * similar documents without re-computing the query embedding.
- *
- * @param state LanceDB state from createLanceDB
- * @param embedding Pre-computed embedding vector
- * @param options Search options (limit, threshold, filter)
- * @param tableName Optional table name (defaults to state.tableName)
- * @returns Array of search results with score, content, and metadata
- */
-export async function searchByEmbedding(
-  state: LanceDBState,
-  embedding: number[],
-  options: SearchOptions = {},
-  tableName?: string,
-): Promise<SearchResult[]> {
-  const table = await getTable(state, tableName);
-
-  let searchQuery = table
-    .search(embedding)
-    .limit(options.limit || DEFAULT_SEARCH_LIMIT);
-
-  searchQuery = applySearchFilters(searchQuery, options.filter, state.isCloud);
-
-  // New API returns an iterator
-  const resultsIterator = await searchQuery.toArray();
-  return processSearchResults(resultsIterator, options, state.isCloud);
-}
-
-/**
- * Retrieves a single document by ID from the vector store.
- *
- * @param state LanceDB state from createLanceDB
- * @param id Document ID to retrieve
- * @param tableName Optional table name (defaults to state.tableName)
- * @returns Document with content, metadata, and embedding, or null if not found
- */
-export async function getDocument(
-  state: LanceDBState,
-  id: string,
-  tableName?: string,
-): Promise<VectorDocument | null> {
-  const table = await getTable(state, tableName);
-
-  const results = await table.search(new Array(state.dimensions).fill(0))
-    .where(`id = '${id}'`)
-    .limit(1)
-    .toArray();
-
-  if (!results || results.length === 0) {
-    return null;
+    // Cloud: flatten metadata as individual columns with meta_ prefix
+    const metaFields: Record<string, string> = {};
+    Object.entries(metadata).forEach(([key, value]) => {
+      metaFields[`meta_${key}`] = typeof value === "string" ? value : JSON.stringify(value);
+    });
+    return metaFields;
   }
 
-  const result = results[0] as LanceDBSearchResult;
-  const metadata = state.isCloud ? extractCloudMetadata(result) : (result.metadata || {});
-
-  return {
-    id: result.id,
-    content: result.content,
-    metadata,
-    embedding: result.vector,
-  };
-}
-
-/**
- * Extracts metadata from cloud storage format (meta_* fields).
- * @internal
- */
-function extractCloudMetadata(
-  result: LanceDBSearchResult,
-): Record<string, unknown> {
-  const metadata: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(result)) {
-    if (key.startsWith("meta_") && value !== null) {
-      const metaKey = key.replace("meta_", "");
-      try {
-        metadata[metaKey] = typeof value === "string" && value.startsWith("{")
-          ? JSON.parse(value)
-          : value;
-      } catch {
-        metadata[metaKey] = value;
+  function extractCloudMetadata(
+    result: LanceDBSearchResult,
+  ): Record<string, unknown> {
+    const metadata: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(result)) {
+      if (key.startsWith("meta_") && value !== null) {
+        const metaKey = key.replace("meta_", "");
+        try {
+          metadata[metaKey] = typeof value === "string" && value.startsWith("{")
+            ? JSON.parse(value)
+            : value;
+        } catch {
+          metadata[metaKey] = value;
+        }
       }
     }
+    return metadata;
   }
-  return metadata;
-}
 
-/**
- * Updates an existing document in the vector store.
- *
- * Implemented as delete + add operation.
- *
- * @param state LanceDB state from createLanceDB
- * @param document Updated document with same ID
- * @param tableName Optional table name (defaults to state.tableName)
- */
-export async function updateDocument(
-  state: LanceDBState,
-  document: VectorDocument,
-  tableName?: string,
-): Promise<void> {
-  await deleteDocument(state, document.id, tableName);
-  await addDocument(state, document, tableName);
-}
+  function createRecord(
+    id: string,
+    content: string,
+    vector: number[],
+    metadata: Record<string, unknown>,
+  ): Record<string, unknown> {
+    return {
+      id,
+      content,
+      vector,
+      ...transformMetadata(metadata),
+    };
+  }
 
-/**
- * Deletes a document from the vector store by ID.
- *
- * @param state LanceDB state from createLanceDB
- * @param id Document ID to delete
- * @param tableName Optional table name (defaults to state.tableName)
- */
-export async function deleteDocument(
-  state: LanceDBState,
-  id: string,
-  tableName?: string,
-): Promise<void> {
-  const table = await getTable(state, tableName);
-  await table.delete(`id = '${id}'`);
-}
+  function processSearchResults(
+    results: unknown[],
+    options: SearchOptions,
+  ): SearchResult[] {
+    return (results as LanceDBSearchResult[])
+      .filter((result) => !options.threshold || (1 - result._distance) >= options.threshold)
+      .map((result) => {
+        let metadata: Record<string, unknown> = {};
 
-/**
- * Gets statistics about the vector store.
- *
- * @param state LanceDB state from createLanceDB
- * @param tableName Optional table name (defaults to state.tableName)
- * @returns Statistics including document count and estimated size
- */
-export async function getStats(
-  state: LanceDBState,
-  tableName?: string,
-): Promise<VectorStoreStats> {
-  const table = await getTable(state, tableName);
-  const count = await table.countRows();
+        if (state.isCloud) {
+          metadata = extractCloudMetadata(result);
+        } else {
+          metadata = result.metadata || {};
+        }
+
+        return {
+          id: result.id,
+          content: result.content,
+          metadata,
+          score: 1 - result._distance,
+        };
+      });
+  }
+
+  async function getEmbeddingsForDocuments(
+    documents: VectorDocument[],
+  ): Promise<Map<number, number[]>> {
+    const textsToEmbed: string[] = [];
+    const textIndices: number[] = [];
+
+    documents.forEach((doc, index) => {
+      if (!doc.embedding) {
+        textsToEmbed.push(doc.content);
+        textIndices.push(index);
+      }
+    });
+
+    const embeddingMap = new Map<number, number[]>();
+
+    if (textsToEmbed.length > 0) {
+      const newEmbeddings = await state.embeddings.embedTexts(textsToEmbed);
+      textIndices.forEach((docIndex, embIndex) => {
+        embeddingMap.set(docIndex, newEmbeddings[embIndex]);
+      });
+    }
+
+    return embeddingMap;
+  }
+
+  function applySearchFilters<T>(
+    searchQuery: T,
+    filter: Record<string, unknown> | string | undefined,
+  ): T {
+    if (!filter) return searchQuery;
+
+    let query = searchQuery as { where: (condition: string) => unknown };
+
+    if (typeof filter === "string") {
+      query = query.where(filter) as typeof query;
+      return query as T;
+    }
+
+    Object.entries(filter).forEach(([key, value]) => {
+      const filterPath = state.isCloud ? `meta_${key}` : `metadata.${key}`;
+      if (Array.isArray(value)) {
+        const values = value.map((v) => `'${v}'`).join(", ");
+        query = query.where(`${filterPath} IN (${values})`) as typeof query;
+      } else {
+        query = query.where(`${filterPath} = '${value}'`) as typeof query;
+      }
+    });
+
+    return query as T;
+  }
+
+  // Implementation Methods
+
+  const createTable = async (
+    tableName: string,
+    sampleData?: VectorDocument,
+  ): Promise<void> => {
+    const targetTable = tableName || state.tableName;
+
+    try {
+      await state.connection.openTable(targetTable);
+      logger.debug("Table already exists", { tableName: targetTable });
+    } catch (error) {
+      const isNotFound = error instanceof Error && (
+        error.message.includes("404") ||
+        error.message.includes("Not Found") ||
+        (error as { status?: number; response?: { status?: number } }).status === 404 ||
+        (error as { status?: number; response?: { status?: number } }).response?.status === 404
+      );
+
+      if (!isNotFound) {
+        throw error;
+      }
+
+      logger.debug("Table not found, creating new table", { tableName: targetTable });
+
+      const initialRecord = sampleData
+        ? createRecord(
+          sampleData.id,
+          sampleData.content,
+          sampleData.embedding || new Array(state.dimensions).fill(0),
+          sampleData.metadata || {},
+        )
+        : {
+          id: INIT_DOC_ID,
+          content: "initialization document",
+          vector: new Array(state.dimensions).fill(0),
+          ...transformMetadata({}),
+        };
+
+      await state.connection.createTable(targetTable, [initialRecord]);
+
+      // Only delete if we used the default init doc
+      if (!sampleData) {
+        const table = await state.connection.openTable(targetTable);
+        await table.delete(`id = '${INIT_DOC_ID}'`);
+      }
+
+      logger.info("Table created successfully", { tableName: targetTable });
+    }
+  };
+
+  const deleteTable = async (tableName: string): Promise<void> => {
+    logger.debug("Attempting to drop table", { tableName, isCloud: state.isCloud });
+    try {
+      await state.connection.dropTable(tableName);
+      logger.info("Successfully dropped table", { tableName });
+    } catch (error) {
+      logger.error("Failed to drop table", error, { tableName });
+      throw error;
+    }
+  };
+
+  const addDocument = async (
+    document: VectorDocument,
+    tableName?: string,
+  ): Promise<void> => {
+    const table = await getTable(tableName);
+    const embedding = document.embedding ||
+      await state.embeddings.embedText(document.content);
+    const record = createRecord(
+      document.id,
+      document.content,
+      embedding,
+      document.metadata || {},
+    );
+    await table.add([record]);
+  };
+
+  const addDocuments = async (
+    documents: VectorDocument[],
+    tableName?: string,
+  ): Promise<void> => {
+    if (documents.length === 0) return;
+    const table = await getTable(tableName);
+    const embeddingMap = await getEmbeddingsForDocuments(documents);
+
+    const records = documents.map((doc, index) => {
+      const embedding = doc.embedding || embeddingMap.get(index)!;
+      return createRecord(
+        doc.id,
+        doc.content,
+        embedding,
+        doc.metadata || {},
+      );
+    });
+
+    await table.add(records);
+  };
+
+  const searchByEmbedding = async (
+    embedding: number[],
+    options: SearchOptions = {},
+    tableName?: string,
+  ): Promise<SearchResult[]> => {
+    const table = await getTable(tableName);
+
+    let searchQuery = table
+      .search(embedding)
+      .limit(options.limit || DEFAULT_SEARCH_LIMIT);
+
+    searchQuery = applySearchFilters(searchQuery, options.filter);
+
+    const resultsIterator = await searchQuery.toArray();
+    return processSearchResults(resultsIterator, options);
+  };
+
+  const search = async (
+    query: string,
+    options: SearchOptions = {},
+    tableName?: string,
+  ): Promise<SearchResult[]> => {
+    logger.debug("Searching table", { tableName: tableName || "default" });
+    const queryEmbedding = await state.embeddings.embedText(query);
+    return await searchByEmbedding(queryEmbedding, options, tableName);
+  };
+
+  const getDocument = async (
+    id: string,
+    tableName?: string,
+  ): Promise<VectorDocument | null> => {
+    const table = await getTable(tableName);
+    const results = await table.search(new Array(state.dimensions).fill(0))
+      .where(`id = '${id}'`)
+      .limit(1)
+      .toArray();
+
+    if (!results || results.length === 0) {
+      return null;
+    }
+
+    const result = results[0] as LanceDBSearchResult;
+    const metadata = state.isCloud ? extractCloudMetadata(result) : (result.metadata || {});
+
+    return {
+      id: result.id,
+      content: result.content,
+      metadata,
+      embedding: result.vector,
+    };
+  };
+
+  const deleteDocument = async (
+    id: string,
+    tableName?: string,
+  ): Promise<void> => {
+    const table = await getTable(tableName);
+    await table.delete(`id = '${id}'`);
+  };
+
+  const updateDocument = async (
+    document: VectorDocument,
+    tableName?: string,
+  ): Promise<void> => {
+    await deleteDocument(document.id, tableName);
+    await addDocument(document, tableName);
+  };
+
+  const getStats = async (tableName?: string): Promise<VectorStoreStats> => {
+    const table = await getTable(tableName);
+    const count = await table.countRows();
+    return {
+      totalDocuments: count,
+      totalSize: count * state.dimensions * 4,
+      lastUpdated: new Date(),
+    };
+  };
+
+  const listTables = async (): Promise<string[]> => {
+    return await state.connection.tableNames();
+  };
+
+  const clear = async (tableName?: string): Promise<void> => {
+    const table = await getTable(tableName);
+    await table.delete("true");
+  };
 
   return {
-    totalDocuments: count,
-    totalSize: count * state.dimensions * 4,
-    lastUpdated: new Date(),
+    addDocument,
+    addDocuments,
+    search,
+    searchByEmbedding,
+    getDocument,
+    deleteDocument,
+    updateDocument,
+    createTable,
+    deleteTable,
+    getStats,
+    listTables,
+    clear,
   };
 }
 
-/**
- * Clears all documents from the vector store.
- *
- * WARNING: This permanently deletes all documents in the table.
- *
- * @param state LanceDB state from createLanceDB
- * @param tableName Optional table name (defaults to state.tableName)
- */
-export async function clear(
-  state: LanceDBState,
+// Adapter functions for backward compatibility & convenience
+// These now accept VectorStore instead of LanceDBState
+
+export async function initializeTable(
+  store: VectorStore,
   tableName?: string,
 ): Promise<void> {
-  const table = await getTable(state, tableName);
-  await table.delete("true");
-}
-
-// Workspace-specific functions
-
-/**
- * Creates an isolated workspace table for multi-tenant applications.
- *
- * Each workspace has its own dedicated table (workspace_{workspaceId}) providing
- * complete data isolation between different users or tenants.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Unique workspace identifier
- *
- * @example
- * ```ts
- * await createWorkspaceTable(store, "user_123");
- * await createWorkspaceTable(store, "company_abc");
- * ```
- */
-export async function createWorkspaceTable(
-  state: LanceDBState,
-  workspaceId: string,
-): Promise<void> {
-  const tableName = `workspace_${workspaceId}`;
-  await initializeTable(state, tableName);
-}
-
-/**
- * Deletes a workspace table and all its data.
- *
- * This permanently removes the workspace and all documents within it.
- * Use with caution in production environments.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Workspace identifier to delete
- *
- * @example
- * ```ts
- * await deleteWorkspaceTable(store, "user_123");
- * ```
- */
-export async function deleteWorkspaceTable(
-  state: LanceDBState,
-  workspaceId: string,
-): Promise<void> {
-  const tableName = `workspace_${workspaceId}`;
-  logger.debug("Attempting to drop workspace table", { tableName, isCloud: state.isCloud });
-
-  try {
-    // List tables before deletion
-    const tablesBefore = await state.connection.tableNames();
-    logger.debug("Tables before deletion", {
-      tableName,
-      tablesBefore,
-      exists: tablesBefore.includes(tableName),
-    });
-
-    await state.connection.dropTable(tableName);
-
-    // List tables after deletion
-    const tablesAfter = await state.connection.tableNames();
-    logger.info("Successfully dropped workspace table", {
-      tableName,
-      tablesAfter,
-      stillExists: tablesAfter.includes(tableName),
-    });
-  } catch (error) {
-    logger.error("Failed to drop workspace table", error, {
-      tableName,
-      errorType: error?.constructor?.name,
-      errorMessage: error instanceof Error ? error.message : String(error),
-    });
-    throw error;
+  // Default tableName logic is inside store.createTable if undefined passed,
+  // but createTable requires tableName argument in interface?
+  // Actually interface says createTable(tableName: string).
+  // If tableName is optional here, we might need to know the default.
+  // But here we can't know the default table name of the store easily unless we expose it.
+  // For now, we assume the caller provides it or we pass undefined (if interface allows).
+  // My interface definition: createTable(tableName: string). It requires a name.
+  if (!tableName) {
+    // If no table name provided, we might skip or use "documents".
+    // But better to let consumers update their usage.
+    // However, for backward compat, we should try to support it.
+    await store.createTable("documents");
+  } else {
+    await store.createTable(tableName);
   }
 }
 
-/**
- * Lists all workspace table names.
- *
- * @param state LanceDB state from createLanceDB
- * @returns Array of workspace table names (workspace_*)
- */
-export async function listWorkspaceTables(
-  state: LanceDBState,
-): Promise<string[]> {
-  const allTables = await state.connection.tableNames();
-  return allTables.filter((name: string) => name.startsWith("workspace_"));
+export async function addDocument(
+  store: VectorStore,
+  document: VectorDocument,
+  tableName?: string,
+): Promise<void> {
+  await store.addDocument(document, tableName);
 }
 
-/**
- * Adds a document to a specific workspace.
- *
- * The document is stored in the workspace's isolated table, ensuring
- * complete separation from other workspaces.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Workspace identifier
- * @param document Document to add
- *
- * @example
- * ```ts
- * await addWorkspaceDocument(store, "user_123", {
- *   id: "doc1",
- *   content: "User-specific document",
- *   metadata: { type: "note" }
- * });
- * ```
- */
+export async function addDocuments(
+  store: VectorStore,
+  documents: VectorDocument[],
+  tableName?: string,
+): Promise<void> {
+  await store.addDocuments(documents, tableName);
+}
+
+export async function searchSimilar(
+  store: VectorStore,
+  query: string,
+  options: SearchOptions = {},
+  tableName?: string,
+): Promise<SearchResult[]> {
+  return await store.search(query, options, tableName);
+}
+
+export async function searchByEmbedding(
+  store: VectorStore,
+  embedding: number[],
+  options: SearchOptions = {},
+  tableName?: string,
+): Promise<SearchResult[]> {
+  return await store.searchByEmbedding(embedding, options, tableName);
+}
+
+export async function getDocument(
+  store: VectorStore,
+  id: string,
+  tableName?: string,
+): Promise<VectorDocument | null> {
+  return await store.getDocument(id, tableName);
+}
+
+export async function updateDocument(
+  store: VectorStore,
+  document: VectorDocument,
+  tableName?: string,
+): Promise<void> {
+  await store.updateDocument(document, tableName);
+}
+
+export async function deleteDocument(
+  store: VectorStore,
+  id: string,
+  tableName?: string,
+): Promise<void> {
+  await store.deleteDocument(id, tableName);
+}
+
+export async function getStats(
+  store: VectorStore,
+  tableName?: string,
+): Promise<VectorStoreStats> {
+  return await store.getStats(tableName);
+}
+
+export async function clear(
+  store: VectorStore,
+  tableName?: string,
+): Promise<void> {
+  await store.clear(tableName);
+}
+
+// Workspace helpers
+
+export async function createWorkspaceTable(
+  store: VectorStore,
+  workspaceId: string,
+): Promise<void> {
+  await store.createTable(`workspace_${workspaceId}`);
+}
+
+export async function deleteWorkspaceTable(
+  store: VectorStore,
+  workspaceId: string,
+): Promise<void> {
+  await store.deleteTable(`workspace_${workspaceId}`);
+}
+
+export async function listWorkspaceTables(
+  store: VectorStore,
+): Promise<string[]> {
+  const tables = await store.listTables();
+  return tables.filter((name) => name.startsWith("workspace_"));
+}
+
 export async function addWorkspaceDocument(
-  state: LanceDBState,
+  store: VectorStore,
   workspaceId: string,
   document: VectorDocument,
 ): Promise<void> {
-  const tableName = `workspace_${workspaceId}`;
-  await addDocument(state, document, tableName);
+  await store.addDocument(document, `workspace_${workspaceId}`);
 }
 
-/**
- * Adds multiple documents to a specific workspace in batch.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Workspace identifier
- * @param documents Array of documents to add
- */
 export async function addWorkspaceDocuments(
-  state: LanceDBState,
+  store: VectorStore,
   workspaceId: string,
   documents: VectorDocument[],
 ): Promise<void> {
-  const tableName = `workspace_${workspaceId}`;
-  await addDocuments(state, documents, tableName);
+  await store.addDocuments(documents, `workspace_${workspaceId}`);
 }
 
-/**
- * Searches for similar documents within a specific workspace.
- *
- * The search is confined to the workspace's table, ensuring results
- * only come from that workspace's documents.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Workspace identifier
- * @param query Text query to search for
- * @param options Search options (limit, threshold, filter)
- * @returns Array of search results from the workspace
- *
- * @example
- * ```ts
- * const results = await searchWorkspace(
- *   store,
- *   "user_123",
- *   "architecture guidelines",
- *   { limit: 5, threshold: 0.7 }
- * );
- * ```
- */
 export async function searchWorkspace(
-  state: LanceDBState,
+  store: VectorStore,
   workspaceId: string,
   query: string,
   options: SearchOptions = {},
 ): Promise<SearchResult[]> {
-  const tableName = `workspace_${workspaceId}`;
-  return await searchSimilar(state, query, options, tableName);
+  return await store.search(query, options, `workspace_${workspaceId}`);
 }
 
-/**
- * Searches workspace using a pre-computed embedding vector.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Workspace identifier
- * @param embedding Pre-computed embedding vector
- * @param options Search options (limit, threshold, filter)
- * @returns Array of search results from the workspace
- */
 export async function searchWorkspaceByEmbedding(
-  state: LanceDBState,
+  store: VectorStore,
   workspaceId: string,
   embedding: number[],
   options: SearchOptions = {},
 ): Promise<SearchResult[]> {
-  const tableName = `workspace_${workspaceId}`;
-  return await searchByEmbedding(state, embedding, options, tableName);
+  return await store.searchByEmbedding(embedding, options, `workspace_${workspaceId}`);
 }
 
-/**
- * Retrieves a document by ID from a specific workspace.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Workspace identifier
- * @param id Document ID to retrieve
- * @returns Document or null if not found
- */
 export async function getWorkspaceDocument(
-  state: LanceDBState,
+  store: VectorStore,
   workspaceId: string,
   id: string,
 ): Promise<VectorDocument | null> {
-  const tableName = `workspace_${workspaceId}`;
-  return await getDocument(state, id, tableName);
+  return await store.getDocument(id, `workspace_${workspaceId}`);
 }
 
-/**
- * Updates a document in a specific workspace.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Workspace identifier
- * @param document Updated document with same ID
- */
 export async function updateWorkspaceDocument(
-  state: LanceDBState,
+  store: VectorStore,
   workspaceId: string,
   document: VectorDocument,
 ): Promise<void> {
-  const tableName = `workspace_${workspaceId}`;
-  await updateDocument(state, document, tableName);
+  await store.updateDocument(document, `workspace_${workspaceId}`);
 }
 
-/**
- * Deletes a document from a specific workspace.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Workspace identifier
- * @param id Document ID to delete
- */
 export async function deleteWorkspaceDocument(
-  state: LanceDBState,
+  store: VectorStore,
   workspaceId: string,
   id: string,
 ): Promise<void> {
-  const tableName = `workspace_${workspaceId}`;
-  await deleteDocument(state, id, tableName);
+  await store.deleteDocument(id, `workspace_${workspaceId}`);
 }
 
-/**
- * Gets statistics for a specific workspace.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Workspace identifier
- * @returns Statistics including document count and size
- */
 export async function getWorkspaceStats(
-  state: LanceDBState,
+  store: VectorStore,
   workspaceId: string,
 ): Promise<VectorStoreStats> {
-  const tableName = `workspace_${workspaceId}`;
-  return await getStats(state, tableName);
+  return await store.getStats(`workspace_${workspaceId}`);
 }
 
-/**
- * Clears all documents from a specific workspace.
- *
- * WARNING: This permanently deletes all documents in the workspace.
- *
- * @param state LanceDB state from createLanceDB
- * @param workspaceId Workspace identifier
- */
 export async function clearWorkspace(
-  state: LanceDBState,
+  store: VectorStore,
   workspaceId: string,
 ): Promise<void> {
-  const tableName = `workspace_${workspaceId}`;
-  await clear(state, tableName);
+  await store.clear(`workspace_${workspaceId}`);
 }
