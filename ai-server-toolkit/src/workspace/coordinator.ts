@@ -100,31 +100,53 @@ export async function deleteWorkspaceCoordinated(
   if (!workspace) return false;
 
   // Delete vector DB table first (expensive resource)
+  // Non-fatal: if table deletion fails, log warning but continue with KV deletion
+  let lancedbDeleted = false;
   try {
     await deleteWorkspaceTable(vectorState, workspaceId);
     logger.info("Deleted vector table", { workspaceId });
+    lancedbDeleted = true;
   } catch (error) {
-    logger.error("Vector DB deletion failed", error, { workspaceId });
-    throw new Error(
-      `Failed to delete vector database for workspace ${workspaceId}`,
-    );
+    logger.warn("Vector DB deletion failed (non-fatal, continuing with KV deletion)", {
+      workspaceId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    // Continue with KV deletion even if LanceDB deletion fails
   }
 
-  // Delete files from storage (if storage configured)
+  // Batch delete files from storage (if storage configured)
+  // Parallel deletion instead of sequential for better performance
   if (storageState) {
-    const documents = await listDocuments(kvState, workspaceId);
+    try {
+      const documents = await listDocuments(kvState, workspaceId);
+      logger.debug("Batch deleting files from storage", {
+        workspaceId,
+        fileCount: documents.length,
+      });
 
-    for (const doc of documents) {
-      try {
-        await deleteFile(storageState, doc.storageKey);
-        logger.debug("Deleted file", { documentId: doc.id, storageKey: doc.storageKey });
-      } catch (error) {
-        logger.error("File deletion failed", error, {
-          documentId: doc.id,
-          storageKey: doc.storageKey,
-        });
-        // Continue with other files
-      }
+      // Create parallel deletion promises
+      const fileDeletions = documents.map(async (doc) => {
+        try {
+          await deleteFile(storageState!, doc.storageKey);
+          logger.debug("Deleted file", { documentId: doc.id, storageKey: doc.storageKey });
+        } catch (error) {
+          logger.error("File deletion failed", error, {
+            documentId: doc.id,
+            storageKey: doc.storageKey,
+          });
+          // Continue with other files - don't throw
+        }
+      });
+
+      // Execute all file deletions in parallel
+      await Promise.all(fileDeletions);
+      logger.info("Batch deleted files from storage", {
+        workspaceId,
+        fileCount: documents.length,
+      });
+    } catch (error) {
+      logger.error("Failed to batch delete files from storage", error, { workspaceId });
+      // Continue with KV deletion even if file deletion fails
     }
   }
 
@@ -133,6 +155,13 @@ export async function deleteWorkspaceCoordinated(
 
   if (!deleted) {
     throw new Error(`Failed to delete workspace metadata: ${workspaceId}`);
+  }
+
+  // Return true if KV deletion succeeded, even if LanceDB deletion failed
+  if (!lancedbDeleted) {
+    logger.warn("Workspace KV deleted successfully, but LanceDB table deletion failed", {
+      workspaceId,
+    });
   }
 
   return true;

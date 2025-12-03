@@ -1,5 +1,5 @@
 import type { LanceDBState } from "./lancedb.ts";
-import type { VectorStore } from "../types.ts";
+import type { VectorDocument, VectorStore } from "../types.ts";
 import type { Connection } from "vectordb";
 
 // Internal LanceDB state with additional properties
@@ -74,22 +74,63 @@ const initializeTable = async (
 
   const sampleMetadata = config.createSampleMetadata(workspaceId);
 
-  // Cast to internal state to access LanceDB-specific properties
+  // Try to access internal state for dimensions and isCloud
+  // If not available, use defaults (1536 dimensions, assume local)
   const internalState = vectorStore as unknown as LanceDBInternalState;
+  const dimensions = internalState?.dimensions || 1536;
+  const isCloud = internalState?.isCloud || false;
 
-  const sampleDoc = {
+  // Create a schema definition document used to initialize the table structure
+  // LanceDB requires a sample record to infer the table schema (columns/types)
+  // This document is temporary and will be deleted after table creation
+  const schemaDefinitionDocument: VectorDocument = {
     id: "_init_",
     content: "initialization",
-    vector: new Array(internalState.dimensions).fill(0),
-    ...(internalState.isCloud
+    embedding: new Array(dimensions).fill(0),
+    metadata: isCloud
       ? Object.fromEntries(
         Object.entries(sampleMetadata).map(([k, v]) => [`meta_${k}`, v]),
       )
-      : { metadata: sampleMetadata }),
+      : sampleMetadata,
   };
 
-  const table = await internalState.connection.createTable(tableName, [sampleDoc]);
-  await table.delete(`id = '_init_'`);
+  logger.debug("Creating table with schema definition document", {
+    tableName,
+    workspaceId,
+    tableKey,
+    hasMetadata: !!sampleMetadata,
+    metadataKeys: Object.keys(sampleMetadata),
+    dimensions,
+    isCloud,
+  });
+
+  // Use VectorStore interface method to create table with schema definition
+  // The schemaDefinitionDocument defines the table structure (columns, types)
+  try {
+    await vectorStore.createTable(tableName, schemaDefinitionDocument);
+    logger.info("Table created successfully with schema definition", { tableName });
+  } catch (error) {
+    logger.error("Failed to create table with schema definition document", {
+      tableName,
+      workspaceId,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    throw error;
+  }
+
+  // Delete the schema definition document after table creation
+  // It was only used to define the table structure, not to store actual data
+  try {
+    await vectorStore.deleteDocument("_init_", tableName);
+    logger.debug("Deleted schema definition document", { tableName });
+  } catch (error) {
+    // Ignore if deletion fails (table might have already cleaned it up)
+    logger.debug("Could not delete schema definition document (may already be cleaned up)", {
+      tableName,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 };
 
 /**
@@ -146,9 +187,22 @@ export const createWorkspaceTableRegistry = (): WorkspaceTableRegistry => {
         ? config.tableName(workspaceId)
         : config.tableName;
 
-      const existingTables = await listWorkspaceTables(vectorStore);
+      // Try to check if table exists, but if listing fails, attempt to create anyway
+      let tableExists = false;
+      try {
+        const existingTables = await listWorkspaceTables(vectorStore);
+        logger.debug("Existing tables", { existingTables });
+        tableExists = existingTables.includes(tableName);
+      } catch (error) {
+        // If listing tables fails (e.g., connection issues), log and try to create anyway
+        logger.warn("Could not list existing tables, will attempt to create table", {
+          tableName,
+          workspaceId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
 
-      if (!existingTables.includes(tableName)) {
+      if (!tableExists) {
         await initializeTable(tables, vectorStore, workspaceId, tableKey);
       }
     },

@@ -13,7 +13,7 @@ export interface VectorStore {
   getDocument(id: string, tableName?: string): Promise<VectorDocument | null>;
   deleteDocument(id: string, tableName?: string): Promise<void>;
   updateDocument(doc: VectorDocument, tableName?: string): Promise<void>;
-  createTable(tableName: string, sampleData?: VectorDocument): Promise<void>;
+  createTable(tableName: string, schemaDefinitionDocument?: VectorDocument): Promise<void>;
   deleteTable(tableName: string): Promise<void>;
   getStats(tableName?: string): Promise<VectorStoreStats>;
   listTables(): Promise<string[]>;

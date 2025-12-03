@@ -231,7 +231,7 @@ export async function createLanceDB(
 
   const createTable = async (
     tableName: string,
-    sampleData?: VectorDocument,
+    schemaDefinitionDocument?: VectorDocument,
   ): Promise<void> => {
     const targetTable = tableName || state.tableName;
 
@@ -239,25 +239,33 @@ export async function createLanceDB(
       await state.connection.openTable(targetTable);
       logger.debug("Table already exists", { tableName: targetTable });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
       const isNotFound = error instanceof Error && (
-        error.message.includes("404") ||
-        error.message.includes("Not Found") ||
+        errorMessage.includes("404") ||
+        errorMessage.includes("not found") ||
+        errorMessage.includes("does not exist") ||
         (error as { status?: number; response?: { status?: number } }).status === 404 ||
         (error as { status?: number; response?: { status?: number } }).response?.status === 404
       );
 
       if (!isNotFound) {
+        logger.error("Error checking if table exists (not a 'not found' error)", {
+          tableName: targetTable,
+          error: error instanceof Error ? error.message : String(error),
+        });
         throw error;
       }
 
       logger.debug("Table not found, creating new table", { tableName: targetTable });
 
-      const initialRecord = sampleData
+      // Use provided schema definition document, or create default one
+      // This document defines the table structure (columns, types) for LanceDB
+      const initialRecord = schemaDefinitionDocument
         ? createRecord(
-          sampleData.id,
-          sampleData.content,
-          sampleData.embedding || new Array(state.dimensions).fill(0),
-          sampleData.metadata || {},
+          schemaDefinitionDocument.id,
+          schemaDefinitionDocument.content,
+          schemaDefinitionDocument.embedding || new Array(state.dimensions).fill(0),
+          schemaDefinitionDocument.metadata || {},
         )
         : {
           id: INIT_DOC_ID,
@@ -268,8 +276,8 @@ export async function createLanceDB(
 
       await state.connection.createTable(targetTable, [initialRecord]);
 
-      // Only delete if we used the default init doc
-      if (!sampleData) {
+      // Only delete if we used the default init doc (schema definition docs should be deleted by caller)
+      if (!schemaDefinitionDocument) {
         const table = await state.connection.openTable(targetTable);
         await table.delete(`id = '${INIT_DOC_ID}'`);
       }

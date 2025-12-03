@@ -430,6 +430,7 @@ export {
   getStats,
   getWorkspaceDocument,
   initializeTable,
+  type LanceDBState,
   listWorkspaceTables,
   searchByEmbedding,
   searchSimilar,
