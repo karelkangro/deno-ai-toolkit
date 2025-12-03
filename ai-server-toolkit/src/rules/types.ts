@@ -37,6 +37,7 @@ export interface RuleMetadataSchema {
   id: string;
   name: string;
   description?: string;
+  workspaceId: string | null;
   fields: RuleField[];
   createdAt: string;
   updatedAt: string;

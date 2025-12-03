@@ -256,6 +256,7 @@ export async function createRuleSchema(
     id: schemaId,
     name: request.schemaName,
     description: request.description,
+    workspaceId: request.workspaceId || null,
     fields: request.fields.map((f) => ({
       name: f.name,
       type: f.type === "object" ? "string" : f.type, // RuleField doesn't support "object"
@@ -291,6 +292,12 @@ export async function getRuleSchema(
     workspaceId,
     schemaId,
   ]);
+  if (result.value) {
+    // Ensure workspaceId is set if it's missing (for backward compatibility)
+    if (!result.value.workspaceId) {
+      result.value.workspaceId = workspaceId;
+    }
+  }
   return result.value;
 }
 
@@ -304,7 +311,12 @@ export async function listRuleSchemas(
   });
 
   for await (const entry of entries) {
-    schemas.push(entry.value);
+    // Ensure workspaceId is set (for backward compatibility)
+    const schema = entry.value;
+    if (!schema.workspaceId) {
+      schema.workspaceId = workspaceId;
+    }
+    schemas.push(schema);
   }
 
   return schemas;
