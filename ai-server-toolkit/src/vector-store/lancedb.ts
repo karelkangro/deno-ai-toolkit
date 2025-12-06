@@ -239,7 +239,9 @@ export async function createLanceDB(
       await state.connection.openTable(targetTable);
       logger.debug("Table already exists", { tableName: targetTable });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+      const errorMessage = error instanceof Error
+        ? error.message.toLowerCase()
+        : String(error).toLowerCase();
       const isNotFound = error instanceof Error && (
         errorMessage.includes("404") ||
         errorMessage.includes("not found") ||
@@ -347,7 +349,10 @@ export async function createLanceDB(
 
     searchQuery = applySearchFilters(searchQuery, options.filter);
 
-    const resultsIterator = await searchQuery.toArray();
+    // Type assertion needed because applySearchFilters loses the specific query type
+    // Convert to unknown first, then to the expected type
+    const resultsIterator = await (searchQuery as unknown as { toArray: () => Promise<unknown[]> })
+      .toArray();
     return processSearchResults(resultsIterator, options);
   };
 
@@ -366,10 +371,11 @@ export async function createLanceDB(
     tableName?: string,
   ): Promise<VectorDocument | null> => {
     const table = await getTable(tableName);
-    const results = await table.search(new Array(state.dimensions).fill(0))
+    const query = table.search(new Array(state.dimensions).fill(0))
       .where(`id = '${id}'`)
-      .limit(1)
-      .toArray();
+      .limit(1);
+    // Type assertion needed - LanceDB Query type doesn't expose toArray() in types but it exists at runtime
+    const results = await (query as unknown as { toArray: () => Promise<unknown[]> }).toArray();
 
     if (!results || results.length === 0) {
       return null;

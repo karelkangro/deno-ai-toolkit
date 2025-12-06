@@ -26,7 +26,9 @@ export async function extractPDFContent(
 ): Promise<ProcessedDocument> {
   try {
     const buffer = Buffer.from(content);
-    const parser = new PDFParse({ data: buffer });
+    // Convert Buffer to Uint8Array for PDFParse compatibility
+    const bufferArray = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    const parser = new PDFParse({ data: bufferArray });
 
     const pdfData = (await parser.getText()) as PDFParseResult;
 
@@ -142,7 +144,9 @@ function detectTable(text: string): boolean {
  */
 export async function extractTextOnly(content: Uint8Array): Promise<string> {
   const buffer = Buffer.from(content);
-  const parser = new PDFParse({ data: buffer });
+  // Convert Buffer to Uint8Array for PDFParse compatibility
+  const bufferArray = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  const parser = new PDFParse({ data: bufferArray });
   const pdfData = (await parser.getText()) as PDFParseResult;
   await parser.destroy();
   return pdfData.text || "";
