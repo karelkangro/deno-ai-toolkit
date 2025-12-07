@@ -11,12 +11,17 @@ import type {
 } from "../types.ts";
 
 /**
- * Anthropic API version constants.
- * - BASELINE: Standard API version without prompt caching support
- * - WITH_CACHING: API version that supports prompt caching via system messages
+ * Get Anthropic API version from environment variable or use default.
+ * @param withCaching - Whether to use caching-enabled version
+ * @returns API version string
  */
-const ANTHROPIC_API_VERSION_BASELINE = "2025-06-01";
-const ANTHROPIC_API_VERSION_WITH_CACHING = "2025-11-01";
+const getAnthropicApiVersion = (withCaching = false): string => {
+  const envVar = withCaching
+    ? Deno.env.get("ANTHROPIC_API_VERSION_WITH_CACHING")
+    : Deno.env.get("ANTHROPIC_API_VERSION");
+
+  return envVar || "2024-06-20";
+};
 
 interface ClaudeState {
   apiKey: string;
@@ -147,10 +152,8 @@ export function createClaudeLLM(config: LLMConfig): LLMModel {
           : {}),
       };
 
-      // Use newer API version for prompt caching support
-      const apiVersion = finalSystem.length > 0
-        ? ANTHROPIC_API_VERSION_WITH_CACHING
-        : ANTHROPIC_API_VERSION_BASELINE;
+      // Use API version from env or default, with caching support if system messages present
+      const apiVersion = getAnthropicApiVersion(finalSystem.length > 0);
 
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
@@ -238,7 +241,7 @@ export function createClaudeLLM(config: LLMConfig): LLMModel {
         headers: {
           "x-api-key": state.apiKey,
           "Content-Type": "application/json",
-          "anthropic-version": ANTHROPIC_API_VERSION_BASELINE,
+          "anthropic-version": getAnthropicApiVersion(false),
           ...(tools && tools.length > 0 ? { "anthropic-beta": "tools-2024-04-04" } : {}),
         },
         body: JSON.stringify(requestBody),
