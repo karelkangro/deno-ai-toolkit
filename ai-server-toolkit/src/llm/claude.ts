@@ -93,14 +93,27 @@ export function createClaudeLLM(config: LLMConfig): LLMModel {
     throw new Error("Claude API key is required");
   }
 
+  // Get defaults from environment variables or use fallback values
+  const defaultModel = Deno.env.get("ANTHROPIC_DEFAULT_MODEL") || "claude-3-sonnet-20240229";
+  const defaultMaxTokens = parseInt(Deno.env.get("ANTHROPIC_DEFAULT_MAX_TOKENS") || "4096", 10);
+  const defaultTemperature = parseFloat(Deno.env.get("ANTHROPIC_DEFAULT_TEMPERATURE") || "0.7");
+  const defaultRequestsPerMinute = parseInt(
+    Deno.env.get("ANTHROPIC_RATE_LIMIT_PER_MINUTE") || "50",
+    10,
+  );
+  const defaultRequestsPerHour = parseInt(
+    Deno.env.get("ANTHROPIC_RATE_LIMIT_PER_HOUR") || "1000",
+    10,
+  );
+
   const state: ClaudeState = {
     apiKey: config.apiKey,
-    model: config.model || "claude-3-sonnet-20240229",
-    maxTokens: config.maxTokens || 4096,
-    temperature: config.temperature || 0.7,
+    model: config.model || defaultModel,
+    maxTokens: config.maxTokens || defaultMaxTokens,
+    temperature: config.temperature ?? defaultTemperature,
     rateLimiter: createRateLimiter({
-      requestsPerMinute: 50,
-      requestsPerHour: 1000,
+      requestsPerMinute: defaultRequestsPerMinute,
+      requestsPerHour: defaultRequestsPerHour,
     }),
   };
 
