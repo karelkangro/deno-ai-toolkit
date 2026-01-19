@@ -20,7 +20,7 @@ const getAnthropicApiVersion = (withCaching = false): string => {
     ? Deno.env.get("ANTHROPIC_API_VERSION_WITH_CACHING")
     : Deno.env.get("ANTHROPIC_API_VERSION");
 
-  return envVar || "2024-06-20";
+  return envVar || "2023-06-01";
 };
 
 interface ClaudeState {

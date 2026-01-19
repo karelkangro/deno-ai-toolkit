@@ -1,6 +1,6 @@
 {
   "name": "@karelkangro/deno-ai-toolkit",
-  "version": "1.11.2",
+  "version": "1.11.3",
   "description": "Complete functional toolkit for building AI-powered Deno servers with vector databases and agent orchestration",
   "license": "MIT",
   "exports": "./mod.ts",
