@@ -26,8 +26,7 @@ export interface RuleVectorMetadata extends BaseVectorMetadata {
   version: number;
   createdAt: string;
   updatedAt: string;
-  // Dynamic data fields from rule.data are prefixed with data_
-  [key: `data_${string}`]: string | number | boolean;
+  data: string;
   // General index signature for compatibility with Record<string, unknown>
   [key: string]: unknown;
 }
@@ -100,6 +99,7 @@ export function createRulesSampleMetadata(): RuleVectorMetadata {
     version: 0,
     createdAt: "",
     updatedAt: "",
+    data: "{}",
   };
 }
 
@@ -107,7 +107,7 @@ export function createRulesSampleMetadata(): RuleVectorMetadata {
  * Convert Rule to RuleVectorMetadata
  */
 export function ruleToVectorMetadata(rule: Rule): RuleVectorMetadata {
-  const metadata: RuleVectorMetadata = {
+  return {
     ruleId: rule.id,
     name: rule.name,
     category: rule.category,
@@ -118,18 +118,8 @@ export function ruleToVectorMetadata(rule: Rule): RuleVectorMetadata {
     version: rule.version,
     createdAt: rule.createdAt,
     updatedAt: rule.updatedAt,
+    data: JSON.stringify(rule.data),
   };
-
-  // Add dynamic data fields with data_ prefix
-  for (const [key, value] of Object.entries(rule.data)) {
-    const dataKey = `data_${key}` as `data_${string}`;
-    metadata[dataKey] =
-      typeof value === "string" || typeof value === "number" || typeof value === "boolean"
-        ? value
-        : JSON.stringify(value);
-  }
-
-  return metadata;
 }
 
 /**
