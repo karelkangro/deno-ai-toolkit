@@ -64,7 +64,7 @@ export async function embedRule(
 
   await vectorStore.addDocument(doc, tableName);
 
-  logger.debug("Embedded rule in vector store", { ruleId: rule.id, tableName });
+  logger.info("Embedded rule in vector store", { ruleId: rule.id, ruleName: rule.name, tableName });
 }
 
 /**
@@ -75,10 +75,12 @@ export async function embedRules(
   workspaceId: string,
   rules: Rule[],
 ): Promise<void> {
-  for (const rule of rules) {
-    await embedRule(vectorStore, workspaceId, rule);
+  logger.info("Starting bulk rule embedding", { total: rules.length, workspaceId });
+  for (let i = 0; i < rules.length; i++) {
+    await embedRule(vectorStore, workspaceId, rules[i]);
+    logger.info("Rule embedding progress", { current: i + 1, total: rules.length, workspaceId });
   }
-  logger.info("Embedded rules in vector store", { count: rules.length, workspaceId });
+  logger.info("Completed bulk rule embedding", { count: rules.length, workspaceId });
 }
 
 /**
