@@ -84,6 +84,26 @@ export interface FileVectorMetadata extends BaseVectorMetadata {
 }
 
 /**
+ * Create sample metadata used to initialize the rules table schema.
+ * LanceDB infers column types from the first record, so this ensures
+ * all metadata columns exist before real rules are inserted.
+ */
+export function createRulesSampleMetadata(): RuleVectorMetadata {
+  return {
+    ruleId: "_init",
+    name: "_init",
+    category: "_init",
+    severity: "medium",
+    enabled: true,
+    schemaId: "_init",
+    keywords: [],
+    version: 0,
+    createdAt: "",
+    updatedAt: "",
+  };
+}
+
+/**
  * Convert Rule to RuleVectorMetadata
  */
 export function ruleToVectorMetadata(rule: Rule): RuleVectorMetadata {

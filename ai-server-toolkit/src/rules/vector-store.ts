@@ -1,8 +1,12 @@
 // Rules vector storage using LanceDB
 // Enables semantic search over rules for RAG applications
 
-import { createWorkspaceTable, deleteWorkspaceDocument } from "../vector-store/lancedb.ts";
-import { ruleToVectorMetadata, type RuleVectorMetadata } from "../vector-store/schemas.ts";
+import { deleteWorkspaceDocument } from "../vector-store/lancedb.ts";
+import {
+  createRulesSampleMetadata,
+  ruleToVectorMetadata,
+  type RuleVectorMetadata,
+} from "../vector-store/schemas.ts";
 import type { VectorDocument, VectorStore } from "../types.ts";
 import type { Rule } from "./types.ts";
 import { createSubLogger } from "../utils/logger.ts";
@@ -23,8 +27,14 @@ export async function initializeRulesVectorTable(
   vectorStore: VectorStore,
   workspaceId: string,
 ): Promise<void> {
-  await createWorkspaceTable(vectorStore, `${workspaceId}_rules`);
-  logger.info("Initialized rules vector table", { tableName: `workspace_${workspaceId}_rules` });
+  const tableName = getRulesTableName(workspaceId);
+  const schemaDoc: VectorDocument = {
+    id: "_schema_init",
+    content: "schema initialization",
+    metadata: createRulesSampleMetadata() as unknown as Record<string, unknown>,
+  };
+  await vectorStore.createTable(tableName, schemaDoc);
+  logger.info("Initialized rules vector table", { tableName });
 }
 
 /**
@@ -37,8 +47,12 @@ export async function embedRule(
 ): Promise<void> {
   const tableName = getRulesTableName(workspaceId);
 
-  // Ensure table exists
-  await vectorStore.createTable(tableName);
+  const schemaDoc: VectorDocument = {
+    id: "_schema_init",
+    content: "schema initialization",
+    metadata: createRulesSampleMetadata() as unknown as Record<string, unknown>,
+  };
+  await vectorStore.createTable(tableName, schemaDoc);
 
   const metadata = ruleToVectorMetadata(rule);
 

@@ -38,6 +38,7 @@ export {
   buildRuleFilters,
   createBaseDocumentMetadata,
   createRuleRecord,
+  createRulesSampleMetadata,
   extractMetadataFromResult,
   type FileVectorMetadata,
   getFieldName,
