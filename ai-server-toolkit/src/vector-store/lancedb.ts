@@ -1,5 +1,5 @@
 // Functional LanceDB vector store implementation
-import { connect, type Connection, type Table } from "vectordb";
+import { connect, type Connection, type Table, type VectorQuery } from "vectordb";
 import { createOpenAIEmbeddings } from "../embeddings/openai.ts";
 
 import type {
@@ -343,8 +343,11 @@ export async function createLanceDB(
   ): Promise<SearchResult[]> => {
     const table = await getTable(tableName);
 
-    let searchQuery = table
-      .search(embedding)
+    // Vector queries on table.search(embedding) return VectorQuery; cast required because
+    // overload returns VectorQuery | Query union. Cosine distance matches the score formula
+    // (score = 1 - _distance) used in processSearchResults; default L2 yields negative scores.
+    let searchQuery = (table.search(embedding) as VectorQuery)
+      .distanceType("cosine")
       .limit(options.limit || DEFAULT_SEARCH_LIMIT);
 
     searchQuery = applySearchFilters(searchQuery, options.filter);
