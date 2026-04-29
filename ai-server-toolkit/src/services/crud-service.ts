@@ -244,4 +244,3 @@ export function createCrudService<
     deleteById,
   };
 }
-

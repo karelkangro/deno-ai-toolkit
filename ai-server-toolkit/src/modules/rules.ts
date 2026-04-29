@@ -305,4 +305,3 @@ export async function listRuleConflicts(
     reason: c.reason,
   }));
 }
-

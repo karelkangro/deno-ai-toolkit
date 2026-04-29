@@ -27,4 +27,3 @@ export {
   formatCitationMarkdown,
   processLegalDocument,
 } from "../document/mod.ts";
-

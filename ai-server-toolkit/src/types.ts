@@ -10,6 +10,24 @@ export interface VectorStore {
     options?: SearchOptions,
     tableName?: string,
   ): Promise<SearchResult[]>;
+  /**
+   * Hybrid search combining vector (semantic) + full-text (BM25) results,
+   * fused via Reciprocal Rank Fusion. Solves vector-search blind spots for
+   * proper nouns, codes, dates, and rare terms.
+   *
+   * Requires an FTS index on the `content` column. Call {@link ensureFtsIndex}
+   * once per table before invoking this method.
+   */
+  searchHybrid(
+    query: string,
+    options?: HybridSearchOptions,
+    tableName?: string,
+  ): Promise<HybridSearchResult[]>;
+  /**
+   * Create an FTS (BM25) index on the `content` column if it does not exist.
+   * Idempotent. Required before calling {@link searchHybrid}.
+   */
+  ensureFtsIndex(tableName?: string): Promise<void>;
   getDocument(id: string, tableName?: string): Promise<VectorDocument | null>;
   deleteDocument(id: string, tableName?: string): Promise<void>;
   updateDocument(doc: VectorDocument, tableName?: string): Promise<void>;
@@ -61,6 +79,33 @@ export interface SearchOptions {
   threshold?: number;
   filter?: Record<string, unknown> | string; // Can be object or SQL WHERE string
   includeEmbeddings?: boolean;
+}
+
+export interface HybridSearchOptions extends SearchOptions {
+  /**
+   * RRF constant. Higher values flatten the contribution of top ranks.
+   * Defaults to 60 (Cormack et al., the de facto standard).
+   */
+  rrfK?: number;
+  /**
+   * Multiplier applied to {@link SearchOptions.limit} when fetching candidate
+   * pools from each retriever before RRF fusion. Higher = better fusion quality
+   * at the cost of latency. Defaults to 4.
+   */
+  candidateMultiplier?: number;
+}
+
+export interface HybridSearchResult extends SearchResult {
+  /** Cosine similarity from vector search (undefined if not in vector pool). */
+  vectorScore?: number;
+  /** BM25 score from full-text search (undefined if not in FTS pool). */
+  ftsScore?: number;
+  /** 1-based rank in vector pool (undefined if not present). */
+  vectorRank?: number;
+  /** 1-based rank in FTS pool (undefined if not present). */
+  ftsRank?: number;
+  /** Reciprocal Rank Fusion composite score; this is also `score`. */
+  rrfScore: number;
 }
 
 export interface VectorStoreConfig {

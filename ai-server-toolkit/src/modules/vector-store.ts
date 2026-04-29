@@ -17,6 +17,8 @@ export {
   deleteDocument,
   deleteWorkspaceDocument,
   deleteWorkspaceTable,
+  ensureFtsIndex,
+  ensureWorkspaceFtsIndex,
   getDocument,
   getStats,
   getWorkspaceDocument,
@@ -24,9 +26,11 @@ export {
   type LanceDBState,
   listWorkspaceTables,
   searchByEmbedding,
+  searchHybrid,
   searchSimilar,
   searchWorkspace,
   searchWorkspaceByEmbedding,
+  searchWorkspaceHybrid,
   updateDocument,
   updateWorkspaceDocument,
 } from "../vector-store/lancedb.ts";
@@ -61,4 +65,3 @@ export {
   type VectorDBConnectionConfig,
   type VectorDBConnectionManager,
 } from "../vector-store/connection-manager.ts";
-

@@ -1,10 +1,12 @@
 // Functional LanceDB vector store implementation
-import { connect, type Connection, type Table, type VectorQuery } from "vectordb";
+import { connect, type Connection, Index, type Table, type VectorQuery } from "vectordb";
 import { createOpenAIEmbeddings } from "../embeddings/openai.ts";
 
 import type {
   EmbeddingConfig,
   EmbeddingModel,
+  HybridSearchOptions,
+  HybridSearchResult,
   SearchOptions,
   SearchResult,
   VectorDocument,
@@ -24,6 +26,8 @@ const DEFAULT_TABLE_NAME = "documents";
 const DEFAULT_DIMENSIONS = 1536;
 const DEFAULT_REGION = "us-east-1";
 const DEFAULT_SEARCH_LIMIT = 10;
+const DEFAULT_RRF_K = 60;
+const DEFAULT_CANDIDATE_MULTIPLIER = 4;
 const INIT_DOC_ID = "init";
 
 interface LanceDBInternalState {
@@ -369,6 +373,188 @@ export async function createLanceDB(
     return await searchByEmbedding(queryEmbedding, options, tableName);
   };
 
+  const ensureFtsIndex = async (tableName?: string): Promise<void> => {
+    const table = await getTable(tableName);
+    try {
+      const indices = await (table as unknown as {
+        listIndices: () => Promise<Array<{ columns: string[] }>>;
+      }).listIndices();
+      const hasFts = indices.some((idx) => idx.columns?.includes("content"));
+      if (hasFts) {
+        logger.debug("FTS index already exists", { tableName: tableName || state.tableName });
+        return;
+      }
+    } catch (err) {
+      logger.debug("listIndices not available or failed; attempting create anyway", {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+
+    try {
+      await table.createIndex("content", {
+        config: Index.fts({
+          baseTokenizer: "simple",
+          lowercase: true,
+          removeStopWords: false,
+          asciiFolding: true,
+        }),
+        replace: false,
+      });
+      logger.info("Created FTS index on content column", {
+        tableName: tableName || state.tableName,
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      // Treat "already exists" as success; LanceDB Cloud surfaces this differently.
+      if (/already exists|exists/i.test(msg)) {
+        logger.debug("FTS index create returned 'already exists'", {
+          tableName: tableName || state.tableName,
+        });
+        return;
+      }
+      throw err;
+    }
+  };
+
+  interface FtsRow {
+    id: string;
+    content: string;
+    _score: number;
+    [key: string]: unknown;
+  }
+
+  const runFtsSearch = async (
+    table: Table,
+    query: string,
+    limit: number,
+    filter: SearchOptions["filter"],
+  ): Promise<FtsRow[]> => {
+    let q = (table as unknown as {
+      query: () => { fullTextSearch: (q: string) => unknown };
+    }).query().fullTextSearch(query) as unknown as {
+      limit: (n: number) => unknown;
+      where: (s: string) => unknown;
+      toArray: () => Promise<unknown[]>;
+    };
+
+    q = q.limit(limit) as typeof q;
+    q = applySearchFilters(q, filter) as typeof q;
+
+    const rows = await q.toArray();
+    return rows as FtsRow[];
+  };
+
+  const searchHybrid = async (
+    query: string,
+    options: HybridSearchOptions = {},
+    tableName?: string,
+  ): Promise<HybridSearchResult[]> => {
+    const limit = options.limit || DEFAULT_SEARCH_LIMIT;
+    const k = options.rrfK ?? DEFAULT_RRF_K;
+    const multiplier = options.candidateMultiplier ?? DEFAULT_CANDIDATE_MULTIPLIER;
+    const candidatePool = limit * multiplier;
+
+    const table = await getTable(tableName);
+    const queryEmbedding = await state.embeddings.embedText(query);
+
+    // Fetch a wider candidate pool from each retriever; threshold is applied
+    // to the vector pool only, then RRF fuses ranks.
+    const vectorPromise = (async () => {
+      let q = (table.search(queryEmbedding) as VectorQuery)
+        .distanceType("cosine")
+        .limit(candidatePool);
+      q = applySearchFilters(q, options.filter);
+      const rows = await (q as unknown as { toArray: () => Promise<unknown[]> }).toArray();
+      return processSearchResults(rows, { ...options, threshold: undefined });
+    })();
+
+    const ftsPromise = runFtsSearch(table, query, candidatePool, options.filter)
+      .catch((err) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (/index|fts/i.test(msg)) {
+          logger.warn("FTS query failed; falling back to vector-only. Call ensureFtsIndex().", {
+            tableName: tableName || state.tableName,
+            error: msg,
+          });
+          return [] as FtsRow[];
+        }
+        throw err;
+      });
+
+    const [vectorRows, ftsRows] = await Promise.all([vectorPromise, ftsPromise]);
+
+    type Fused = {
+      id: string;
+      content: string;
+      metadata?: Record<string, unknown>;
+      vectorScore?: number;
+      ftsScore?: number;
+      vectorRank?: number;
+      ftsRank?: number;
+      rrfScore: number;
+    };
+    const fused = new Map<string, Fused>();
+
+    vectorRows.forEach((row, idx) => {
+      const rank = idx + 1;
+      fused.set(row.id, {
+        id: row.id,
+        content: row.content,
+        metadata: row.metadata,
+        vectorScore: row.score,
+        vectorRank: rank,
+        rrfScore: 1 / (k + rank),
+      });
+    });
+
+    ftsRows.forEach((row, idx) => {
+      const rank = idx + 1;
+      const contribution = 1 / (k + rank);
+      const existing = fused.get(row.id);
+      if (existing) {
+        existing.ftsScore = row._score;
+        existing.ftsRank = rank;
+        existing.rrfScore += contribution;
+      } else {
+        // FTS-only hits: extract metadata using the same shape as vector results.
+        const metadata = state.isCloud
+          ? extractCloudMetadata(row as unknown as LanceDBSearchResult)
+          : ((row as unknown as { metadata?: Record<string, unknown> }).metadata || {});
+        fused.set(row.id, {
+          id: row.id,
+          content: row.content,
+          metadata,
+          ftsScore: row._score,
+          ftsRank: rank,
+          rrfScore: contribution,
+        });
+      }
+    });
+
+    let merged = Array.from(fused.values())
+      .sort((a, b) => b.rrfScore - a.rrfScore)
+      .slice(0, limit);
+
+    // Apply threshold against vectorScore when present (FTS-only hits pass through;
+    // they're keyword matches and do not have a comparable similarity number).
+    if (options.threshold !== undefined) {
+      const t = options.threshold;
+      merged = merged.filter((r) => r.vectorScore === undefined || r.vectorScore >= t);
+    }
+
+    return merged.map((r) => ({
+      id: r.id,
+      content: r.content,
+      metadata: r.metadata,
+      score: r.rrfScore,
+      rrfScore: r.rrfScore,
+      vectorScore: r.vectorScore,
+      ftsScore: r.ftsScore,
+      vectorRank: r.vectorRank,
+      ftsRank: r.ftsRank,
+    }));
+  };
+
   const getDocument = async (
     id: string,
     tableName?: string,
@@ -435,6 +621,8 @@ export async function createLanceDB(
     addDocuments,
     search,
     searchByEmbedding,
+    searchHybrid,
+    ensureFtsIndex,
     getDocument,
     deleteDocument,
     updateDocument,
@@ -502,6 +690,22 @@ export async function searchByEmbedding(
   tableName?: string,
 ): Promise<SearchResult[]> {
   return await store.searchByEmbedding(embedding, options, tableName);
+}
+
+export async function searchHybrid(
+  store: VectorStore,
+  query: string,
+  options: HybridSearchOptions = {},
+  tableName?: string,
+): Promise<HybridSearchResult[]> {
+  return await store.searchHybrid(query, options, tableName);
+}
+
+export async function ensureFtsIndex(
+  store: VectorStore,
+  tableName?: string,
+): Promise<void> {
+  await store.ensureFtsIndex(tableName);
 }
 
 export async function getDocument(
@@ -597,6 +801,22 @@ export async function searchWorkspaceByEmbedding(
   options: SearchOptions = {},
 ): Promise<SearchResult[]> {
   return await store.searchByEmbedding(embedding, options, `workspace_${workspaceId}`);
+}
+
+export async function searchWorkspaceHybrid(
+  store: VectorStore,
+  workspaceId: string,
+  query: string,
+  options: HybridSearchOptions = {},
+): Promise<HybridSearchResult[]> {
+  return await store.searchHybrid(query, options, `workspace_${workspaceId}`);
+}
+
+export async function ensureWorkspaceFtsIndex(
+  store: VectorStore,
+  workspaceId: string,
+): Promise<void> {
+  await store.ensureFtsIndex(`workspace_${workspaceId}`);
 }
 
 export async function getWorkspaceDocument(

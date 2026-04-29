@@ -53,6 +53,7 @@ import { createRAGSystem, createVectorSearchSystem } from "jsr:@karelkangro/deno
 
 ### Version History
 
+- **v1.13.0** - Added hybrid search (`searchHybrid`, `searchWorkspaceHybrid`) combining vector similarity + BM25 full-text search, fused via Reciprocal Rank Fusion (RRF, k=60). Solves vector-search blind spots for proper nouns, codes, and rare terms. Includes `ensureFtsIndex` / `ensureWorkspaceFtsIndex` for one-time index setup. Returned results expose `vectorScore`, `ftsScore`, `vectorRank`, `ftsRank`, and `rrfScore` for diagnostics.
 - **v1.12.0** - Fix: Use cosine distance for vector search (was L2). LanceDB defaults to L2, but score formula `1 - _distance` only makes sense for cosine. With L2 on OpenAI normalized vectors, scores were always negative and threshold filters returned 0 results.
 - **v1.9.1** - Fix: Replaced all `any` types with proper TypeScript types, fixed tslog import, improved type safety across all modules
 - **v1.9.0** - Added structured logging system (tslog), vector database connection manager, improved error handling and observability across all modules
