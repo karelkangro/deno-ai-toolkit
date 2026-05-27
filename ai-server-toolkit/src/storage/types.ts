@@ -33,6 +33,19 @@ export interface DownloadResult {
 }
 
 /**
+ * File streaming download result
+ *
+ * Use when the file should be piped to a downstream consumer (e.g. proxied
+ * to another service) without buffering the whole payload in memory.
+ */
+export interface DownloadStreamResult {
+  body: ReadableStream<Uint8Array>;
+  contentType?: string;
+  contentLength?: number;
+  metadata?: Record<string, string>;
+}
+
+/**
  * File storage state (functional programming pattern)
  */
 export interface FileStorageState {

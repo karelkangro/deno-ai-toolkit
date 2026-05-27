@@ -12,6 +12,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type {
   DownloadResult,
+  DownloadStreamResult,
   FileStorageConfig,
   FileStorageState,
   PresignedUrlOptions,
@@ -155,6 +156,64 @@ export async function downloadFile(
     content,
     contentType: response.ContentType,
     size: content.length,
+    metadata: response.Metadata,
+  };
+}
+
+/**
+ * Stream a file from S3-compatible storage without buffering it in memory.
+ *
+ * Prefer this over {@link downloadFile} when the bytes flow straight to a
+ * downstream consumer (HTTP response, another upload, etc). Avoids OOM and
+ * platform request-timeout pressure on large objects.
+ *
+ * @param state File storage state
+ * @param key Storage key/path
+ * @returns Promise resolving to a `ReadableStream` and headers
+ *
+ * @example
+ * ```ts
+ * const { body, contentType, contentLength } = await downloadFileStream(
+ *   storage,
+ *   "workspaces/abc/big.pdf",
+ * );
+ * return new Response(body, {
+ *   headers: {
+ *     "content-type": contentType ?? "application/octet-stream",
+ *     ...(contentLength ? { "content-length": String(contentLength) } : {}),
+ *   },
+ * });
+ * ```
+ */
+export async function downloadFileStream(
+  state: FileStorageState,
+  key: string,
+): Promise<DownloadStreamResult> {
+  const command = new GetObjectCommand({
+    Bucket: state.config.bucket,
+    Key: key,
+  });
+
+  const response = await state.s3Client.send(command);
+
+  if (!response.Body) {
+    throw new Error(`Failed to stream file: ${key} - no body in response`);
+  }
+
+  const body = typeof response.Body.transformToWebStream === "function"
+    ? response.Body.transformToWebStream() as ReadableStream<Uint8Array>
+    : response.Body as ReadableStream<Uint8Array>;
+
+  logger.debug("Streaming file", {
+    key,
+    contentLength: response.ContentLength,
+    contentType: response.ContentType,
+  });
+
+  return {
+    body,
+    contentType: response.ContentType,
+    contentLength: response.ContentLength,
     metadata: response.Metadata,
   };
 }

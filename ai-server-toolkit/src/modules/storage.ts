@@ -9,6 +9,7 @@ export {
   createS3Storage,
   deleteFile,
   downloadFile,
+  downloadFileStream,
   fileExists,
   generateStorageKey,
   getFileMetadata,
